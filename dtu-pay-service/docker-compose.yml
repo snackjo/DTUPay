@@ -1,6 +1,6 @@
 version: '3'
 services:
-  student-registration-service:
+  dtu-pay-service:
     image: student-registration 
     build: .
  

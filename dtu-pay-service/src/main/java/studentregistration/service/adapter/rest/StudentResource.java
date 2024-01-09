@@ -11,7 +11,7 @@ import studentregistration.service.StudentRegistrationService;
 @Path("/students")
 public class StudentResource {
 
-	private StudentRegistrationService service = new StudentRegistrationFactory().getService();
+	private final StudentRegistrationService service = new StudentRegistrationFactory().getService();
 
 	@POST
 	@Consumes("application/json")

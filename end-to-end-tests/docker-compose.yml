@@ -4,7 +4,7 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitMq_container
     
-  student-registration-service:
+  dtu-pay-service:
     image: student-registration 
     container_name: student-registration 
     ports:

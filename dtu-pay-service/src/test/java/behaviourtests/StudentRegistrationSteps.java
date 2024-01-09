@@ -1,15 +1,5 @@
 package behaviourtests;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -19,11 +9,20 @@ import studentregistration.service.CorrelationId;
 import studentregistration.service.Student;
 import studentregistration.service.StudentRegistrationService;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class StudentRegistrationSteps {
 
-	private Map<String,CompletableFuture<Event>> publishedEvents = new HashMap<>();
+	private final Map<String,CompletableFuture<Event>> publishedEvents = new HashMap<>();
 	
-	private MessageQueue q = new MessageQueue() {
+	private final MessageQueue q = new MessageQueue() {
 
 		@Override
 		public void publish(Event event) {
@@ -36,12 +35,12 @@ public class StudentRegistrationSteps {
 		}
 		
 	};
-	private StudentRegistrationService service = new StudentRegistrationService(q);
-	private CompletableFuture<Student> registeredStudent = new CompletableFuture<>();
-	private CompletableFuture<Student> registeredStudent2 = new CompletableFuture<>();
+	private final StudentRegistrationService service = new StudentRegistrationService(q);
+	private final CompletableFuture<Student> registeredStudent = new CompletableFuture<>();
+	private final CompletableFuture<Student> registeredStudent2 = new CompletableFuture<>();
 	private Student student;
 	private Student student2;
-	private Map<Student,CorrelationId> correlationIds = new HashMap<>();
+	private final Map<Student,CorrelationId> correlationIds = new HashMap<>();
 	
 	public StudentRegistrationSteps() {
 	}

@@ -1,19 +1,18 @@
 package studentregistration.service;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-
 import messaging.Event;
 import messaging.MessageQueue;
+
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StudentRegistrationService {
 
 	public static final String STUDENT_REGISTRATION_REQUESTED = "StudentRegistrationRequested";
 	public static final String STUDENT_ID_ASSIGNED = "StudentIdAssigned";
-	private MessageQueue queue;
-	private Map<CorrelationId, CompletableFuture<Student>> correlations = new ConcurrentHashMap<>();
+	private final MessageQueue queue;
+	private final Map<CorrelationId, CompletableFuture<Student>> correlations = new ConcurrentHashMap<>();
 
 	public StudentRegistrationService(MessageQueue q) {
 		queue = q;

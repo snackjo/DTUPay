@@ -15,7 +15,7 @@ chmod +x build.sh
 ./build.sh
 popd 
 
-pushd student-registration-service
+pushd dtu-pay-service
 chmod +x build.sh
 ./build.sh
 popd 
