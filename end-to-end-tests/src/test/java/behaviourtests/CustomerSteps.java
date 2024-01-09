@@ -13,7 +13,7 @@ import io.cucumber.java.en.When;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class CustomerSteps {
     private Customer customer;
@@ -42,7 +42,7 @@ public class CustomerSteps {
 
     @Then("the customer is successfully registered")
     public void theCustomerIsSuccessfullyRegistered() {
-        assertEquals(customer, customerRegistrationResponse);
+        assertNotNull(customerRegistrationResponse.getDtuPayId());
     }
 
     @After

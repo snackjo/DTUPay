@@ -3,12 +3,12 @@ package studentid.service;
 import messaging.implementations.RabbitMqQueue;
 
 public class StartUp {
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		new StartUp().startUp();
 	}
 
-	private void startUp() throws Exception {
+	private void startUp() {
 		var mq = new RabbitMqQueue("rabbitMq");
-		new StudentIdService(mq);
+		new AccountService(mq);
 	}
 }

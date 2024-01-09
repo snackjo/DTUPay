@@ -1,4 +1,4 @@
-package CustomerApp;
+package studentid.service;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

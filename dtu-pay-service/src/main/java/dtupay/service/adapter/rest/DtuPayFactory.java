@@ -1,7 +1,6 @@
 package dtupay.service.adapter.rest;
 
 import dtupay.service.DtuPayService;
-import dtupay.service.StudentRegistrationService;
 import messaging.implementations.RabbitMqQueue;
 
 public class DtuPayFactory {
@@ -12,8 +11,8 @@ public class DtuPayFactory {
             return service;
         }
 
-        /*var mq = new RabbitMqQueue("rabbitMq");*/
-        service = new DtuPayService(null);
+        var mq = new RabbitMqQueue("rabbitMq");
+        service = new DtuPayService(mq);
         return service;
     }
 }
