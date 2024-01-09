@@ -7,7 +7,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>dk.dtu.compute</groupId>
-	<artifactId>end-to-end-queue-demo</artifactId>
+	<artifactId>end-to-end-tests</artifactId>
 	<name>EndToEndQueueDemo</name>
 	<version>1.0.0</version>
 

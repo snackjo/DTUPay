@@ -8,6 +8,7 @@
         <option value="$PROJECT_DIR$/student-id-service/pom.xml" />
         <option value="$PROJECT_DIR$/messaging-utilities-3.4/pom.xml" />
         <option value="$PROJECT_DIR$/student-registration-service/pom.xml" />
+        <option value="$PROJECT_DIR$/messaging-utilities/pom.xml" />
       </list>
     </option>
     <option name="workspaceImportForciblyTurnedOn" value="true" />
