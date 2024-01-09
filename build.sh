@@ -10,7 +10,7 @@ chmod +x build.sh
 popd 
 
 # Build the services
-pushd student-id-service
+pushd account-service
 chmod +x build.sh
 ./build.sh
 popd 
