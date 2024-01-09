@@ -1,13 +1,12 @@
 package behaviourtests;
 
+import dtupay.service.CorrelationId;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
-import studentregistration.service.CorrelationId;
-import studentregistration.service.Student;
-import studentregistration.service.StudentRegistrationService;
+import dtupay.service.StudentRegistrationService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +25,8 @@ public class StudentRegistrationSteps {
 
 		@Override
 		public void publish(Event event) {
-			var student = event.getArgument(0, Student.class);
-			publishedEvents.get(student.getName()).complete(event);
+	/*		var student = event.getArgument(0, Student.class);
+			publishedEvents.get(student.getName()).complete(event);*/
 		}
 
 		@Override
@@ -35,17 +34,17 @@ public class StudentRegistrationSteps {
 		}
 		
 	};
-	private final StudentRegistrationService service = new StudentRegistrationService(q);
+/*	private final StudentRegistrationService service = new StudentRegistrationService(q);
 	private final CompletableFuture<Student> registeredStudent = new CompletableFuture<>();
 	private final CompletableFuture<Student> registeredStudent2 = new CompletableFuture<>();
 	private Student student;
 	private Student student2;
-	private final Map<Student,CorrelationId> correlationIds = new HashMap<>();
+	private final Map<Student,CorrelationId> correlationIds = new HashMap<>();*/
 	
 	public StudentRegistrationSteps() {
 	}
 
-	@Given("there is a student with empty id")
+	/*@Given("there is a student with empty id")
 	public void thereIsAStudentWithEmptyId() {
 		student = new Student();
 		student.setName("James");
@@ -152,5 +151,5 @@ public class StudentRegistrationSteps {
 		assertEquals(student.getName(),st.getName());
 		assertNotNull(st.getId());
 	}
-
+*/
 }

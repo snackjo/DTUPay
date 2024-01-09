@@ -1,7 +1,7 @@
-package studentregistration.service.adapter.rest;
+package dtupay.service.adapter.rest;
 
+import dtupay.service.StudentRegistrationService;
 import messaging.implementations.RabbitMqQueue;
-import studentregistration.service.StudentRegistrationService;
 
 public class StudentRegistrationFactory {
 	static StudentRegistrationService service = null;

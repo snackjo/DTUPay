@@ -1,4 +1,4 @@
-package studentregistration.service.adapter.rest;
+package dtupay.service.adapter.rest;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

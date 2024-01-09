@@ -1,4 +1,4 @@
-package studentregistration.service;
+package dtupay.service;
 
 import java.util.UUID;
 
