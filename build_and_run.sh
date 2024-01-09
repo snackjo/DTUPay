@@ -4,6 +4,10 @@ set -e
 chmod +x build.sh
 ./build.sh
 
+pushd messaging-utilities-3.4
+chmod +x build.sh
+popd
+
 # Update the set of services and
 # build and execute the system tests
 pushd end-to-end-tests
