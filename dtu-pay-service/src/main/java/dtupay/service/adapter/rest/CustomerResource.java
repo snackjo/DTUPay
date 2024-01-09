@@ -15,8 +15,8 @@ public class CustomerResource {
 
 	@POST
 	@Consumes("application/json")
-	@Produces("text/plain")
-	public String registerStudent(Customer customer) {
-		return service.register(customer);
+	@Produces("application/json")
+	public Customer registerStudent(Customer customer) {
+		return service.registerCustomer(customer);
 	}
 }

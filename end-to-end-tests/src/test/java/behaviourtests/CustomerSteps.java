@@ -20,7 +20,7 @@ public class CustomerSteps {
     private final BankService bank = new BankServiceService().getBankServicePort();
 
     private final CustomerDTUPay customerDTUPay = new CustomerDTUPay();
-    private String serverResponse;
+    private Customer customerRegistrationResponse;
 
 
     @Given("customer registered in bank")
@@ -37,12 +37,12 @@ public class CustomerSteps {
 
     @When("the customer registers with DTUPay")
     public void theCustomerRegistersWithDTUPay() {
-        serverResponse = customerDTUPay.registerCustomer(customer);
+        customerRegistrationResponse = customerDTUPay.registerCustomer(customer);
     }
 
     @Then("the customer is successfully registered")
     public void theCustomerIsSuccessfullyRegistered() {
-        assertEquals("Customer registered successfully", serverResponse);
+        assertEquals(customer, customerRegistrationResponse);
     }
 
     @After

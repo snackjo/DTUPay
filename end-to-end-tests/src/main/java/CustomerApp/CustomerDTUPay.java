@@ -15,11 +15,11 @@ public class CustomerDTUPay {
         this.serverTarget = serverClient.target("http://localhost:8080/");
     }
 
-    public String registerCustomer(Customer customer) {
+    public Customer registerCustomer(Customer customer) {
         try {
-            return serverTarget.path("customers").request().post(Entity.entity(customer, MediaType.APPLICATION_JSON), String.class);
+            return serverTarget.path("customers").request().post(Entity.entity(customer, MediaType.APPLICATION_JSON), Customer.class);
         } catch (NotFoundException e) {
-            return e.getResponse().readEntity(String.class);
+            return e.getResponse().readEntity(Customer.class);
         }
     }
 }
