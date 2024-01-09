@@ -5,8 +5,8 @@ services:
     container_name: rabbitMq_container
     
   dtu-pay-service:
-    image: student-registration 
-    container_name: student-registration 
+    image: dtu-pay
+    container_name: dtu-pay
     ports:
      - "8080:8080"
     

@@ -9,15 +9,15 @@
         <outputRelativeToContentRoot value="true" />
         <module name="student-id-service" />
         <module name="end-to-end-tests" />
+        <module name="dtu-pay-service" />
         <module name="messaging-utilities" />
-        <module name="student-registration-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="dtu-pay-service" options="-parameters" />
       <module name="student-id-service" options="-parameters" />
-      <module name="student-registration-service" options="-parameters" />
     </option>
   </component>
 </project>
