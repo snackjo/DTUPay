@@ -10,3 +10,5 @@ The project consists of 4 projects
 The main `docker-compose.yml` file is in the `end_to_end_tests`.
 
 To know how the project is build, deployed, and tested, inspect `build_and_run.sh`.
+
+Attempt to active web hook.
