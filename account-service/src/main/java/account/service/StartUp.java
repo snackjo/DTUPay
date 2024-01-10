@@ -1,4 +1,4 @@
-package studentid.service;
+package account.service;
 
 import messaging.implementations.RabbitMqQueue;
 

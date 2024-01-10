@@ -1,4 +1,4 @@
-package studentid.service;
+package account.service;
 
 import java.util.UUID;
 
@@ -13,14 +13,17 @@ public class AccountService {
 
 	public AccountService(MessageQueue q) {
 		this.queue = q;
-		this.queue.addHandler(CUSTOMER_REGISTRATION_REQUESTED, this::handleStudentRegistrationRequested);
+		this.queue.addHandler(CUSTOMER_REGISTRATION_REQUESTED, this::handleCustomerRegistrationRequested);
 	}
 
-	public void handleStudentRegistrationRequested(Event ev) {
+	public void handleCustomerRegistrationRequested(Event ev) {
 		Customer customer = ev.getArgument(0, Customer.class);
 		CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
 
 		customer.setDtuPayId(UUID.randomUUID().toString());
+		AccountRepository accountRepository = AccountRepositoryFactory.getRepository();
+		accountRepository.addCustomer(customer);
+
 		Event event = new Event(CUSTOMER_REGISTERED, new Object[] { customer, correlationId });
 		queue.publish(event);
 	}
