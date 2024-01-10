@@ -9,6 +9,7 @@ import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
 import io.cucumber.java.After;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -26,6 +27,7 @@ public class RegistrationSteps {
     private Customer customer1;
     private Customer customer2;
     private Merchant merchant1;
+    private Merchant merchant2;
     private final BankService bank = new BankServiceService().getBankServicePort();
 
     private final MerchantDtuPay merchantDtuPay = new MerchantDtuPay();
@@ -34,14 +36,15 @@ public class RegistrationSteps {
     private Merchant merchantRegistrationResponse;
     private final CompletableFuture<Customer> customerRegistrationResult1 = new CompletableFuture<>();
     private final CompletableFuture<Customer> customerRegistrationResult2 = new CompletableFuture<>();
-
+    private final CompletableFuture<Merchant> merchantRegistrationResult1 = new CompletableFuture<>();
+    private final CompletableFuture<Merchant> merchantRegistrationResult2 = new CompletableFuture<>();
 
     @Given("customer registered in bank")
     public void customerRegisteredInBank() throws BankServiceException_Exception {
         customer1 = new Customer();
-        customer1.setCprNumber("1234567890-17");
-        customer1.setFirstName("firstName");
-        customer1.setLastName("lastName");
+        customer1.setCprNumber("customer1-17");
+        customer1.setFirstName("firstName1");
+        customer1.setLastName("lastName1");
         BigDecimal balance = new BigDecimal(1000);
 
         String accountId = bank.createAccountWithBalance(MapperUtility.costumerToUser(customer1), balance);
@@ -61,7 +64,7 @@ public class RegistrationSteps {
     @After
     public void cleanBankAccounts() {
         Customer[] customersToRetire = new Customer[]{customer1, customer2};
-        Merchant[] merchantsToRetire = new Merchant[]{merchant1};
+        Merchant[] merchantsToRetire = new Merchant[]{merchant1, merchant2};
 
         for (Customer customerToRetire : customersToRetire) {
             try {
@@ -81,7 +84,7 @@ public class RegistrationSteps {
     @And("another customer registered in bank")
     public void anotherCustomerRegisteredInBank() throws BankServiceException_Exception {
         customer2 = new Customer();
-        customer2.setCprNumber("9876543210-17");
+        customer2.setCprNumber("customer2-17");
         customer2.setFirstName("firstName2");
         customer2.setLastName("lastName2");
         BigDecimal balance = new BigDecimal(2000);
@@ -114,9 +117,9 @@ public class RegistrationSteps {
     @Given("merchant registered in bank")
     public void merchantRegisteredInBank() throws BankServiceException_Exception {
         merchant1 = new Merchant();
-        merchant1.setCprNumber("1234567890merchant-17");
-        merchant1.setFirstName("firstName");
-        merchant1.setLastName("lastName");
+        merchant1.setCprNumber("merchant1-17");
+        merchant1.setFirstName("firstName1");
+        merchant1.setLastName("lastName1");
         BigDecimal balance = new BigDecimal(1000);
 
         String accountId = bank.createAccountWithBalance(MapperUtility.merchantToUser(merchant1), balance);
@@ -131,5 +134,38 @@ public class RegistrationSteps {
     @Then("the merchant is successfully registered")
     public void theMerchantIsSuccessfullyRegistered() {
         assertNotNull(merchantRegistrationResponse.getDtuPayId());
+    }
+
+    @And("another merchant registered in bank")
+    public void anotherMerchantRegisteredInBank() throws BankServiceException_Exception {
+        merchant2 = new Merchant();
+        merchant2.setCprNumber("merchant2-17");
+        merchant2.setFirstName("firstName2");
+        merchant2.setLastName("lastName2");
+        BigDecimal balance = new BigDecimal(1000);
+
+        String accountId = bank.createAccountWithBalance(MapperUtility.merchantToUser(merchant2), balance);
+        merchant2.setAccountId(accountId);
+    }
+
+    @When("the two merchants are registered with DTUPay at the same time")
+    public void theTwoMerchantsAreRegisteredWithDTUPayAtTheSameTime() {
+        Thread thread1 = new Thread(() -> merchantRegistrationResult1.complete(merchantDtuPay.registerMerchant(merchant1)));
+        Thread thread2 = new Thread(() -> merchantRegistrationResult2.complete(merchantDtuPay.registerMerchant(merchant2)));
+        thread1.start();
+        thread2.start();
+    }
+
+    @Then("the first merchant has a non-empty DTUPay ID")
+    public void theFirstMerchantHasANonEmptyDTUPayID() {
+        assertNotNull(merchantRegistrationResult1.join().getDtuPayId());
+    }
+
+    @And("the second merchant has a non-empty DTUPay ID different from the first customer")
+    public void theSecondMerchantHasANonEmptyDTUPayIDDifferentFromTheFirstCustomer() throws ExecutionException, InterruptedException {
+        assertNotNull(merchantRegistrationResult2.join().getDtuPayId());
+        String merchantDtuPayId1 = merchantRegistrationResult1.get().getDtuPayId();
+        String merchantDtuPayId2 = merchantRegistrationResult2.get().getDtuPayId();
+        assertNotEquals(merchantDtuPayId1, merchantDtuPayId2);
     }
 }

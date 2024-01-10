@@ -16,3 +16,10 @@ Feature: Registration feature
         Given merchant registered in bank
         When the merchant registers with DTUPay
         Then the merchant is successfully registered
+
+    Scenario: Merchant registration race condition
+        Given merchant registered in bank
+        And another merchant registered in bank
+        When the two merchants are registered with DTUPay at the same time
+        Then the first merchant has a non-empty DTUPay ID
+        And the second merchant has a non-empty DTUPay ID different from the first customer

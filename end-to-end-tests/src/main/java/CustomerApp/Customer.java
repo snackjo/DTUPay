@@ -11,5 +11,4 @@ public class Customer {
     private String lastName;
     private String accountId;
     private String dtuPayId;
-
 }
