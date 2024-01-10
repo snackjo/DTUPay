@@ -9,6 +9,8 @@
         <option value="$PROJECT_DIR$/messaging-utilities-3.4/pom.xml" />
         <option value="$PROJECT_DIR$/student-registration-service/pom.xml" />
         <option value="$PROJECT_DIR$/messaging-utilities/pom.xml" />
+        <option value="$PROJECT_DIR$/dtu-pay-service/pom.xml" />
+        <option value="$PROJECT_DIR$/account-service/pom.xml" />
       </list>
     </option>
     <option name="workspaceImportForciblyTurnedOn" value="true" />
