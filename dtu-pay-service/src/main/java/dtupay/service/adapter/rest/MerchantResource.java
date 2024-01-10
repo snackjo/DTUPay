@@ -16,7 +16,7 @@ public class MerchantResource {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Merchant registerStudent(Merchant merchant) {
+    public Merchant registerMerchant(Merchant merchant) {
         return service.registerMerchant(merchant);
     }
 }

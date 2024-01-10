@@ -10,11 +10,13 @@ public class AccountService {
 	public static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
 	public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
 	private static final String MERCHANT_REGISTERED = "MerchantRegistered";
+	private static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
 	MessageQueue queue;
 
 	public AccountService(MessageQueue q) {
 		this.queue = q;
 		this.queue.addHandler(CUSTOMER_REGISTRATION_REQUESTED, this::handleCustomerRegistrationRequested);
+		this.queue.addHandler(MERCHANT_REGISTRATION_REQUESTED, this::handleMerchantRegistrationRequested);
 	}
 
 	public void handleCustomerRegistrationRequested(Event ev) {
