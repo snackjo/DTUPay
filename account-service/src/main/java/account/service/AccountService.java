@@ -9,6 +9,7 @@ public class AccountService {
 
 	public static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
 	public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
+	private static final String MERCHANT_REGISTERED = "MerchantRegistered";
 	MessageQueue queue;
 
 	public AccountService(MessageQueue q) {
@@ -27,4 +28,16 @@ public class AccountService {
 		Event event = new Event(CUSTOMER_REGISTERED, new Object[] { customer, correlationId });
 		queue.publish(event);
 	}
+
+    public void handleMerchantRegistrationRequested(Event event) {
+		Merchant merchant = event.getArgument(0, Merchant.class);
+		CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+
+		merchant.setDtuPayId(UUID.randomUUID().toString());
+		AccountRepository accountRepository = AccountRepositoryFactory.getRepository();
+		accountRepository.addMerchant(merchant);
+
+		Event publishEvent = new Event(MERCHANT_REGISTERED, new Object[] { merchant, correlationId });
+		queue.publish(publishEvent);
+    }
 }

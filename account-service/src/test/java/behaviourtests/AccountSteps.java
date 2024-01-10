@@ -33,16 +33,43 @@ public class AccountSteps {
         accountService.handleCustomerRegistrationRequested(event);
     }
 
-    @Then("a {string} event is published with DTUPay id")
+    @Then("a {string} event is published")
     public void aEventIsPublished(String eventName) {
         verify(queueMock).publish(eventCaptor.capture());
         publishedEvent = eventCaptor.getValue();
         assertEquals(eventName, publishedEvent.getType());
+    }
+
+    @And("DTUPay id is part of published customer event")
+    public void dtupayIdIsPartOfPublishedEvent() {
         assertFalse(publishedEvent.getArgument(0, Customer.class).getDtuPayId().isEmpty());
     }
 
     @And("the customer is given a non-empty DTUPay id")
     public void theCustomerIsGivenANonEmptyDTUPayId() {
         assertNotNull(accountRepository.getCustomerAccount(publishedEvent.getArgument(0, Customer.class).getDtuPayId()));
+    }
+
+    @When("a {string} event for a merchant is received")
+    public void aEventForAMerchantIsReceived(String eventName) {
+        Merchant merchant = new Merchant();
+        merchant.setCprNumber("54321");
+        merchant.setFirstName("firstName");
+        merchant.setLastName("lastName");
+        merchant.setAccountId("bank-id-321");
+        CorrelationId correlationId = CorrelationId.randomId();
+        Event event = new Event(eventName, new Object[]{merchant, correlationId});
+
+        accountService.handleMerchantRegistrationRequested(event);
+    }
+
+    @And("DTUPay id is part of published merchant event")
+    public void dtupayIdIsPartOfPublishedMerchantEvent() {
+        assertNotNull(accountRepository.getMerchantAccount(publishedEvent.getArgument(0, Merchant.class).getDtuPayId()));
+    }
+
+    @And("the merchant is given a non-empty DTUPay id")
+    public void theMerchantIsGivenANonEmptyDTUPayId() {
+        assertNotNull(accountRepository.getMerchantAccount(publishedEvent.getArgument(0, Merchant.class).getDtuPayId()));
     }
 }
