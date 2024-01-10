@@ -14,4 +14,8 @@ services:
     image: account
     container_name: account
 
+  token-service:
+    image: token
+    container_name: token
+
  

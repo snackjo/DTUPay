@@ -18,4 +18,9 @@ popd
 pushd dtu-pay-service
 chmod +x build.sh
 ./build.sh
-popd 
+popd
+
+pushd token-service
+chmod +x build.sh
+./build.sh
+popd

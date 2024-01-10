@@ -61,6 +61,7 @@ public class RegistrationSteps {
         try {
             bank.retireAccount(customer1.getAccountId());
             bank.retireAccount(customer2.getAccountId());
+            bank.retireAccount(merchant1.getAccountId());
         } catch (Exception ignored) {
 
         }
