@@ -15,6 +15,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -57,13 +59,22 @@ public class RegistrationSteps {
     }
 
     @After
-    public void cleanTestUser() {
-        try {
-            bank.retireAccount(customer1.getAccountId());
-            bank.retireAccount(customer2.getAccountId());
-            bank.retireAccount(merchant1.getAccountId());
-        } catch (Exception ignored) {
+    public void cleanBankAccounts() {
+        Customer[] customersToRetire = new Customer[]{customer1, customer2};
+        Merchant[] merchantsToRetire = new Merchant[]{merchant1};
 
+        for (Customer customerToRetire : customersToRetire) {
+            try {
+                bank.retireAccount(customerToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
+        }
+
+        for (Merchant merchantToRetire : merchantsToRetire) {
+            try {
+                bank.retireAccount(merchantToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
         }
     }
 
