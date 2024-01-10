@@ -24,7 +24,6 @@ public class RegistrationSteps {
     private Customer customer1;
     private Customer customer2;
     private Merchant merchant1;
-    private Merchant merchant2;
     private final BankService bank = new BankServiceService().getBankServicePort();
 
     private final MerchantDtuPay merchantDtuPay = new MerchantDtuPay();
@@ -62,8 +61,6 @@ public class RegistrationSteps {
         try {
             bank.retireAccount(customer1.getAccountId());
             bank.retireAccount(customer2.getAccountId());
-            bank.retireAccount(merchant1.getAccountId());
-            bank.retireAccount(merchant2.getAccountId());
         } catch (Exception ignored) {
 
         }
@@ -105,7 +102,7 @@ public class RegistrationSteps {
     @Given("merchant registered in bank")
     public void merchantRegisteredInBank() throws BankServiceException_Exception {
         merchant1 = new Merchant();
-        merchant1.setCprNumber("1234567890-17");
+        merchant1.setCprNumber("1234567890merchant-17");
         merchant1.setFirstName("firstName");
         merchant1.setLastName("lastName");
         BigDecimal balance = new BigDecimal(1000);
