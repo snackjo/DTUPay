@@ -11,6 +11,7 @@
         <module name="dtu-pay-service" />
         <module name="account-service" />
         <module name="messaging-utilities" />
+        <module name="token-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -18,6 +19,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="account-service" options="-parameters" />
       <module name="dtu-pay-service" options="-parameters" />
+      <module name="token-service" options="-parameters" />
     </option>
   </component>
 </project>
