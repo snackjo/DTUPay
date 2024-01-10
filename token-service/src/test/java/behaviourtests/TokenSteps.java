@@ -6,6 +6,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
+import org.mockito.ArgumentCaptor;
 import token.service.Customer;
 import token.service.CustomerRepository;
 import token.service.CustomerRepositoryFactory;
@@ -13,7 +14,6 @@ import token.service.TokenService;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -56,9 +56,10 @@ public class TokenSteps {
 
     @Then("a {string} event with {int} tokens is published")
     public void aEventWithTokensIsPublished(String eventName, int tokenAmount) {
-        verify(queueMock).publish(argThat((Event event) ->
-                event.getType().equals(eventName) &&
-                        event.getArgument(0, Customer.class).getTokens().size() == tokenAmount));
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        verify(queueMock).publish(eventCaptor.capture());
+        assertEquals(eventName, eventCaptor.getValue().getType());
+        assertEquals(tokenAmount, eventCaptor.getValue().getArgument(0, Customer.class).getTokens().size());
     }
 
     @And("the customer has {int} tokens")
