@@ -35,6 +35,7 @@ public class DtuPayService {
         Customer customer = event.getArgument(0, Customer.class);
         CorrelationId correlationid = event.getArgument(1, CorrelationId.class);
         customerCorrelations.get(correlationid).complete(customer);
+        customerCorrelations.remove(correlationid);
     }
 
     public Merchant registerMerchant(Merchant merchant) {
@@ -48,6 +49,7 @@ public class DtuPayService {
         Merchant merchant = event.getArgument(0, Merchant.class);
         CorrelationId correlationid = event.getArgument(1, CorrelationId.class);
         merchantCorrelations.get(correlationid).complete(merchant);
+        merchantCorrelations.remove(correlationid);
     }
 
 }
