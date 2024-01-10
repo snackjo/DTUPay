@@ -12,6 +12,7 @@ import token.service.CustomerRepositoryFactory;
 import token.service.TokenService;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -21,6 +22,23 @@ public class TokenSteps {
     private final MessageQueue queueMock = mock(MessageQueue.class);
     private final TokenService tokenService = new TokenService(queueMock);
     private final CustomerRepository customerRepository = CustomerRepositoryFactory.getRepository();
+
+    @When("a {string} event is received")
+    public void aEventIsReceived(String eventName) {
+        customer = new Customer();
+        customer.setDtuPayId("cid1");
+
+        Event event = new Event(eventName, new Object[]{customer});
+        tokenService.handleCustomerRegistered(event);
+    }
+
+    @Then("a customer is created with {int} tokens")
+    public void aCustomerIsCreatedWithTokens(int tokenAmount) {
+        Customer createdCustomer = customerRepository.getCustomer(customer.getDtuPayId());
+
+        assertNotNull(createdCustomer);
+        assertEquals(tokenAmount, createdCustomer.getTokens().size());
+    }
 
     @Given("a registered customer with {int} tokens")
     public void aRegisteredCustomerWithTokens(int tokenAmount) {
