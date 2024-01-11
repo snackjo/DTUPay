@@ -1,7 +1,7 @@
 package dtupay.service.adapter.rest;
 
 import dtupay.service.Customer;
-import dtupay.service.DtuPayService;
+import dtupay.service.DTUPayService;
 import dtupay.service.Token;
 
 import javax.ws.rs.*;
@@ -10,7 +10,7 @@ import java.util.List;
 @Path("/customers")
 public class CustomerResource {
 
-	private final DtuPayService service = new DtuPayFactory().getService();
+	private final DTUPayService service = new DtuPayFactory().getService();
 
 	@POST
 	@Consumes("application/json")

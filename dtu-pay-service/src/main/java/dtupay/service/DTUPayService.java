@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DtuPayService {
+public class DTUPayService {
     public static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
     public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
     private static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
@@ -21,7 +21,7 @@ public class DtuPayService {
     private final Map<CorrelationId, CompletableFuture<List<Token>>> tokenCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
 
-    public DtuPayService(MessageQueue q) {
+    public DTUPayService(MessageQueue q) {
         queue = q;
         queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
         queue.addHandler(MERCHANT_REGISTERED, this::handleMerchantRegistered);
@@ -36,7 +36,7 @@ public class DtuPayService {
         return customerCorrelations.get(correlationId).join();
     }
 
-    private void handleCustomerRegistered(Event event) {
+    public void handleCustomerRegistered(Event event) {
         Customer customer = event.getArgument(0, Customer.class);
         CorrelationId correlationid = event.getArgument(1, CorrelationId.class);
         customerCorrelations.get(correlationid).complete(customer);
