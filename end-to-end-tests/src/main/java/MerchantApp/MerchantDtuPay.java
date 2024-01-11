@@ -22,4 +22,18 @@ public class MerchantDtuPay {
             return e.getResponse().readEntity(Merchant.class);
         }
     }
+
+    public String initiatePayment(int paymentAmount, Token tokenReceivedFromCustomer, String merchantDtuPayId) throws Exception {
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setToken(tokenReceivedFromCustomer);
+        paymentRequest.setAmount(paymentAmount);
+        try {
+            return serverTarget
+                    .path("merchants/" + merchantDtuPayId + "/payments")
+                    .request()
+                    .post(Entity.entity(paymentRequest, MediaType.APPLICATION_JSON), String.class);
+        } catch (NotFoundException e) {
+            throw new Exception(e);
+        }
+    }
 }

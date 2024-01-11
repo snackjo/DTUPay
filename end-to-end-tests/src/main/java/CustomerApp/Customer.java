@@ -15,4 +15,11 @@ public class Customer {
     private String accountId;
     private String dtuPayId;
     private List<Token> tokens = new ArrayList<>();
+
+    public Token provideToken() throws Exception {
+        if(!tokens.isEmpty()) {
+            return tokens.get(0);
+        }
+        throw new Exception("No tokens left");
+    }
 }

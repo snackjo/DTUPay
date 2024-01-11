@@ -16,9 +16,11 @@ public class DTUPayService {
     private static final String MERCHANT_REGISTERED = "MerchantRegistered";
     private static final String TOKENS_REQUESTED = "TokensRequested";
     private static final String TOKENS_GENERATED = "TokensGenerated";
+    private static final String PAYMENT_REQUESTED = "PaymentRequested";
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<List<Token>>> tokenCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<String>> paymentCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
 
     public DTUPayService(MessageQueue q) {
@@ -70,5 +72,14 @@ public class DTUPayService {
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         tokenCorrelations.get(correlationId).complete(tokens);
         tokenCorrelations.remove(correlationId);
+    }
+
+    public String requestPayment(String merchantDtuPayId, Token token, int amount) {
+        CorrelationId correlationId = CorrelationId.randomId();
+        paymentCorrelations.put(correlationId, new CompletableFuture<>());
+
+        Event event = new Event(PAYMENT_REQUESTED, new Object[]{merchantDtuPayId, token, amount, correlationId});
+        queue.publish(event);
+        return paymentCorrelations.get(correlationId).join();
     }
 }

@@ -23,4 +23,10 @@ public class MapperUtility {
         user.setLastName(merchant.getLastName());
         return user;
     }
+
+    public MerchantApp.Token mapToken(CustomerApp.Token customerToken) {
+        MerchantApp.Token merchantToken = new MerchantApp.Token();
+        merchantToken.setId(customerToken.getId());
+        return merchantToken;
+    }
 }
