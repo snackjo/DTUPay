@@ -2,26 +2,24 @@ package behaviourtests;
 
 import CustomerApp.Customer;
 import CustomerApp.CustomerDTUPay;
+import MerchantApp.Merchant;
 import MerchantApp.MerchantDtuPay;
 import Utility.MapperUtility;
-import MerchantApp.Merchant;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
 import io.cucumber.java.After;
-import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class RegistrationSteps {
     private Customer customer1;
@@ -52,7 +50,7 @@ public class RegistrationSteps {
     }
 
     @When("the customer registers with DTUPay")
-    public void theCustomerRegistersWithDTUPay() {
+    public void theCustomerRegistersWithDTUPay() throws Exception {
         customerRegistrationResponse = customerDtuPay.registerCustomer(customer1);
     }
 
@@ -95,8 +93,8 @@ public class RegistrationSteps {
 
     @When("the two customers are registered with DTUPay at the same time")
     public void theTwoCustomersAreRegisteredWithDTUPayAtTheSameTime() {
-        Thread thread1 = new Thread(() -> customerRegistrationResult1.complete(customerDtuPay.registerCustomer(customer1)));
-        Thread thread2 = new Thread(() -> customerRegistrationResult2.complete(customerDtuPay.registerCustomer(customer2)));
+        Thread thread1 = createCustomerRegistrationThread(customerRegistrationResult1, customer1);
+        Thread thread2 = createCustomerRegistrationThread(customerRegistrationResult2, customer2);
         thread1.start();
         thread2.start();
     }
@@ -168,4 +166,16 @@ public class RegistrationSteps {
         String merchantDtuPayId2 = merchantRegistrationResult2.get().getDtuPayId();
         assertNotEquals(merchantDtuPayId1, merchantDtuPayId2);
     }
+
+
+    private Thread createCustomerRegistrationThread(CompletableFuture<Customer> completableFuture, Customer customer) {
+        return new Thread(() -> {
+            try {
+                completableFuture.complete(customerDtuPay.registerCustomer(customer));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
 }
