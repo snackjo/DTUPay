@@ -33,7 +33,7 @@ public class CustomerDTUPay {
                     .request()
                     .post(Entity.entity(tokenAmount, MediaType.APPLICATION_JSON),new GenericType<List<Token>>(){});
         } catch (NotFoundException e) {
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 }

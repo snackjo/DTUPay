@@ -6,32 +6,17 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>dk.dtu.compute</groupId>
 	<artifactId>token-service</artifactId>
-	<name>token.service</name>
+	<name>TokenService</name>
 	<version>1.0.0</version>
 	<properties>
 		<surefire-plugin.version>2.22.1</surefire-plugin.version>
 		<maven.compiler.target>11</maven.compiler.target>
-		<quarkus.platform.version>1.10.5.Final</quarkus.platform.version>
 		<maven.compiler.source>11</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.parameters>true</maven.compiler.parameters>
-		<quarkus-plugin.version>1.10.5.Final</quarkus-plugin.version>
 		<compiler-plugin.version>3.8.1</compiler-plugin.version>
-		<quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
 	</properties>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>${quarkus.platform.group-id}</groupId>
-				<artifactId>${quarkus.platform.artifact-id}</artifactId>
-				<version>${quarkus.platform.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -39,32 +24,6 @@
 			<version>2.8.6</version>
 		</dependency>
 
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-resteasy-jaxb</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-resteasy-jsonb</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-resteasy</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-arc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-junit5</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>rest-assured</artifactId>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>io.cucumber</groupId>
 			<artifactId>cucumber-java</artifactId>
@@ -87,15 +46,14 @@
 			<version>5.7.0</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- This is needed to provide the @Cucumber annotation needed for Cucumber 
+		<!-- This is needed to provide the @Cucumber annotation needed for Cucumber
 			scenarios to run with the JUnit 5 test runner. -->
 		<dependency>
 			<groupId>io.cucumber</groupId>
 			<artifactId>cucumber-junit-platform-engine</artifactId>
 			<version>6.9.1</version>
 			<scope>test</scope>
-		</dependency>		<!-- This is needed to provide the @Cucumber annotation needed for Cucumber 
-			scenarios to run with the JUnit 5 test runner. -->
+		</dependency>
 		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
@@ -107,9 +65,9 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
+			<version>3.7.0</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
 		<dependency>
 			<groupId>dk.dtu.hubert</groupId>
 			<artifactId>messaging-utilities</artifactId>
@@ -124,19 +82,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>io.quarkus</groupId>
-				<artifactId>quarkus-maven-plugin</artifactId>
-				<version>${quarkus-plugin.version}</version>
-				<extensions>true</extensions>
-				<executions>
-					<execution>
-						<goals>
-							<goal>build</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${compiler-plugin.version}</version>
 			</plugin>
@@ -150,6 +95,40 @@
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<archive>
+						<index>true</index>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>token.service.StartUp</mainClass>
+							<classpathPrefix>lib/</classpathPrefix>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.5.1</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>
+								${project.build.directory}/lib/
+							</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>
@@ -160,32 +139,6 @@
 					<name>native</name>
 				</property>
 			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-failsafe-plugin</artifactId>
-						<version>${surefire-plugin.version}</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>integration-test</goal>
-									<goal>verify</goal>
-								</goals>
-								<configuration>
-									<systemPropertyVariables>
-										<native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-										<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-										<maven.home>${maven.home}</maven.home>
-									</systemPropertyVariables>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-			<properties>
-				<quarkus.package.type>native</quarkus.package.type>
-			</properties>
 		</profile>
 	</profiles>
 </project>

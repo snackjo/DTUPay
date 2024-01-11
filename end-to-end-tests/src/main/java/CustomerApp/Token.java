@@ -1,8 +1,8 @@
 package CustomerApp;
 
-import lombok.Value;
+import lombok.Data;
 
-@Value
+@Data
 public class Token {
     String id;
 }

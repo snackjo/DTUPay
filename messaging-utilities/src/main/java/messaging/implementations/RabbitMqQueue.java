@@ -36,6 +36,7 @@ public class RabbitMqQueue implements MessageQueue {
 		String message = new Gson().toJson(event);
 		try {
 			channel.basicPublish(EXCHANGE_NAME, event.getType(), null, message.getBytes("UTF-8"));
+			System.err.println("Published event" + event.getType());
 		} catch (IOException e) {
 			throw new Error(e);
 		}
@@ -66,7 +67,7 @@ public class RabbitMqQueue implements MessageQueue {
 				String message = new String(delivery.getBody(), "UTF-8");
 
 				Event event = new Gson().fromJson(message, Event.class);
-
+				System.err.println("Received event " + event.getType());
 				handler.accept(event);
 			};
 			chan.basicConsume(queueName, true, deliverCallback, consumerTag -> {

@@ -7,10 +7,9 @@ import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 import org.mockito.ArgumentCaptor;
-import token.service.Customer;
-import token.service.CustomerRepository;
-import token.service.CustomerRepositoryFactory;
-import token.service.TokenService;
+import token.service.*;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -50,7 +49,8 @@ public class TokenSteps {
 
     @When("a {string} event for a customer is received for {int} tokens")
     public void aEventForACustomerIsReceivedForTokens(String eventName, int tokenAmount) {
-        Event event = new Event(eventName, new Object[]{customer, tokenAmount});
+        CorrelationId correlationId = CorrelationId.randomId();
+        Event event = new Event(eventName, new Object[]{customer.getDtuPayId(), tokenAmount, correlationId});
         tokenService.handleTokensRequested(event);
     }
 
@@ -59,7 +59,7 @@ public class TokenSteps {
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         verify(queueMock).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
-        assertEquals(tokenAmount, eventCaptor.getValue().getArgument(0, Customer.class).getTokens().size());
+        assertEquals(tokenAmount, eventCaptor.getValue().getArgument(0, List.class).size());
     }
 
     @And("the customer has {int} tokens")
