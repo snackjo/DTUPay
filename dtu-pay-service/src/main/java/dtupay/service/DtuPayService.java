@@ -4,7 +4,6 @@ package dtupay.service;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -67,7 +66,7 @@ public class DtuPayService {
     }
 
     private void handleTokensGenerated(Event event) {
-        List<Token> tokens = event.getArgument(0, new ArrayList<Token>(){}.getClass());
+        List<Token> tokens = (List<Token>) event.getArgument(0, List.class);
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         tokenCorrelations.get(correlationId).complete(tokens);
         tokenCorrelations.remove(correlationId);
