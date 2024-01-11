@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class RegistrationSteps {
     private Customer customer1;
+    private final StateHolder stateHolder;
     private Customer customer2;
     private Merchant merchant1;
     private Merchant merchant2;
@@ -37,16 +38,22 @@ public class RegistrationSteps {
     private final CompletableFuture<Merchant> merchantRegistrationResult1 = new CompletableFuture<>();
     private final CompletableFuture<Merchant> merchantRegistrationResult2 = new CompletableFuture<>();
 
-    @Given("customer registered in bank")
-    public void customerRegisteredInBank() throws BankServiceException_Exception {
+    public RegistrationSteps(StateHolder stateHolder) {
+        customer1 = stateHolder.getCustomer();
+        this.stateHolder = stateHolder;
+    }
+
+    @Given("customer registered in bank with a balance of {int}")
+    public void customerRegisteredInBankWithABalanceOf(int startingBalance) throws BankServiceException_Exception {
         customer1 = new Customer();
         customer1.setCprNumber("customer1-17");
         customer1.setFirstName("firstName1");
         customer1.setLastName("lastName1");
-        BigDecimal balance = new BigDecimal(1000);
+        BigDecimal balance = new BigDecimal(startingBalance);
 
         String accountId = bank.createAccountWithBalance(MapperUtility.costumerToUser(customer1), balance);
         customer1.setAccountId(accountId);
+        stateHolder.setCustomer(customer1);
     }
 
     @When("the customer registers with DTUPay")
@@ -112,16 +119,17 @@ public class RegistrationSteps {
         assertNotEquals(customerDtuPayId1, customerDtuPayId2);
     }
 
-    @Given("merchant registered in bank")
-    public void merchantRegisteredInBank() throws BankServiceException_Exception {
+    @Given("merchant registered in bank with a balance of {int}")
+    public void merchantRegisteredInBankWithABalanceOf(int startingBalance) throws BankServiceException_Exception {
         merchant1 = new Merchant();
         merchant1.setCprNumber("merchant1-17");
         merchant1.setFirstName("firstName1");
         merchant1.setLastName("lastName1");
-        BigDecimal balance = new BigDecimal(1000);
+        BigDecimal balance = new BigDecimal(startingBalance);
 
         String accountId = bank.createAccountWithBalance(MapperUtility.merchantToUser(merchant1), balance);
         merchant1.setAccountId(accountId);
+        stateHolder.setMerchant(merchant1);
     }
 
     @When("the merchant registers with DTUPay")

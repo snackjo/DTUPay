@@ -1,24 +1,24 @@
 Feature: Registration feature
 
     Scenario: Successful customer registration
-        Given customer registered in bank
+        Given customer registered in bank with a balance of 1000
         When the customer registers with DTUPay
         Then the customer is successfully registered
 
     Scenario: Customer registration race condition
-        Given customer registered in bank
+        Given customer registered in bank with a balance of 1000
         And another customer registered in bank
         When the two customers are registered with DTUPay at the same time
         Then the first customer has a non-empty DTUPay ID
         And the second customer has a non-empty DTUPay ID different from the first customer
 
     Scenario: Successful merchant registration
-        Given merchant registered in bank
+        Given merchant registered in bank with a balance of 1000
         When the merchant registers with DTUPay
         Then the merchant is successfully registered
 
     Scenario: Merchant registration race condition
-        Given merchant registered in bank
+        Given merchant registered in bank with a balance of 1000
         And another merchant registered in bank
         When the two merchants are registered with DTUPay at the same time
         Then the first merchant has a non-empty DTUPay ID
