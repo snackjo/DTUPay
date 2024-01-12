@@ -66,7 +66,8 @@ public class DTUPaySteps {
     @When("a payment of {int} is being requested")
     public void aPaymentOfIsBeingRequested(int paymentAmount) {
         String merchantDtuPayId = "12345";
-        Token token = new Token("abcd");
+        Token token = new Token();
+        token.setId("abcd");
 
         new Thread(() -> service.requestPayment(merchantDtuPayId, token, paymentAmount)).start();
     }
