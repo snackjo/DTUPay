@@ -13,5 +13,12 @@ Feature: Account service
 
     Scenario: Successfully find customer bank account
         Given a registered customer
-        When a "TokenMatchFound" event is received with a matching DTUPay id
+        When a "TokenMatchFound" event is received with a matching customer DTUPay id
         Then a "CustomerBankAccountFound" event is published
+        And the published customer account id is correct
+
+    Scenario: Successfully find merchant bank account
+        Given a registered merchant
+        When a "PaymentRequested" event is received with a matching merchant DTUPay id
+        Then a "MerchantBankAccountFound" event is published
+        And the published merchant account id is correct

@@ -22,6 +22,7 @@ public class AccountSteps {
     private Event publishedEvent;
     private Customer customer;
     private CorrelationId correlationId;
+    private Merchant merchant;
 
     @When("a {string} event for a customer is received")
     public void aEventForACustomerIsReceived(String eventName) {
@@ -85,11 +86,38 @@ public class AccountSteps {
         accountRepository.addCustomer(customer);
     }
 
-    @When("a {string} event is received with a matching DTUPay id")
-    public void aEventIsReceivedWithAMatchingDTUPayId(String eventName) {
+    @When("a {string} event is received with a matching customer DTUPay id")
+    public void aEventIsReceivedWithAMatchingCustomerDTUPayId(String eventName) {
         correlationId = CorrelationId.randomId();
         Event event = new Event(eventName, new Object[]{customer.getDtuPayId(), correlationId});
 
         accountService.handleTokenMatchFound(event);
+    }
+
+    @When("a {string} event is received with a matching merchant DTUPay id")
+    public void aEventIsReceivedWithAMatchingMerchantDTUPayId(String eventName) {
+        correlationId = CorrelationId.randomId();
+        Event event = new Event(eventName, new Object[]{merchant.getDtuPayId(), correlationId});
+
+        accountService.handlePaymentRequested(event);
+    }
+
+    @Given("a registered merchant")
+    public void aRegisteredMerchant() {
+        merchant = new Merchant();
+        merchant.setDtuPayId("56787654");
+        merchant.setAccountId("9876567");
+
+        accountRepository.addMerchant(merchant);
+    }
+
+    @And("the published customer account id is correct")
+    public void thePublishedCustomerAccountIdIsCorrect() {
+        assertEquals(customer.getAccountId(), eventCaptor.getValue().getArgument(0, String.class));
+    }
+
+    @And("the published merchant account id is correct")
+    public void thePublishedMerchantAccountIdIsCorrect() {
+        assertEquals(merchant.getAccountId(), eventCaptor.getValue().getArgument(0, String.class));
     }
 }

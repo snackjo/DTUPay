@@ -13,6 +13,9 @@ public class AccountService {
 	private static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
 	private static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
 	private static final String CUSTOMER_BANK_ACCOUNT_FOUND = "CustomerBankAccountFound";
+	private static final String PAYMENT_REQUESTED = "PaymentRequested";
+	private static final String MERCHANT_BANK_ACCOUNT_FOUND = "MerchantBankAccountFound";
+
 
 	MessageQueue queue;
 	private AccountRepository accountRepository;
@@ -24,8 +27,7 @@ public class AccountService {
 		this.queue.addHandler(CUSTOMER_REGISTRATION_REQUESTED, this::handleCustomerRegistrationRequested);
 		this.queue.addHandler(MERCHANT_REGISTRATION_REQUESTED, this::handleMerchantRegistrationRequested);
 		this.queue.addHandler(TOKEN_MATCH_FOUND, this::handleTokenMatchFound);
-
-
+		this.queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
 	}
 
 	public void handleCustomerRegistrationRequested(Event ev) {
@@ -57,6 +59,15 @@ public class AccountService {
 
 		String customerAccount = accountRepository.getCustomerAccount(customerDtuPayId);
 		Event publishEvent = new Event(CUSTOMER_BANK_ACCOUNT_FOUND, new Object[] {customerAccount, correlationId});
+		queue.publish(publishEvent);
+	}
+
+	public void handlePaymentRequested(Event event) {
+		String merchantDtuPayId = event.getArgument(0, String.class);
+		CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+
+		String merchantAccount = accountRepository.getMerchantAccount(merchantDtuPayId);
+		Event publishEvent = new Event(MERCHANT_BANK_ACCOUNT_FOUND, new Object[] {merchantAccount, correlationId});
 		queue.publish(publishEvent);
 	}
 }
