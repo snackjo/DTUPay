@@ -87,7 +87,7 @@ public class DTUPayService {
     private void handlePaymentCompleted(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
 
-        //TODO End-to-end test stops here, event "PaymentRequested
+        //TODO End-to-end test never reaches this point
         paymentCorrelations.get(correlationId).join();
         paymentCorrelations.remove(correlationId);
     }
