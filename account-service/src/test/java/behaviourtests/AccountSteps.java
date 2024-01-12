@@ -2,6 +2,7 @@ package behaviourtests;
 
 import account.service.*;
 import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
@@ -19,6 +20,8 @@ public class AccountSteps {
     private final AccountService accountService = new AccountService(queueMock);
     private final AccountRepository accountRepository = AccountRepositoryFactory.getRepository();
     private Event publishedEvent;
+    private Customer customer;
+    private CorrelationId correlationId;
 
     @When("a {string} event for a customer is received")
     public void aEventForACustomerIsReceived(String eventName) {
@@ -71,5 +74,22 @@ public class AccountSteps {
     @And("the merchant is given a non-empty DTUPay id")
     public void theMerchantIsGivenANonEmptyDTUPayId() {
         assertNotNull(accountRepository.getMerchantAccount(publishedEvent.getArgument(0, Merchant.class).getDtuPayId()));
+    }
+
+    @Given("a registered customer")
+    public void aRegisteredCustomer() {
+        customer = new Customer();
+        customer.setDtuPayId("987654321");
+        customer.setAccountId("123456789");
+
+        accountRepository.addCustomer(customer);
+    }
+
+    @When("a {string} event is received with a matching DTUPay id")
+    public void aEventIsReceivedWithAMatchingDTUPayId(String eventName) {
+        correlationId = CorrelationId.randomId();
+        Event event = new Event(eventName, new Object[]{customer.getDtuPayId(), correlationId});
+
+        accountService.handleTokenMatchFound(event);
     }
 }
