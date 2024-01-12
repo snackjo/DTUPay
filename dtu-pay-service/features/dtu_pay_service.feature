@@ -3,7 +3,9 @@ Feature: DTUPay service feature
         Given a customer with empty DTUPay id
         When the customer is being registered
         Then a "CustomerRegistrationRequested" event is published
-        When a "CustomerRegistered" event is received
+        When a CustomerRegistered event is received
         Then the customer is registered and his DTUPay id is set
 
-    Scenario: Customer requests payment
+    Scenario: Merchant requests payment
+        When a payment of 100 is being requested
+        Then a "PaymentRequested" event is published

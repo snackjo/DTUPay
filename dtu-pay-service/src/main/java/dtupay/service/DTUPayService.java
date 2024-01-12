@@ -12,11 +12,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DTUPayService {
     public static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
     public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
-    private static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
-    private static final String MERCHANT_REGISTERED = "MerchantRegistered";
-    private static final String TOKENS_REQUESTED = "TokensRequested";
-    private static final String TOKENS_GENERATED = "TokensGenerated";
-    private static final String PAYMENT_REQUESTED = "PaymentRequested";
+    public static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
+    public static final String MERCHANT_REGISTERED = "MerchantRegistered";
+    public static final String TOKENS_REQUESTED = "TokensRequested";
+    public static final String TOKENS_GENERATED = "TokensGenerated";
+    public static final String PAYMENT_REQUESTED = "PaymentRequested";
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<List<Token>>> tokenCorrelations = new ConcurrentHashMap<>();

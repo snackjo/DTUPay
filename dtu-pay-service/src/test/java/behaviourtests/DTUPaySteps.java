@@ -3,38 +3,27 @@ package behaviourtests;
 import dtupay.service.CorrelationId;
 import dtupay.service.Customer;
 import dtupay.service.DTUPayService;
+import dtupay.service.Token;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
+import org.mockito.ArgumentCaptor;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.Arrays;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class DTUPaySteps {
     Customer customer;
-    private final Map<String, CompletableFuture<Event>> publishedEvents = new HashMap<>();
-    private final Map<Customer, CorrelationId> correlationIds = new HashMap<>();
-
-    private final MessageQueue q = new MessageQueue() {
-        @Override
-        public void publish(Event event) {
-            Customer customerFromEvent = event.getArgument(0, Customer.class);
-            publishedEvents.get(customerFromEvent.getFirstName()).complete(event);
-        }
-
-        @Override
-        public void addHandler(String eventType, Consumer<Event> handler) {
-        }
-
-    };
-    private final DTUPayService service = new DTUPayService(q);
-    private final CompletableFuture<Customer> registeredCustomer = new CompletableFuture<>();
+    private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+    private final MessageQueue queueMock = mock(MessageQueue.class);
+    private final DTUPayService service = new DTUPayService(queueMock);
+    private Customer registrationResult;
+    private CorrelationId correlationId;
 
     @Given("a customer with empty DTUPay id")
     public void aCustomerWithEmptyDTUPayId() {
@@ -42,38 +31,52 @@ public class DTUPaySteps {
         customer.setCprNumber("11111111-17");
         customer.setFirstName("firstName");
         customer.setLastName("lastName");
-        publishedEvents.put(customer.getFirstName(), new CompletableFuture<Event>());
         assertNull(customer.getDtuPayId());
     }
 
     @When("the customer is being registered")
     public void theCustomerIsBeingRegistered() {
-        new Thread(() -> {
-            Customer registrationResult = service.registerCustomer(customer);
-            registeredCustomer.complete(registrationResult);
-        }).start();
+        new Thread(() -> registrationResult = service.registerCustomer(customer)).start();
     }
 
     @Then("a {string} event is published")
     public void aEventIsPublished(String eventName) {
-        Event publishedEvent = publishedEvents.get(customer.getFirstName()).join();
+        verify(queueMock, timeout(10000)).publish(eventCaptor.capture());
+        Event publishedEvent = eventCaptor.getValue();
+
         assertEquals(eventName, publishedEvent.getType());
-        Customer customer = publishedEvent.getArgument(0, Customer.class);
-        CorrelationId correlationId = publishedEvent.getArgument(1, CorrelationId.class);
-        correlationIds.put(customer, correlationId);
+
+        correlationId = getCorrelationId(publishedEvent);
     }
 
-    @When("a {string} event is received")
-    public void aEventIsReceived(String eventName) {
+    @When("a CustomerRegistered event is received")
+    public void aCustomerRegisteredEventIsReceived() {
         Customer customer = new Customer();
         customer.setFirstName(this.customer.getFirstName());
         customer.setDtuPayId("123");
-        service.handleCustomerRegistered(new Event(eventName,
-                new Object[] {customer, correlationIds.get(this.customer)}));
+        service.handleCustomerRegistered(new Event(DTUPayService.CUSTOMER_REGISTERED,
+                new Object[] {customer, correlationId}));
     }
 
     @Then("the customer is registered and his DTUPay id is set")
     public void theCustomerIsRegisteredAndHisDTUPayIdIsSet() {
-        assertNotNull(registeredCustomer.join().getDtuPayId());
+        assertNotNull(registrationResult.getDtuPayId());
+    }
+
+    @When("a payment of {int} is being requested")
+    public void aPaymentOfIsBeingRequested(int paymentAmount) {
+        String merchantDtuPayId = "12345";
+        Token token = new Token("abcd");
+
+        new Thread(() -> service.requestPayment(merchantDtuPayId, token, paymentAmount)).start();
+    }
+
+    private CorrelationId getCorrelationId(Event event) {
+        Optional<CorrelationId> firstCorrelationId = Arrays.stream(event.getArguments())
+                .filter(CorrelationId.class::isInstance)
+                .map(CorrelationId.class::cast)
+                .findFirst();
+
+        return firstCorrelationId.orElse(null);
     }
 }

@@ -2,6 +2,7 @@ package dtupay.service.adapter.rest;
 
 import dtupay.service.DTUPayService;
 import dtupay.service.Merchant;
+import dtupay.service.PaymentRequest;
 
 import javax.ws.rs.*;
 
