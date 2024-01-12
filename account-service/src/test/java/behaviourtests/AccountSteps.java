@@ -97,7 +97,7 @@ public class AccountSteps {
     @When("a {string} event is received with a matching merchant DTUPay id")
     public void aEventIsReceivedWithAMatchingMerchantDTUPayId(String eventName) {
         correlationId = CorrelationId.randomId();
-        Event event = new Event(eventName, new Object[]{merchant.getDtuPayId(), correlationId});
+        Event event = new Event(eventName, new Object[]{merchant.getDtuPayId(), null, null, correlationId});
 
         accountService.handlePaymentRequested(event);
     }

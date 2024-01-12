@@ -48,8 +48,8 @@ public class PaymentService {
 
     private void publishPaymentComplete(CorrelationId correlationId) {
         if (containsAllEvents(correlationId)) {
-            Event event = new Event(PAYMENT_COMPLETED, new Object[]{correlationId});
-            queue.publish(event);
+            Event publishEvent = new Event(PAYMENT_COMPLETED, new Object[] { correlationId });
+            queue.publish(publishEvent);
         }
     }
 
@@ -61,7 +61,6 @@ public class PaymentService {
         }
 
         return eventNames.stream().allMatch(eventName ->
-                events.stream().anyMatch(event -> event.getType().equals(eventName))
-        );
+                events.stream().anyMatch(event -> event.getType().equals(eventName)));
     }
 }

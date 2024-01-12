@@ -64,7 +64,7 @@ public class AccountService {
 
 	public void handlePaymentRequested(Event event) {
 		String merchantDtuPayId = event.getArgument(0, String.class);
-		CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+		CorrelationId correlationId = event.getArgument(3, CorrelationId.class);
 
 		String merchantAccount = accountRepository.getMerchantAccount(merchantDtuPayId);
 		Event publishEvent = new Event(MERCHANT_BANK_ACCOUNT_FOUND, new Object[] {merchantAccount, correlationId});

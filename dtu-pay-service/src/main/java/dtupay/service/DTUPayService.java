@@ -17,6 +17,7 @@ public class DTUPayService {
     public static final String TOKENS_REQUESTED = "TokensRequested";
     public static final String TOKENS_GENERATED = "TokensGenerated";
     public static final String PAYMENT_REQUESTED = "PaymentRequested";
+    private static final String PAYMENT_COMPLETED = "PaymentCompleted";
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<List<Token>>> tokenCorrelations = new ConcurrentHashMap<>();
@@ -28,6 +29,7 @@ public class DTUPayService {
         queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
         queue.addHandler(MERCHANT_REGISTERED, this::handleMerchantRegistered);
         queue.addHandler(TOKENS_GENERATED, this::handleTokensGenerated);
+        queue.addHandler(PAYMENT_COMPLETED, this::handlePaymentCompleted);
     }
 
     public Customer registerCustomer(Customer customer) {
@@ -82,4 +84,12 @@ public class DTUPayService {
         queue.publish(event);
         return paymentCorrelations.get(correlationId).join();
     }
+    private void handlePaymentCompleted(Event event) {
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+
+        //TODO End-to-end test stops here, event "PaymentRequested
+        paymentCorrelations.get(correlationId).join();
+        paymentCorrelations.remove(correlationId);
+    }
+
 }
