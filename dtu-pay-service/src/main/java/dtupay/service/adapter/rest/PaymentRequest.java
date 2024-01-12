@@ -7,5 +7,4 @@ import lombok.Data;
 public class PaymentRequest {
     Token token;
     int amount;
-    String merchantDTUPayId;
 }

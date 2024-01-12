@@ -6,7 +6,7 @@ Feature: Payment feature
         And the customer is registered with DTUPay
         And the customer has generated tokens
         Given the merchant has received a token from the customer
-        When the merchant initiates a payment of 100 using the token
+        When the merchant requests a payment of 100 using the token
         Then the payment is successful
         And the merchant's balance is 1100
         And the customer's balance is 900

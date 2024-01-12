@@ -48,10 +48,10 @@ public class PaymentSteps {
         tokenReceivedFromCustomer = customer.provideToken();
     }
 
-    @When("the merchant initiates a payment of {int} using the token")
-    public void theMerchantInitiatesAPaymentOfUsingTheToken(int paymentAmount) throws Exception {
+    @When("the merchant requests a payment of {int} using the token")
+    public void theMerchantRequestsAPaymentOfUsingTheToken(int paymentAmount) throws Exception {
         MerchantApp.Token token = MapperUtility.mapToken(tokenReceivedFromCustomer);
-        merchantDtuPay.initiatePayment(paymentAmount, token, merchant.getDtuPayId());
+        merchantDtuPay.requestPayment(paymentAmount, token, merchant.getDtuPayId());
     }
 
     @Then("the payment is successful")

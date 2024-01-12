@@ -23,7 +23,7 @@ public class MerchantDtuPay {
         }
     }
 
-    public String initiatePayment(int paymentAmount, Token tokenReceivedFromCustomer, String merchantDtuPayId) throws Exception {
+    public String requestPayment(int paymentAmount, Token tokenReceivedFromCustomer, String merchantDtuPayId) throws Exception {
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setToken(tokenReceivedFromCustomer);
         paymentRequest.setAmount(paymentAmount);
