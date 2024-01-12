@@ -16,6 +16,11 @@ chmod +x build.sh
 ./build.sh
 popd
 
+pushd payment-service
+chmod +x build.sh
+./build.sh
+popd
+
 # Update the set of services and
 # build and execute the system tests
 pushd end-to-end-tests

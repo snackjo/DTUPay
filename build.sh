@@ -24,3 +24,8 @@ pushd token-service
 chmod +x build.sh
 ./build.sh
 popd
+
+pushd payment-service
+chmod +x build.sh
+./build.sh
+popd
