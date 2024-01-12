@@ -15,4 +15,8 @@ public class Customer {
     public void addTokens(List<Token> tokens) {
         this.tokens.addAll(tokens);
     }
+
+    public void removeToken(Token token){
+        this.tokens.remove(token);
+    }
 }

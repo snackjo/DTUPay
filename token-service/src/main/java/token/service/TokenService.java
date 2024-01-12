@@ -8,18 +8,37 @@ public class TokenService {
     private static final String CUSTOMER_REGISTERED = "CustomerRegistered";
     private static final String TOKENS_REQUESTED = "TokensRequested";
     private static final String TOKENS_GENERATED = "TokensGenerated";
+    public static final String PAYMENT_REQUESTED = "PaymentRequested";
+    private static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
     private final MessageQueue queue;
+    private final CustomerRepository customerRepository;
+
 
     public TokenService(MessageQueue q) {
         queue = q;
+        customerRepository = CustomerRepositoryFactory.getRepository();
+
         queue.addHandler(TOKENS_REQUESTED, this::handleTokensRequested);
         queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
+        queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
+
+    }
+
+    public void handlePaymentRequested(Event event) {
+        Token token = event.getArgument(1, Token.class);
+        CorrelationId correlationId = event.getArgument(3, CorrelationId.class);
+
+        String customerDtuPayId = customerRepository.getCustomerByToken(token);
+        customerRepository.removeToken(customerDtuPayId, token);
+
+        Event publishedEvent = new Event(TOKEN_MATCH_FOUND,
+                new Object[]{customerDtuPayId, correlationId});
+        queue.publish(publishedEvent);
     }
 
     public void handleCustomerRegistered(Event ev) {
         Customer customer = ev.getArgument(0, Customer.class);
 
-        CustomerRepository customerRepository = CustomerRepositoryFactory.getRepository();
         customerRepository.addCustomer(customer);
     }
 
@@ -28,9 +47,8 @@ public class TokenService {
         int tokenAmount = event.getArgument(1, Integer.class);
         CorrelationId correlationId = event.getArgument(2, CorrelationId.class);
 
-        CustomerRepository customerRepository = CustomerRepositoryFactory.getRepository();
-        customerRepository.addTokensToCustomer(dtuPayId, Token.generateTokens(tokenAmount));
 
+        customerRepository.addTokensToCustomer(dtuPayId, Token.generateTokens(tokenAmount));
         Event publishedEvent = new Event(TOKENS_GENERATED,
                 new Object[] { customerRepository.getCustomer(dtuPayId).getTokens(), correlationId });
         queue.publish(publishedEvent);
