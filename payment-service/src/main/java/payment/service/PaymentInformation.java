@@ -18,7 +18,7 @@ public class PaymentInformation {
     }
 
     public String getMerchantBankAccount() {
-        return customerBankAccountFoundEvent.getArgument(0, String.class);
+        return merchantBankAccountFoundEvent.getArgument(0, String.class);
     }
 
     public int getAmount() {
