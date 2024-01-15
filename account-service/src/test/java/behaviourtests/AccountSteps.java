@@ -15,10 +15,9 @@ import static org.mockito.Mockito.verify;
 
 public class AccountSteps {
     private final MessageQueue queueMock = mock(MessageQueue.class);
+    private final AccountRepository accountRepository = new AccountRepository();
     private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-
-    private final AccountService accountService = new AccountService(queueMock);
-    private final AccountRepository accountRepository = AccountRepositoryFactory.getRepository();
+    private final AccountService accountService = new AccountService(queueMock, accountRepository);
     private Event publishedEvent;
     private Customer customer;
     private CorrelationId correlationId;

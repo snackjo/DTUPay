@@ -18,11 +18,11 @@ public class AccountService {
 
 
 	MessageQueue queue;
-	private AccountRepository accountRepository;
+	private final AccountRepository accountRepository;
 
-	public AccountService(MessageQueue q) {
+	public AccountService(MessageQueue q, AccountRepository accountRepository) {
 		this.queue = q;
-		accountRepository = AccountRepositoryFactory.getRepository();
+		this.accountRepository = accountRepository;
 
 		this.queue.addHandler(CUSTOMER_REGISTRATION_REQUESTED, this::handleCustomerRegistrationRequested);
 		this.queue.addHandler(MERCHANT_REGISTRATION_REQUESTED, this::handleMerchantRegistrationRequested);
@@ -35,7 +35,6 @@ public class AccountService {
 		CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
 
 		customer.setDtuPayId(UUID.randomUUID().toString());
-		AccountRepository accountRepository = AccountRepositoryFactory.getRepository();
 		accountRepository.addCustomer(customer);
 
 		Event event = new Event(CUSTOMER_REGISTERED, new Object[] { customer, correlationId });

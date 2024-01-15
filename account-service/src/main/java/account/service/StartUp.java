@@ -8,7 +8,8 @@ public class StartUp {
     }
 
     private void startUp() {
-        var mq = new RabbitMqQueue("rabbitMq");
-        new AccountService(mq);
+        RabbitMqQueue mq = new RabbitMqQueue("rabbitMq");
+        AccountRepository accountRepository = new AccountRepository();
+        new AccountService(mq, accountRepository);
     }
 }
