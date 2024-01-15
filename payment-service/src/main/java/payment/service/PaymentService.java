@@ -1,8 +1,12 @@
 package payment.service;
 
+import dtu.ws.fastmoney.BankService;
+import dtu.ws.fastmoney.BankServiceException_Exception;
+import dtu.ws.fastmoney.BankServiceService;
 import messaging.Event;
 import messaging.MessageQueue;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,11 +19,12 @@ public class PaymentService {
 
     private final Map<String, PaymentInformation> paymentInformation = new ConcurrentHashMap<>();
 
-
     MessageQueue queue;
+    private final BankService bank;
 
-    public PaymentService(MessageQueue q) {
+    public PaymentService(MessageQueue q, BankService bank) {
         this.queue = q;
+        this.bank = bank;
 
         this.queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
         this.queue.addHandler(CUSTOMER_BANK_ACCOUNT_FOUND, this::handleCustomerBankAccountFound);
@@ -30,21 +35,21 @@ public class PaymentService {
     public synchronized void handlePaymentRequested(Event event) {
         CorrelationId correlationId = event.getArgument(3, CorrelationId.class);
         createPaymentInformationIfNotExists(correlationId);
-        paymentInformation.get(correlationId.getId()).paymentRequestedEvent = event;
+        paymentInformation.get(correlationId.getId()).setPaymentRequestedEvent(event);
         publishPaymentComplete(correlationId);
     }
 
     public synchronized void handleCustomerBankAccountFound(Event event) {
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         createPaymentInformationIfNotExists(correlationId);
-        paymentInformation.get(correlationId.getId()).customerBankAccountFoundEvent = event;
+        paymentInformation.get(correlationId.getId()).setCustomerBankAccountFoundEvent(event);
         publishPaymentComplete(correlationId);
     }
 
     public synchronized void handleMerchantBankAccountFound(Event event) {
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         createPaymentInformationIfNotExists(correlationId);
-        paymentInformation.get(correlationId.getId()).merchantBankAccountFoundEvent = event;
+        paymentInformation.get(correlationId.getId()).setMerchantBankAccountFoundEvent(event);
         publishPaymentComplete(correlationId);
     }
 
@@ -56,9 +61,18 @@ public class PaymentService {
 
     private void publishPaymentComplete(CorrelationId correlationId) {
         PaymentInformation information = paymentInformation.get(correlationId.getId());
-        if (information.merchantBankAccountFoundEvent != null && information.customerBankAccountFoundEvent != null && information.paymentRequestedEvent != null) {
+        if (information.isAllInformationSet()) {
+            tryTransferringThroughBank(information);
             Event publishEvent = new Event(PAYMENT_COMPLETED, new Object[] { correlationId });
             queue.publish(publishEvent);
+        }
+    }
+
+    private void tryTransferringThroughBank(PaymentInformation information) {
+        try {
+            bank.transferMoneyFromTo(information.getCustomerBankAccount(), information.getMerchantBankAccount(), BigDecimal.valueOf(information.getAmount()), "");
+        } catch (BankServiceException_Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

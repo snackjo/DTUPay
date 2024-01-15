@@ -1,5 +1,6 @@
 package behaviourtests;
 
+import dtu.ws.fastmoney.BankService;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -20,8 +21,9 @@ import static org.mockito.Mockito.*;
 public class PaymentSteps {
 
     private final MessageQueue queueMock = mock(MessageQueue.class);
+    private final BankService bankMock = mock(BankService.class);
     private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-    private final PaymentService paymentService = new PaymentService(queueMock);
+    private final PaymentService paymentService = new PaymentService(queueMock, bankMock);
     private CorrelationId correlationId1;
     private Event paymentRequestedEvent1;
     private Event customerBankAccountFoundEvent1;
@@ -35,19 +37,19 @@ public class PaymentSteps {
     @When("a PaymentRequested event is received")
     public void aPaymentRequestedEventIsReceived() {
         correlationId1 = CorrelationId.randomId();
-        Event event = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{null, null, null, correlationId1});
+        Event event = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{"", "", 5, correlationId1});
         paymentService.handlePaymentRequested(event);
     }
 
     @And("a CustomerBankAccountFound event is received")
     public void aCustomerBankAccountFoundEventIsReceived() {
-        Event event = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{null, correlationId1});
+        Event event = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1});
         paymentService.handleCustomerBankAccountFound(event);
     }
 
     @And("a MerchantBankAccountFound event is received")
     public void aMerchantBankAccountFoundEventIsReceived() {
-        Event event = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{null, correlationId1});
+        Event event = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1});
         paymentService.handleMerchantBankAccountFound(event);
     }
 

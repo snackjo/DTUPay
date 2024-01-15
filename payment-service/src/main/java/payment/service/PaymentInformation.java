@@ -5,7 +5,23 @@ import messaging.Event;
 
 @Data
 public class PaymentInformation {
-    Event paymentRequestedEvent;
-    Event customerBankAccountFoundEvent;
-    Event merchantBankAccountFoundEvent;
+    private Event paymentRequestedEvent;
+    private Event customerBankAccountFoundEvent;
+    private Event merchantBankAccountFoundEvent;
+
+    public boolean isAllInformationSet() {
+        return merchantBankAccountFoundEvent != null && customerBankAccountFoundEvent != null && paymentRequestedEvent != null;
+    }
+
+    public String getCustomerBankAccount() {
+        return customerBankAccountFoundEvent.getArgument(0, String.class);
+    }
+
+    public String getMerchantBankAccount() {
+        return customerBankAccountFoundEvent.getArgument(0, String.class);
+    }
+
+    public int getAmount() {
+        return paymentRequestedEvent.getArgument(2, Integer.class);
+    }
 }

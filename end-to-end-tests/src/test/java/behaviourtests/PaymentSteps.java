@@ -6,12 +6,17 @@ import CustomerApp.Token;
 import MerchantApp.Merchant;
 import MerchantApp.MerchantDtuPay;
 import Utility.MapperUtility;
+import dtu.ws.fastmoney.Account;
+import dtu.ws.fastmoney.BankService;
+import dtu.ws.fastmoney.BankServiceException_Exception;
+import dtu.ws.fastmoney.BankServiceService;
 import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -21,6 +26,7 @@ public class PaymentSteps {
     Customer customer;
     Merchant merchant;
     Token tokenReceivedFromCustomer;
+    private final BankService bank = new BankServiceService().getBankServicePort();
     private final MerchantDtuPay merchantDtuPay = new MerchantDtuPay();
     private final CustomerDTUPay customerDtuPay = new CustomerDTUPay();
     private String paymentResponse;
@@ -63,12 +69,14 @@ public class PaymentSteps {
     }
 
     @And("the merchant's balance is {int}")
-    public void theMerchantSBalanceIs(int arg0) {
-        throw new PendingException();
+    public void theMerchantSBalanceIs(int expectedBalance) throws BankServiceException_Exception {
+        Account account = bank.getAccount(merchant.getAccountId());
+        assertEquals(BigDecimal.valueOf(expectedBalance), account.getBalance());
     }
 
     @And("the customer's balance is {int}")
-    public void theCustomerSBalanceIs(int arg0) {
-        throw new PendingException();
+    public void theCustomerSBalanceIs(int expectedBalance) throws BankServiceException_Exception {
+        Account account = bank.getAccount(customer.getAccountId());
+        assertEquals(BigDecimal.valueOf(expectedBalance), account.getBalance());
     }
 }
