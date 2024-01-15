@@ -1,6 +1,5 @@
 package behaviourtests;
 
-import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -10,7 +9,6 @@ import messaging.MessageQueue;
 import org.mockito.ArgumentCaptor;
 import token.service.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -21,8 +19,8 @@ import static org.mockito.Mockito.verify;
 public class TokenSteps {
     private Customer customer;
     private final MessageQueue queueMock = mock(MessageQueue.class);
-    private final TokenService tokenService = new TokenService(queueMock);
-    private final CustomerRepository customerRepository = CustomerRepositoryFactory.getRepository();
+    private final CustomerRepository customerRepository = new CustomerRepository();
+    private final TokenService tokenService = new TokenService(queueMock, customerRepository);
     private List<Token> generatedTokens;
 
     @When("a {string} event is received")

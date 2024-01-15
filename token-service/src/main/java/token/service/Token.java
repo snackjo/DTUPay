@@ -8,9 +8,9 @@ import java.util.UUID;
 
 @Value
 public class Token {
-    UUID id;
+    String id;
     public static Token generateToken() {
-        return new Token(UUID.randomUUID());
+        return new Token(UUID.randomUUID().toString());
     }
     public static List<Token> generateTokens(int tokenAmount) {
         List<Token> tokens = new ArrayList<>();

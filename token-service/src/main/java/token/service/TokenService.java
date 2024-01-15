@@ -14,9 +14,9 @@ public class TokenService {
     private final CustomerRepository customerRepository;
 
 
-    public TokenService(MessageQueue q) {
+    public TokenService(MessageQueue q, CustomerRepository customerRepository) {
         queue = q;
-        customerRepository = CustomerRepositoryFactory.getRepository();
+        this.customerRepository = customerRepository;
 
         queue.addHandler(TOKENS_REQUESTED, this::handleTokensRequested);
         queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
