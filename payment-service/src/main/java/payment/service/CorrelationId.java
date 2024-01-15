@@ -6,9 +6,9 @@ import java.util.UUID;
 
 @Value
 public class CorrelationId {
-	UUID id;
+	String id;
 
 	public static CorrelationId randomId() {
-		return new CorrelationId(UUID.randomUUID());
+		return new CorrelationId(UUID.randomUUID().toString());
 	}
 }

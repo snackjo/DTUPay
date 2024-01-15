@@ -14,6 +14,8 @@ import io.cucumber.java.en.When;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 public class PaymentSteps {
     StateHolder stateHolder;
     Customer customer;
@@ -21,6 +23,7 @@ public class PaymentSteps {
     Token tokenReceivedFromCustomer;
     private final MerchantDtuPay merchantDtuPay = new MerchantDtuPay();
     private final CustomerDTUPay customerDtuPay = new CustomerDTUPay();
+    private String paymentResponse;
 
     public PaymentSteps(StateHolder stateHolder) {
         this.stateHolder = stateHolder;
@@ -51,12 +54,12 @@ public class PaymentSteps {
     @When("the merchant requests a payment of {int} using the token")
     public void theMerchantRequestsAPaymentOfUsingTheToken(int paymentAmount) throws Exception {
         MerchantApp.Token token = MapperUtility.mapToken(tokenReceivedFromCustomer);
-        merchantDtuPay.requestPayment(paymentAmount, token, merchant.getDtuPayId());
+        paymentResponse = merchantDtuPay.requestPayment(paymentAmount, token, merchant.getDtuPayId());
     }
 
     @Then("the payment is successful")
     public void thePaymentIsSuccessful() {
-        throw new PendingException();
+        assertEquals("Success", paymentResponse);
     }
 
     @And("the merchant's balance is {int}")
