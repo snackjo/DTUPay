@@ -70,7 +70,7 @@ public class PaymentService {
 
     private void tryTransferringThroughBank(PaymentInformation information) {
         try {
-            bank.transferMoneyFromTo(information.getCustomerBankAccount(), information.getMerchantBankAccount(), BigDecimal.valueOf(information.getAmount()), "");
+            bank.transferMoneyFromTo(information.getCustomerBankAccount(), information.getMerchantBankAccount(), BigDecimal.valueOf(information.getAmount()), "transfer");
         } catch (BankServiceException_Exception e) {
             throw new RuntimeException(e);
         }
