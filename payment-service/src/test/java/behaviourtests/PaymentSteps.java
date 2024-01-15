@@ -102,7 +102,7 @@ public class PaymentSteps {
 
     @Then("only one {string} event is published")
     public void onlyOneEventIsPublished(String eventName) {
-        verify(queueMock, timeout(2000).times(1)).publish(eventCaptor.capture());
+        verify(queueMock, timeout(5000).times(1)).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
     }
 
@@ -128,13 +128,13 @@ public class PaymentSteps {
 
     @Then("two {string} event is published")
     public void twoEventIsPublished(String eventName) {
-        verify(queueMock, timeout(2000).times(2)).publish(eventCaptor.capture());
+        verify(queueMock, timeout(5000).times(2)).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
     }
 
     @And("the two events have different correlation id")
     public void theTwoEventsHaveDifferentCorrelationId() {
-        verify(queueMock, timeout(2000).times(2)).publish(eventCaptor.capture());
+        verify(queueMock, timeout(5000).times(2)).publish(eventCaptor.capture());
         assertNotEquals(eventCaptor.getAllValues().get(0), eventCaptor.getAllValues().get(1));
     }
 

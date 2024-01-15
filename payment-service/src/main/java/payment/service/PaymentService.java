@@ -2,7 +2,6 @@ package payment.service;
 
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
-import dtu.ws.fastmoney.BankServiceService;
 import messaging.Event;
 import messaging.MessageQueue;
 
@@ -32,39 +31,40 @@ public class PaymentService {
 
     }
 
-    public synchronized void handlePaymentRequested(Event event) {
+    public void handlePaymentRequested(Event event) {
         CorrelationId correlationId = event.getArgument(3, CorrelationId.class);
         createPaymentInformationIfNotExists(correlationId);
         paymentInformation.get(correlationId.getId()).setPaymentRequestedEvent(event);
         publishPaymentComplete(correlationId);
     }
 
-    public synchronized void handleCustomerBankAccountFound(Event event) {
+    public void handleCustomerBankAccountFound(Event event) {
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         createPaymentInformationIfNotExists(correlationId);
         paymentInformation.get(correlationId.getId()).setCustomerBankAccountFoundEvent(event);
         publishPaymentComplete(correlationId);
     }
 
-    public synchronized void handleMerchantBankAccountFound(Event event) {
+    public void handleMerchantBankAccountFound(Event event) {
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         createPaymentInformationIfNotExists(correlationId);
         paymentInformation.get(correlationId.getId()).setMerchantBankAccountFoundEvent(event);
         publishPaymentComplete(correlationId);
     }
 
-    private void createPaymentInformationIfNotExists(CorrelationId correlationId) {
+    private synchronized void createPaymentInformationIfNotExists(CorrelationId correlationId) {
         if (!paymentInformation.containsKey(correlationId.getId())) {
             paymentInformation.put(correlationId.getId(), new PaymentInformation());
         }
     }
 
-    private void publishPaymentComplete(CorrelationId correlationId) {
+    private synchronized void publishPaymentComplete(CorrelationId correlationId) {
         PaymentInformation information = paymentInformation.get(correlationId.getId());
-        if (information.isAllInformationSet()) {
+        if (information != null && information.isAllInformationSet()) {
             tryTransferringThroughBank(information);
             Event publishEvent = new Event(PAYMENT_COMPLETED, new Object[] { correlationId });
             queue.publish(publishEvent);
+            paymentInformation.remove(correlationId.getId());
         }
     }
 
