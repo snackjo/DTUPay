@@ -22,4 +22,6 @@ services:
     image: payment
     container_name: payment
 
- 
+  report-service:
+    image: report
+    container_name: report

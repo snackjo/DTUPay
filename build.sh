@@ -29,3 +29,8 @@ pushd payment-service
 chmod +x build.sh
 ./build.sh
 popd
+
+pushd report-service
+chmod +x build.sh
+./build.sh
+popd
