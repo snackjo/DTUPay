@@ -17,10 +17,11 @@ public class DTUPayService {
     public static final String TOKENS_REQUESTED = "TokensRequested";
     public static final String TOKENS_GENERATED = "TokensGenerated";
     public static final String PAYMENT_REQUESTED = "PaymentRequested";
-    private static final String PAYMENT_COMPLETED = "PaymentCompleted";
+    public static final String PAYMENT_COMPLETED = "PaymentCompleted";
+    public static final String TOKENS_REQUEST_REJECTED = "TokensRequestRejected";
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
-    private final Map<CorrelationId, CompletableFuture<List<Token>>> tokenCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<ResponseObject<List<Token>>>> tokenCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<String>> paymentCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
 
@@ -30,6 +31,7 @@ public class DTUPayService {
         queue.addHandler(MERCHANT_REGISTERED, this::handleMerchantRegistered);
         queue.addHandler(TOKENS_GENERATED, this::handleTokensGenerated);
         queue.addHandler(PAYMENT_COMPLETED, this::handlePaymentCompleted);
+        queue.addHandler(TOKENS_REQUEST_REJECTED, this::handleTokensRequestRejected);
     }
 
     public Customer registerCustomer(Customer customer) {
@@ -63,20 +65,21 @@ public class DTUPayService {
         merchantCorrelations.get(correlationId).complete(merchant);
     }
 
-    public List<Token> requestTokens(String dtuPayId, int tokenAmount) {
+    public List<Token> requestTokens(String dtuPayId, int tokenAmount) throws DTUPayException {
         CorrelationId correlationId = CorrelationId.randomId();
         tokenCorrelations.put(correlationId, new CompletableFuture<>());
         Event event = new Event(TOKENS_REQUESTED, new Object[]{dtuPayId, tokenAmount, correlationId});
         queue.publish(event);
-        List<Token> response = tokenCorrelations.get(correlationId).join();
+        ResponseObject<List<Token>> responseObject = tokenCorrelations.get(correlationId).join();
         tokenCorrelations.remove(correlationId);
-        return response;
+        return responseObject.getSuccessContentOrThrow();
     }
 
     private void handleTokensGenerated(Event event) {
         List<Token> tokens = (List<Token>) event.getArgument(0, List.class);
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
-        tokenCorrelations.get(correlationId).complete(tokens);
+        ResponseObject<List<Token>> responseObject = new ResponseObject<>(tokens);
+        tokenCorrelations.get(correlationId).complete(responseObject);
     }
 
     public String requestPayment(String merchantDtuPayId, Token token, int amount) {
@@ -92,5 +95,12 @@ public class DTUPayService {
     private void handlePaymentCompleted(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         paymentCorrelations.get(correlationId).complete("Success");
+    }
+
+    public void handleTokensRequestRejected(Event event) {
+        String errorMessage = "Tokens request rejected";
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        ResponseObject<List<Token>> responseObject = new ResponseObject<>(errorMessage);
+        tokenCorrelations.get(correlationId).complete(responseObject);
     }
 }

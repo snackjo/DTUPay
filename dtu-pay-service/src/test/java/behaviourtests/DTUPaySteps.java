@@ -1,9 +1,6 @@
 package behaviourtests;
 
-import dtupay.service.CorrelationId;
-import dtupay.service.Customer;
-import dtupay.service.DTUPayService;
-import dtupay.service.Token;
+import dtupay.service.*;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -24,6 +21,7 @@ public class DTUPaySteps {
     private final DTUPayService service = new DTUPayService(queueMock);
     private Customer registrationResult;
     private CorrelationId correlationId;
+    private DTUPayException tokenRequestException;
 
     @Given("a customer with empty DTUPay id")
     public void aCustomerWithEmptyDTUPayId() {
@@ -79,5 +77,28 @@ public class DTUPaySteps {
                 .findFirst();
 
         return firstCorrelationId.orElse(null);
+    }
+
+    @When("a TokensRequestRejected event is received")
+    public void aTokensRequestRejectedEventIsReceived() {
+        service.handleTokensRequestRejected(new Event(DTUPayService.TOKENS_REQUEST_REJECTED,
+                new Object[] {correlationId}));
+    }
+
+    @Then("a DTUPay exception is thrown")
+    public void aDTUPayExceptionIsThrown() {
+        assertNotNull(tokenRequestException);
+    }
+
+    @When("a customer requests {int} tokens")
+    public void theCustomerRequestsTokens(int tokenAmount) {
+        new Thread(() -> {
+            try{
+                service.requestTokens("DTUPayId", tokenAmount);
+            }catch(DTUPayException e){
+                tokenRequestException = e;
+            }
+        }).start();
+
     }
 }

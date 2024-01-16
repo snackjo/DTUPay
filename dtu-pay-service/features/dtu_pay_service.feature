@@ -9,3 +9,9 @@ Feature: DTUPay service feature
     Scenario: Merchant requests payment
         When a payment of 100 is being requested
         Then a "PaymentRequested" event is published
+
+    Scenario: Customer requests an invalid amount of tokens
+        When a customer requests 6 tokens
+        Then a "TokensRequested" event is published
+        When a TokensRequestRejected event is received
+        Then a DTUPay exception is thrown

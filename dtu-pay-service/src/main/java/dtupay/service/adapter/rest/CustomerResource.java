@@ -1,11 +1,11 @@
 package dtupay.service.adapter.rest;
 
 import dtupay.service.Customer;
+import dtupay.service.DTUPayException;
 import dtupay.service.DTUPayService;
-import dtupay.service.Token;
 
 import javax.ws.rs.*;
-import java.util.List;
+import javax.ws.rs.core.Response;
 
 @Path("/customers")
 public class CustomerResource {
@@ -23,7 +23,11 @@ public class CustomerResource {
 	@Path("{dtuPayId}" + "/tokens")
 	@Consumes("application/json")
 	@Produces("application/json")
-	public List<Token> requestTokens(@PathParam("dtuPayId") String dtuPayId, int tokenAmount) {
-		return service.requestTokens(dtuPayId, tokenAmount);
-	}
+	public Response requestTokens(@PathParam("dtuPayId") String dtuPayId, int tokenAmount) {
+        try {
+            return Response.ok(service.requestTokens(dtuPayId, tokenAmount)).build();
+        } catch (DTUPayException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
 }
