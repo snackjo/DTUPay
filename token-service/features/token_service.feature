@@ -19,3 +19,11 @@ Feature: Token service test
         When a "TokensRequested" event for a customer is received for 3 tokens
         Then a "TokensRequestRejected" event is published
         And the customer has 2 tokens
+
+    Scenario: Customer requests too many tokens
+        Given a registered customer with 0 tokens
+        When a "TokensRequested" event for a customer is received for 6 tokens
+        Then a "TokensRequestRejected" event is published
+        And the customer has 0 tokens
+
+
