@@ -6,7 +6,6 @@ import messaging.MessageQueue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ReportService {
     public static final String PAYMENT_COMPLETED = "PaymentCompleted";
