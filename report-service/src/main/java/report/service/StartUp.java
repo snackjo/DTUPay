@@ -9,7 +9,6 @@ public class StartUp {
 
     private void startUp() {
         RabbitMqQueue mq = new RabbitMqQueue("rabbitMq");
-
         new ReportService(mq);
     }
 }

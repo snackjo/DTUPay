@@ -15,28 +15,22 @@ import static org.mockito.Mockito.mock;
 public class ReportSteps {
 
     private final MessageQueue queueMock = mock(MessageQueue.class);
-    private final ReportService reportService = new ReportService(queueMock);;
-    private String customerDtuPayId;
+    private final ReportService reportService = new ReportService(queueMock);
 
 
-    @Given("customer registered in DTU Pay")
-    public void customerRegisteredInDTUPay() {
-        customerDtuPayId = "customerDtuPayId";
-    }
-
-    @And("that customer has no completed payments")
-    public void thatCustomerHasNoCompletedPayments() {
-        assertTrue(reportService.getCustomerReports(customerDtuPayId).isEmpty());
+    @Given("that no payments have completed yet")
+    public void thatNoPaymentsHaveCompletedYet() {
+        assertTrue(reportService.getReports().isEmpty());
     }
 
     @When("a PaymentCompleted event is received")
     public void aPaymentCompletedEventIsReceived() {
         reportService.handlePaymentCompletedEvent(new Event(ReportService.PAYMENT_COMPLETED,
-                new Object[]{"", "merchantDtuPayId", "customerToken", 100, customerDtuPayId}));
+                new Object[]{"", "merchantDtuPayId", "customerToken", 100, "customerDtuPayId"}));
     }
 
     @Then("that payment is stored")
     public void thatPaymentIsStored() {
-        assertEquals(1, reportService.getCustomerReports(customerDtuPayId).size());
+        assertEquals(1, reportService.getReports().size());
     }
 }

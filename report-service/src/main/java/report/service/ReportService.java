@@ -19,10 +19,8 @@ public class ReportService {
         this.queue.addHandler(PAYMENT_COMPLETED, this::handlePaymentCompletedEvent);
     }
 
-    public List<Payment> getCustomerReports(String customerDtuPayId) {
-        return payments.stream()
-                .filter(payment -> payment.getCustomerDtuPayId().equals(customerDtuPayId))
-                .collect(Collectors.toList());
+    public List<Payment> getReports() {
+        return payments;
     }
 
     public void handlePaymentCompletedEvent(Event event) {
