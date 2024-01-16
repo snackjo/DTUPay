@@ -1,6 +1,7 @@
 package behaviourtests;
 
 import dtupay.service.*;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -27,10 +28,10 @@ public class DTUPaySteps {
     private CorrelationId correlationId;
     private DTUPayException tokenRequestException;
     private Merchant merchant;
-    private Event tokensRequestedEvent;
+    private Event publishedEvent;
     private List<Token> tokensGenerated;
-    private Thread tokenRequestThread;
-    private Thread paymentRequestThread;
+    private Thread requestThread;
+    private List<Payment> managerReportGenerated;
 
     @Given("a customer with empty DTUPay id")
     public void aCustomerWithEmptyDTUPayId() {
@@ -43,17 +44,17 @@ public class DTUPaySteps {
 
     @When("the customer is being registered")
     public void theCustomerIsBeingRegistered() {
-        new Thread(() -> customerRegistrationResult = service.registerCustomer(customer)).start();
+        requestThread = new Thread(() -> customerRegistrationResult = service.registerCustomer(customer));
+        requestThread.start();
     }
 
     @Then("a {string} event is published")
     public void aEventIsPublished(String eventName) {
         verify(queueMock, timeout(10000)).publish(eventCaptor.capture());
-        tokensRequestedEvent = eventCaptor.getValue();
+        publishedEvent = eventCaptor.getValue();
 
-        assertEquals(eventName, tokensRequestedEvent.getType());
-
-        correlationId = getCorrelationId(tokensRequestedEvent);
+        assertEquals(eventName, publishedEvent.getType());
+        correlationId = getCorrelationId(publishedEvent);
     }
     
     @When("a CustomerRegistered event is received")
@@ -75,8 +76,8 @@ public class DTUPaySteps {
         Token token = new Token();
         token.setId("abcd");
 
-        paymentRequestThread = new Thread(() -> paymentCompletedResponse = service.requestPayment(merchantDtuPayId, token, paymentAmount));
-        paymentRequestThread.start();
+        requestThread = new Thread(() -> paymentCompletedResponse = service.requestPayment(merchantDtuPayId, token, paymentAmount));
+        requestThread.start();
     }
 
     private CorrelationId getCorrelationId(Event event) {
@@ -101,15 +102,14 @@ public class DTUPaySteps {
 
     @When("a customer requests {int} tokens")
     public void theCustomerRequestsTokens(int tokenAmount) {
-        tokenRequestThread = new Thread(() -> {
+        requestThread = new Thread(() -> {
             try{
                 tokensGenerated = service.requestTokens("DTUPayId", tokenAmount);
             }catch(DTUPayException e){
                 tokenRequestException = e;
             }
         });
-        tokenRequestThread.start();
-
+        requestThread.start();
     }
 
     @Given("a merchant with empty DTUPay id")
@@ -123,7 +123,8 @@ public class DTUPaySteps {
 
     @When("the merchant is being registered")
     public void theMerchantIsBeingRegistered() {
-        new Thread(() -> merchantRegistrationResult = service.registerMerchant(merchant)).start();
+        requestThread = new Thread(() -> merchantRegistrationResult = service.registerMerchant(merchant));
+        requestThread.start();
     }
 
     @When("a MerchantRegistered event is received")
@@ -147,14 +148,14 @@ public class DTUPaySteps {
 
     @Then("the payment is successful")
     public void thePaymentIsSuccessful() throws InterruptedException {
-        paymentRequestThread.join();
+        requestThread.join();
         assertEquals("Success", paymentCompletedResponse);
     }
 
     @When("a TokensGenerated event is received")
     public void aTokensGeneratedEventIsReceived() {
         List<Token> tokens = new ArrayList<>();
-        int requestedAmount = tokensRequestedEvent.getArgument(1, Integer.class);
+        int requestedAmount = publishedEvent.getArgument(1, Integer.class);
         for(int i = 0; i < requestedAmount; i++){
             Token token = new Token();
             token.setId(String.valueOf(i));
@@ -166,7 +167,28 @@ public class DTUPaySteps {
 
     @Then("{int} tokens are returned")
     public void tokensAreReturned(int tokenAmount) throws InterruptedException {
-        tokenRequestThread.join();
+        requestThread.join();
         assertEquals(tokenAmount, tokensGenerated.size());
+    }
+
+    @When("a manager requests a report")
+    public void aManagerRequestsAReport() {
+        requestThread = new Thread(() -> {
+                managerReportGenerated = service.requestManagerReport();
+        });
+        requestThread.start();
+    }
+
+    @When("a ManagerReportGenerated event is received")
+    public void aManagerReportGeneratedEventIsReceived() {
+        List<Payment> report = new ArrayList<>();
+        report.add(new Payment());
+        service.handleManagerReportGenerated(new Event(DTUPayService.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
+    }
+
+    @Then("report is returned")
+    public void reportIsReturned() throws InterruptedException {
+        requestThread.join();
+        assertEquals(1, managerReportGenerated.size());
     }
 }

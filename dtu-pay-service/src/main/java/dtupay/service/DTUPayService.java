@@ -19,11 +19,14 @@ public class DTUPayService {
     public static final String PAYMENT_REQUESTED = "PaymentRequested";
     public static final String PAYMENT_COMPLETED = "PaymentCompleted";
     public static final String TOKENS_REQUEST_REJECTED = "TokensRequestRejected";
+    public static final String MANAGER_REPORT_REQUESTED = "ManagerReportRequested";
+    public static final String MANAGER_REPORT_GENERATED = "ManagerReportGenerated";
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<ResponseObject<List<Token>>>> tokenCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<String>> paymentCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
+    private Map<CorrelationId, CompletableFuture<List<Payment>>> managerReportCorrelations = new ConcurrentHashMap<>();
 
     public DTUPayService(MessageQueue q) {
         queue = q;
@@ -32,6 +35,7 @@ public class DTUPayService {
         queue.addHandler(TOKENS_GENERATED, this::handleTokensGenerated);
         queue.addHandler(PAYMENT_COMPLETED, this::handlePaymentCompleted);
         queue.addHandler(TOKENS_REQUEST_REJECTED, this::handleTokensRequestRejected);
+        queue.addHandler(MANAGER_REPORT_GENERATED, this::handleManagerReportGenerated);
     }
 
     public Customer registerCustomer(Customer customer) {
@@ -102,5 +106,23 @@ public class DTUPayService {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         ResponseObject<List<Token>> responseObject = new ResponseObject<>(errorMessage);
         tokenCorrelations.get(correlationId).complete(responseObject);
+    }
+
+    public List<Payment> requestManagerReport() {
+        CorrelationId correlationId = CorrelationId.randomId();
+        managerReportCorrelations.put(correlationId, new CompletableFuture<>());
+
+        Event event = new Event(MANAGER_REPORT_REQUESTED, new Object[]{correlationId});
+        queue.publish(event);
+
+        List<Payment> response = managerReportCorrelations.get(correlationId).join();
+        managerReportCorrelations.remove(correlationId);
+        return response;
+    }
+
+    public void handleManagerReportGenerated(Event event) {
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        List<Payment> report = (List<Payment>) event.getArgument(1, List.class);
+        managerReportCorrelations.get(correlationId).complete(report);
     }
 }
