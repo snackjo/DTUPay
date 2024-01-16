@@ -12,6 +12,7 @@
         <module name="payment-service" />
         <module name="messaging-utilities" />
         <module name="token-service" />
+        <module name="report-service" />
         <module name="dtu-pay-service" />
         <module name="account-service" />
       </profile>
@@ -23,6 +24,7 @@
       <module name="dtu-pay-service" options="-parameters" />
       <module name="dtu-pay-service (2)" options="-parameters" />
       <module name="payment-service" options="-parameters" />
+      <module name="report-service" options="-parameters" />
       <module name="token-service" options="-parameters" />
     </option>
   </component>
