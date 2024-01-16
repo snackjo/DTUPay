@@ -48,7 +48,7 @@ public class TokenService {
         int tokenAmount = event.getArgument(1, Integer.class);
         CorrelationId correlationId = event.getArgument(2, CorrelationId.class);
 
-        if(tokenAmount > 5) {
+        if(tokenAmount > 5 || tokenAmount < 1) {
             Event publishedEvent = new Event(TOKENS_REQUEST_REJECTED, new Object[] { correlationId });
             queue.publish(publishedEvent);
             return;

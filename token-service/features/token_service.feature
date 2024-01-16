@@ -26,4 +26,16 @@ Feature: Token service test
         Then a "TokensRequestRejected" event is published
         And the customer has 0 tokens
 
+    Scenario: Customer requests a negative amount of tokens
+        Given a registered customer with 1 tokens
+        When a "TokensRequested" event for a customer is received for -3 tokens
+        Then a "TokensRequestRejected" event is published
+        And the customer has 1 tokens
+
+    Scenario: Customer requests zero tokens
+        Given a registered customer with 1 tokens
+        When a "TokensRequested" event for a customer is received for 0 tokens
+        Then a "TokensRequestRejected" event is published
+        And the customer has 1 tokens
+
 
