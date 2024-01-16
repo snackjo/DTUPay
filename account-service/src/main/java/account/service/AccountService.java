@@ -57,7 +57,7 @@ public class AccountService {
 		CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
 
 		String customerAccount = accountRepository.getCustomerAccount(customerDtuPayId);
-		Event publishEvent = new Event(CUSTOMER_BANK_ACCOUNT_FOUND, new Object[] {customerAccount, correlationId});
+		Event publishEvent = new Event(CUSTOMER_BANK_ACCOUNT_FOUND, new Object[] {customerAccount, correlationId, customerDtuPayId});
 		queue.publish(publishEvent);
 	}
 

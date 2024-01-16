@@ -119,4 +119,9 @@ public class AccountSteps {
     public void thePublishedMerchantAccountIdIsCorrect() {
         assertEquals(merchant.getAccountId(), eventCaptor.getValue().getArgument(0, String.class));
     }
+
+    @And("the customer DTUPay id is also in the event")
+    public void theCustomerDTUPayIdIsAlsoInTheEvent() {
+        assertEquals(customer.getDtuPayId(), eventCaptor.getValue().getArgument(2, String.class));
+    }
 }
