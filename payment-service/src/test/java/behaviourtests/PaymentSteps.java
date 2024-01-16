@@ -1,6 +1,7 @@
 package behaviourtests;
 
 import dtu.ws.fastmoney.BankService;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -11,6 +12,8 @@ import org.mockito.ArgumentCaptor;
 import payment.service.CorrelationId;
 import payment.service.PaymentService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
@@ -32,25 +35,27 @@ public class PaymentSteps {
     private Event paymentRequestedEvent2;
     private Event customerBankAccountFoundEvent2;
     private Event merchantBankAccountFoundEvent2;
+    private volatile boolean allStarted = false;
+    private final List<Thread> threads = new ArrayList<>();
 
 
     @When("a PaymentRequested event is received")
     public void aPaymentRequestedEventIsReceived() {
         correlationId1 = CorrelationId.randomId();
-        Event event = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{"", "", 5, correlationId1});
-        paymentService.handlePaymentRequested(event);
+        paymentRequestedEvent1 = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{"merchantDtuPayId", "customerToken", 5, correlationId1});
+        paymentService.handlePaymentRequested(paymentRequestedEvent1);
     }
 
     @And("a CustomerBankAccountFound event is received")
     public void aCustomerBankAccountFoundEventIsReceived() {
-        Event event = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1});
-        paymentService.handleCustomerBankAccountFound(event);
+        customerBankAccountFoundEvent1 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1, "customerDtuPayId"});
+        paymentService.handleCustomerBankAccountFound(customerBankAccountFoundEvent1);
     }
 
     @And("a MerchantBankAccountFound event is received")
     public void aMerchantBankAccountFoundEventIsReceived() {
-        Event event = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1});
-        paymentService.handleMerchantBankAccountFound(event);
+        merchantBankAccountFoundEvent1 = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1});
+        paymentService.handleMerchantBankAccountFound(merchantBankAccountFoundEvent1);
     }
 
     @Then("a {string} event is published")
@@ -72,7 +77,7 @@ public class PaymentSteps {
 
     @And("a CustomerBankAccountFound event")
     public void aCustomerBankAccountFoundEvent() {
-        customerBankAccountFoundEvent1 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1});
+        customerBankAccountFoundEvent1 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1, ""});
     }
 
     @And("a MerchantBankAccountFound event")
@@ -82,17 +87,19 @@ public class PaymentSteps {
 
     @When("they are all received at the same time")
     public void theyAreAllReceivedAtTheSameTime() {
-        Thread thread1 = createPublishEventThread(paymentRequestedEvent1, paymentService::handlePaymentRequested);
-        Thread thread2 = createPublishEventThread(customerBankAccountFoundEvent1, paymentService::handleCustomerBankAccountFound);
-        Thread thread3 = createPublishEventThread(merchantBankAccountFoundEvent1, paymentService::handleMerchantBankAccountFound);
-        thread1.start();
-        thread2.start();
-        thread3.start();
+        threads.add(createPublishEventThread(paymentRequestedEvent1, paymentService::handlePaymentRequested));
+        threads.add(createPublishEventThread(customerBankAccountFoundEvent1, paymentService::handleCustomerBankAccountFound));
+        threads.add(createPublishEventThread(merchantBankAccountFoundEvent1, paymentService::handleMerchantBankAccountFound));
+
+        startAllThreadsAtTheSameTime();
     }
 
     private Thread createPublishEventThread(Event event, Consumer<Event> handler) {
         return new Thread(() -> {
             try {
+                while (!allStarted) {
+                    Thread.onSpinWait();
+                }
                 handler.accept(event);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -101,8 +108,9 @@ public class PaymentSteps {
     }
 
     @Then("only one {string} event is published")
-    public void onlyOneEventIsPublished(String eventName) {
-        verify(queueMock, timeout(5000).times(1)).publish(eventCaptor.capture());
+    public void onlyOneEventIsPublished(String eventName) throws InterruptedException {
+        waitForAllThreadsToFinish();
+        verify(queueMock, times(1)).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
     }
 
@@ -118,7 +126,7 @@ public class PaymentSteps {
 
     @And("another CustomerBankAccountFound event")
     public void anotherCustomerBankAccountFoundEvent() {
-        customerBankAccountFoundEvent2 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId2});
+        customerBankAccountFoundEvent2 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId2, ""});
     }
 
     @And("another MerchantBankAccountFound event")
@@ -127,30 +135,58 @@ public class PaymentSteps {
     }
 
     @Then("two {string} event is published")
-    public void twoEventIsPublished(String eventName) {
-        verify(queueMock, timeout(5000).times(2)).publish(eventCaptor.capture());
+    public void twoEventIsPublished(String eventName) throws InterruptedException {
+        waitForAllThreadsToFinish();
+        verify(queueMock, times(2)).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
     }
 
     @And("the two events have different correlation id")
-    public void theTwoEventsHaveDifferentCorrelationId() {
-        verify(queueMock, timeout(5000).times(2)).publish(eventCaptor.capture());
+    public void theTwoEventsHaveDifferentCorrelationId() throws InterruptedException {
+        waitForAllThreadsToFinish();
+        verify(queueMock, times(2)).publish(eventCaptor.capture());
         assertNotEquals(eventCaptor.getAllValues().get(0), eventCaptor.getAllValues().get(1));
     }
 
     @When("events from both payments are received at the same time")
     public void eventsFromBothPaymentsAreReceivedAtTheSameTime() {
-        Thread thread1 = createPublishEventThread(paymentRequestedEvent1, paymentService::handlePaymentRequested);
-        Thread thread2 = createPublishEventThread(customerBankAccountFoundEvent1, paymentService::handleCustomerBankAccountFound);
-        Thread thread3 = createPublishEventThread(merchantBankAccountFoundEvent1, paymentService::handleMerchantBankAccountFound);
-        Thread thread4 = createPublishEventThread(paymentRequestedEvent2, paymentService::handlePaymentRequested);
-        Thread thread5 = createPublishEventThread(customerBankAccountFoundEvent2, paymentService::handleCustomerBankAccountFound);
-        Thread thread6 = createPublishEventThread(merchantBankAccountFoundEvent2, paymentService::handleMerchantBankAccountFound);
-        thread1.start();
-        thread2.start();
-        thread3.start();
-        thread4.start();
-        thread5.start();
-        thread6.start();
+        threads.add(createPublishEventThread(paymentRequestedEvent1, paymentService::handlePaymentRequested));
+        threads.add(createPublishEventThread(customerBankAccountFoundEvent1, paymentService::handleCustomerBankAccountFound));
+        threads.add(createPublishEventThread(merchantBankAccountFoundEvent1, paymentService::handleMerchantBankAccountFound));
+        threads.add(createPublishEventThread(paymentRequestedEvent2, paymentService::handlePaymentRequested));
+        threads.add(createPublishEventThread(customerBankAccountFoundEvent2, paymentService::handleCustomerBankAccountFound));
+        threads.add(createPublishEventThread(merchantBankAccountFoundEvent2, paymentService::handleMerchantBankAccountFound));
+        startAllThreadsAtTheSameTime();
+    }
+
+    @And("it contains all information used")
+    public void itContainsAllInformationUsed() throws InterruptedException {
+        waitForAllThreadsToFinish();
+        verify(queueMock).publish(eventCaptor.capture());
+        Event paymentCompletedEvent = eventCaptor.getValue();
+
+        String merchantDtuPayId = paymentRequestedEvent1.getArgument(0, String.class);
+        String customerToken = paymentRequestedEvent1.getArgument(1, String.class);
+        int amount = paymentRequestedEvent1.getArgument(2, Integer.class);
+        String customerDtuPayId = customerBankAccountFoundEvent1.getArgument(2, String.class);
+
+        assertEquals(correlationId1, paymentCompletedEvent.getArgument(0, CorrelationId.class));
+        assertEquals(merchantDtuPayId, paymentCompletedEvent.getArgument(1, String.class));
+        assertEquals(customerToken, paymentCompletedEvent.getArgument(2, String.class));
+        assertEquals(amount, (long)paymentCompletedEvent.getArgument(3, Integer.class));
+        assertEquals(customerDtuPayId, paymentCompletedEvent.getArgument(4, String.class));
+    }
+
+    private void startAllThreadsAtTheSameTime() {
+        for(Thread thread : threads) {
+            thread.start();
+        }
+        allStarted = true;
+    }
+
+    private void waitForAllThreadsToFinish() throws InterruptedException {
+        for(Thread thread : threads) {
+            thread.join();
+        }
     }
 }

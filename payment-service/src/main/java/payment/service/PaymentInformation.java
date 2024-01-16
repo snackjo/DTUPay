@@ -13,6 +13,18 @@ public class PaymentInformation {
         return merchantBankAccountFoundEvent != null && customerBankAccountFoundEvent != null && paymentRequestedEvent != null;
     }
 
+    public String getMerchantDtuPayId() {
+        return paymentRequestedEvent.getArgument(0, String.class);
+    }
+
+    public String getCustomerToken() {
+        return paymentRequestedEvent.getArgument(1, String.class);
+    }
+
+    public String getCustomerDtuPayId() {
+        return customerBankAccountFoundEvent.getArgument(2, String.class);
+    }
+
     public String getCustomerBankAccount() {
         return customerBankAccountFoundEvent.getArgument(0, String.class);
     }

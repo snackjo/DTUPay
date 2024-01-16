@@ -17,9 +17,8 @@ public class PaymentService {
     public static final String PAYMENT_COMPLETED = "PaymentCompleted";
 
     private final Map<String, PaymentInformation> paymentInformation = new ConcurrentHashMap<>();
-
-    MessageQueue queue;
     private final BankService bank;
+    MessageQueue queue;
 
     public PaymentService(MessageQueue q, BankService bank) {
         this.queue = q;
@@ -62,7 +61,14 @@ public class PaymentService {
         PaymentInformation information = paymentInformation.get(correlationId.getId());
         if (information != null && information.isAllInformationSet()) {
             tryTransferringThroughBank(information);
-            Event publishEvent = new Event(PAYMENT_COMPLETED, new Object[] { correlationId });
+            Event publishEvent = new Event(PAYMENT_COMPLETED,
+                    new Object[]{
+                            correlationId,
+                            information.getMerchantDtuPayId(),
+                            information.getCustomerToken(),
+                            information.getAmount(),
+                            information.getCustomerDtuPayId()
+                    });
             queue.publish(publishEvent);
             paymentInformation.remove(correlationId.getId());
         }

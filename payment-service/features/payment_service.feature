@@ -4,6 +4,7 @@ Feature: Payment service
         And a CustomerBankAccountFound event is received
         And a MerchantBankAccountFound event is received
         Then a "PaymentCompleted" event is published
+        And it contains all information used
 
     Scenario: Successful payment race condition
         Given that a merchant wants to start a transaction
