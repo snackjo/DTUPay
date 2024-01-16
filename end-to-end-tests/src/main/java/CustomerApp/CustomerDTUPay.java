@@ -29,7 +29,7 @@ public class CustomerDTUPay {
                     .request()
                     .post(Entity.entity(tokenAmount, MediaType.APPLICATION_JSON),new GenericType<List<Token>>(){});
         } catch (BadRequestException e) {
-            throw new DTUPayException(e.getMessage());
+            throw new DTUPayException(e.getResponse().readEntity(String.class));
         }
     }
 }
