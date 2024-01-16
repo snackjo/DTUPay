@@ -59,7 +59,7 @@ public class DTUPayService {
         merchantCorrelations.remove(correlationId);
         return response;
     }
-    private void handleMerchantRegistered(Event event) {
+    public void handleMerchantRegistered(Event event) {
         Merchant merchant = event.getArgument(0, Merchant.class);
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         merchantCorrelations.get(correlationId).complete(merchant);
@@ -75,7 +75,7 @@ public class DTUPayService {
         return responseObject.getSuccessContentOrThrow();
     }
 
-    private void handleTokensGenerated(Event event) {
+    public void handleTokensGenerated(Event event) {
         List<Token> tokens = (List<Token>) event.getArgument(0, List.class);
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         ResponseObject<List<Token>> responseObject = new ResponseObject<>(tokens);
@@ -92,7 +92,7 @@ public class DTUPayService {
         paymentCorrelations.remove(correlationId);
         return response;
     }
-    private void handlePaymentCompleted(Event event) {
+    public void handlePaymentCompleted(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         paymentCorrelations.get(correlationId).complete("Success");
     }

@@ -1,8 +1,5 @@
 package dtupay.service;
 
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor
 public class ResponseObject<T> {
     private T successContent;
     private String exceptionMessage;
