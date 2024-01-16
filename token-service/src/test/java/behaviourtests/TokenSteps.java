@@ -22,6 +22,7 @@ public class TokenSteps {
     private final CustomerRepository customerRepository = new CustomerRepository();
     private final TokenService tokenService = new TokenService(queueMock, customerRepository);
     private List<Token> generatedTokens;
+    private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
     @When("a {string} event is received")
     public void aEventIsReceived(String eventName) {
@@ -60,7 +61,6 @@ public class TokenSteps {
 
     @Then("a {string} event with {int} tokens is published")
     public void aEventWithTokensIsPublished(String eventName, int tokenAmount) {
-        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         verify(queueMock).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
         assertEquals(tokenAmount, eventCaptor.getValue().getArgument(0, List.class).size());
@@ -81,9 +81,14 @@ public class TokenSteps {
 
     @Then("a {string} event is published with the customer's DTUPay id")
     public void aEventIsPublishedWithTheCustomersDTUPayId(String eventName) {
-        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         verify(queueMock).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
         assertEquals(customer.getDtuPayId(), eventCaptor.getValue().getArgument(0, String.class));
+    }
+
+    @Then("a {string} event is published")
+    public void aEventIsPublished(String eventName) {
+        verify(queueMock).publish(eventCaptor.capture());
+        assertEquals(eventName, eventCaptor.getValue().getType());
     }
 }

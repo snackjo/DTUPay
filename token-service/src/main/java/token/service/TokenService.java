@@ -10,6 +10,7 @@ public class TokenService {
     private static final String TOKENS_GENERATED = "TokensGenerated";
     public static final String PAYMENT_REQUESTED = "PaymentRequested";
     private static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
+    private static final String TOKENS_REQUEST_REJECTED = "TokensRequestRejected";
     private final MessageQueue queue;
     private final CustomerRepository customerRepository;
 
@@ -47,6 +48,12 @@ public class TokenService {
         int tokenAmount = event.getArgument(1, Integer.class);
         CorrelationId correlationId = event.getArgument(2, CorrelationId.class);
 
+        int numberOfTokens = customerRepository.getCustomer(dtuPayId).getTokens().size();
+        if(numberOfTokens > 1) {
+            Event publishedEvent = new Event(TOKENS_REQUEST_REJECTED, new Object[] { correlationId });
+            queue.publish(publishedEvent);
+            return;
+        }
 
         customerRepository.addTokensToCustomer(dtuPayId, Token.generateTokens(tokenAmount));
         Event publishedEvent = new Event(TOKENS_GENERATED,
