@@ -2,6 +2,7 @@ package behaviourtests;
 
 import CustomerApp.Customer;
 import CustomerApp.CustomerDTUPay;
+import CustomerApp.DTUPayException;
 import CustomerApp.Token;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -22,6 +23,7 @@ public class TokenSteps {
     private List<Token> tokensRequestResponse;
     private final CompletableFuture<List<Token>> tokenRequestResult1 = new CompletableFuture<>();
     private final CompletableFuture<List<Token>> tokenRequestResult2 = new CompletableFuture<>();
+    private DTUPayException tokenRequestException;
 
     @Given("customer registered in DTUPay with {int} tokens")
     public void customerRegisteredInDTUPayWithTokens(int tokenAmount) throws Exception {
@@ -39,8 +41,12 @@ public class TokenSteps {
     }
 
     @When("the customer requests {int} tokens")
-    public void theCustomerRequestsTokens(int tokenAmount) throws Exception {
-        tokensRequestResponse = customerDtuPay.requestTokens(customer1, tokenAmount);
+    public void theCustomerRequestsTokens(int tokenAmount) {
+        try {
+            tokensRequestResponse = customerDtuPay.requestTokens(customer1, tokenAmount);
+        } catch (DTUPayException e) {
+            tokenRequestException = e;
+        }
     }
 
     @Then("the customer receives {int} tokens")
@@ -102,5 +108,10 @@ public class TokenSteps {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    @Then("the request is rejected")
+    public void theRequestIsRejected() {
+        assertEquals("Tokens request rejected", tokenRequestException.getMessage());
     }
 }

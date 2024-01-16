@@ -1,5 +1,6 @@
 package CustomerApp;
 
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -26,14 +27,14 @@ public class CustomerDTUPay {
         }
     }
 
-    public List<Token> requestTokens(Customer customer, int tokenAmount) throws Exception {
+    public List<Token> requestTokens(Customer customer, int tokenAmount) throws DTUPayException {
         try {
             return serverTarget
                     .path("customers/" + customer.getDtuPayId() + "/tokens")
                     .request()
                     .post(Entity.entity(tokenAmount, MediaType.APPLICATION_JSON),new GenericType<List<Token>>(){});
-        } catch (NotFoundException e) {
-            throw new Exception(e);
+        } catch (NotFoundException | BadRequestException e) {
+            throw new DTUPayException(e.getMessage());
         }
     }
 }
