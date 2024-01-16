@@ -30,6 +30,7 @@ public class DTUPaySteps {
     private Event tokensRequestedEvent;
     private List<Token> tokensGenerated;
     private Thread tokenRequestThread;
+    private Thread paymentRequestThread;
 
     @Given("a customer with empty DTUPay id")
     public void aCustomerWithEmptyDTUPayId() {
@@ -74,7 +75,8 @@ public class DTUPaySteps {
         Token token = new Token();
         token.setId("abcd");
 
-        new Thread(() -> paymentCompletedResponse = service.requestPayment(merchantDtuPayId, token, paymentAmount)).start();
+        paymentRequestThread = new Thread(() -> paymentCompletedResponse = service.requestPayment(merchantDtuPayId, token, paymentAmount));
+        paymentRequestThread.start();
     }
 
     private CorrelationId getCorrelationId(Event event) {
@@ -144,7 +146,8 @@ public class DTUPaySteps {
     }
 
     @Then("the payment is successful")
-    public void thePaymentIsSuccessful() {
+    public void thePaymentIsSuccessful() throws InterruptedException {
+        paymentRequestThread.join();
         assertEquals("Success", paymentCompletedResponse);
     }
 
