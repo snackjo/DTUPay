@@ -63,7 +63,8 @@ public class DTUPaySteps {
     }
 
     @Then("the customer is registered and his DTUPay id is set")
-    public void theCustomerIsRegisteredAndHisDTUPayIdIsSet() {
+    public void theCustomerIsRegisteredAndHisDTUPayIdIsSet() throws InterruptedException {
+        requestThread.join();
         assertNotNull(customerRegistrationResult.getDtuPayId());
     }
 
@@ -125,7 +126,8 @@ public class DTUPaySteps {
     }
 
     @Then("the merchant is registered and his DTUPay id is set")
-    public void theMerchantIsRegisteredAndHisDTUPayIdIsSet() {
+    public void theMerchantIsRegisteredAndHisDTUPayIdIsSet() throws InterruptedException {
+        requestThread.join();
         assertNotNull(merchantRegistrationResult.getDtuPayId());
     }
 
