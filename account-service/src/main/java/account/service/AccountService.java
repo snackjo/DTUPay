@@ -9,12 +9,12 @@ public class AccountService {
 
 	public static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
 	public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
-	private static final String MERCHANT_REGISTERED = "MerchantRegistered";
-	private static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
-	private static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
-	private static final String CUSTOMER_BANK_ACCOUNT_FOUND = "CustomerBankAccountFound";
-	private static final String PAYMENT_REQUESTED = "PaymentRequested";
-	private static final String MERCHANT_BANK_ACCOUNT_FOUND = "MerchantBankAccountFound";
+	public static final String MERCHANT_REGISTERED = "MerchantRegistered";
+	public static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
+	public static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
+	public static final String CUSTOMER_BANK_ACCOUNT_FOUND = "CustomerBankAccountFound";
+	public static final String PAYMENT_REQUESTED = "PaymentRequested";
+	public static final String MERCHANT_BANK_ACCOUNT_FOUND = "MerchantBankAccountFound";
 	public static final String MERCHANT_DEREGISTRATION_REQUESTED = "MerchantDeregistrationRequested";
 	public static final String MERCHANT_DEREGISTERED = "MerchantDeregistered";
 

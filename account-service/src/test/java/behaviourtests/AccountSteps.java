@@ -22,15 +22,15 @@ public class AccountSteps {
     private CorrelationId correlationId;
     private Merchant merchant;
 
-    @When("a {string} event for a customer is received")
-    public void aEventForACustomerIsReceived(String eventName) {
+    @When("a CustomerRegistrationRequested event is received")
+    public void aCustomerRegistrationRequestedEventIsReceived() {
         Customer customer = new Customer();
         customer.setCprNumber("12345");
         customer.setFirstName("firstName");
         customer.setLastName("lastName");
         customer.setAccountId("bank-id-123");
         CorrelationId correlationId = CorrelationId.randomId();
-        Event event = new Event(eventName, new Object[]{correlationId, customer});
+        Event event = new Event(AccountService.CUSTOMER_REGISTRATION_REQUESTED, new Object[]{correlationId, customer});
 
         accountService.handleCustomerRegistrationRequested(event);
     }
@@ -52,15 +52,15 @@ public class AccountSteps {
         assertNotNull(accountRepository.getCustomerAccount(publishedEvent.getArgument(1, Customer.class).getDtuPayId()));
     }
 
-    @When("a {string} event for a merchant is received")
-    public void aEventForAMerchantIsReceived(String eventName) {
+    @When("a MerchantRegistrationRequested event is received")
+    public void aMerchantRegistrationRequestedEventIsReceived() {
         Merchant merchant = new Merchant();
         merchant.setCprNumber("54321");
         merchant.setFirstName("firstName");
         merchant.setLastName("lastName");
         merchant.setAccountId("bank-id-321");
         CorrelationId correlationId = CorrelationId.randomId();
-        Event event = new Event(eventName, new Object[]{correlationId, merchant});
+        Event event = new Event(AccountService.MERCHANT_REGISTRATION_REQUESTED, new Object[]{correlationId, merchant});
 
         accountService.handleMerchantRegistrationRequested(event);
     }
@@ -84,18 +84,18 @@ public class AccountSteps {
         accountRepository.addCustomer(customer);
     }
 
-    @When("a {string} event is received with a matching customer DTUPay id")
-    public void aEventIsReceivedWithAMatchingCustomerDTUPayId(String eventName) {
+    @When("a TokenMatchFound event is received")
+    public void aTokenMatchFoundEventIsReceived() {
         correlationId = CorrelationId.randomId();
-        Event event = new Event(eventName, new Object[]{correlationId, customer.getDtuPayId()});
+        Event event = new Event(AccountService.TOKEN_MATCH_FOUND, new Object[]{correlationId, customer.getDtuPayId()});
 
         accountService.handleTokenMatchFound(event);
     }
 
-    @When("a {string} event is received with a matching merchant DTUPay id")
-    public void aEventIsReceivedWithAMatchingMerchantDTUPayId(String eventName) throws DTUPayException {
+    @When("a PaymentRequested event is received")
+    public void aPaymentRequestedEventIsReceived() {
         correlationId = CorrelationId.randomId();
-        Event event = new Event(eventName, new Object[]{correlationId, merchant.getDtuPayId(), null, null});
+        Event event = new Event(AccountService.PAYMENT_REQUESTED, new Object[]{correlationId, merchant.getDtuPayId(), null, null});
 
         accountService.handlePaymentRequested(event);
     }
@@ -129,12 +129,6 @@ public class AccountSteps {
         correlationId = CorrelationId.randomId();
         Event event = new Event(AccountService.MERCHANT_DEREGISTRATION_REQUESTED, new Object[]{correlationId, merchant.getDtuPayId()});
         accountService.handleMerchantDeregistrationRequested(event);
-    }
-
-    @Then("a MerchantDeregistered event is published")
-    public void aMerchantDeregisteredEventIsPublished() {
-        verify(queueMock, timeout(10000)).publish(eventCaptor.capture());
-        assertEquals(AccountService.MERCHANT_DEREGISTERED, eventCaptor.getValue().getType());
     }
 
     @And("the merchant's account is removed")
