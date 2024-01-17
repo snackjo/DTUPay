@@ -3,6 +3,8 @@ package behaviourtests;
 import dtupay.service.*;
 import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerService;
+import dtupay.service.report.Payment;
+import dtupay.service.report.Report;
 import dtupay.service.report.ReportService;
 import dtupay.service.merchant.Merchant;
 import dtupay.service.merchant.MerchantService;

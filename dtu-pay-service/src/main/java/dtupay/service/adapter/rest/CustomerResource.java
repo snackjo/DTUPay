@@ -3,7 +3,7 @@ package dtupay.service.adapter.rest;
 import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerService;
 import dtupay.service.DtuPayException;
-import dtupay.service.Report;
+import dtupay.service.report.Report;
 import dtupay.service.report.ReportService;
 
 import javax.ws.rs.*;

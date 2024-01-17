@@ -3,7 +3,6 @@ package dtupay.service.report;
 
 import dtupay.service.CorrelationId;
 import dtupay.service.EventNames;
-import dtupay.service.Report;
 import messaging.Event;
 import messaging.MessageQueue;
 

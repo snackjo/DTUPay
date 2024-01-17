@@ -2,7 +2,7 @@ package dtupay.service.adapter.rest;
 
 import dtupay.service.merchant.Merchant;
 import dtupay.service.merchant.MerchantService;
-import dtupay.service.Report;
+import dtupay.service.report.Report;
 import dtupay.service.report.ReportService;
 
 import javax.ws.rs.*;

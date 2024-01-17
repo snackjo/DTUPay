@@ -1,7 +1,7 @@
 package dtupay.service.adapter.rest;
 
 import dtupay.service.report.ReportService;
-import dtupay.service.Report;
+import dtupay.service.report.Report;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
