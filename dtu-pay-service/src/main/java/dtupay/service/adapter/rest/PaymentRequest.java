@@ -1,4 +1,4 @@
-package dtupay.service.merchant;
+package dtupay.service.adapter.rest;
 
 import dtupay.service.Token;
 import lombok.Data;
