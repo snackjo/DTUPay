@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import report.service.CorrelationId;
 import report.service.Payment;
 import report.service.ReportService;
+import report.service.Token;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,7 @@ public class ReportSteps {
     private final ReportService reportService = new ReportService(queueMock);
     private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
     private String merchantDtuPayId;
-    private String customerToken;
+    private Token customerToken;
     private int amount;
     private String customerDtuPayId;
     private Thread requestThread;
@@ -41,7 +42,7 @@ public class ReportSteps {
     @When("a PaymentCompleted event is received")
     public void aPaymentCompletedEventIsReceived() {
         reportService.handlePaymentCompletedEvent(new Event(ReportService.PAYMENT_COMPLETED,
-                new Object[]{"", "merchantDtuPayId", "customerToken", 100, "customerDtuPayId"}));
+                new Object[]{"", "merchantDtuPayId", new Token("123"), 100, "customerDtuPayId"}));
     }
 
     @Then("that payment is stored")
@@ -52,7 +53,7 @@ public class ReportSteps {
     @Given("a completed payment")
     public void aCompletedPayment() {
         merchantDtuPayId = "merchantDtuPayId";
-        customerToken = "customerToken";
+        customerToken = new Token("123");
         amount = 100;
         customerDtuPayId = "customerDtuPayId";
 

@@ -47,7 +47,7 @@ public class ReportService {
     public void handlePaymentCompletedEvent(Event event) {
         Payment payment = new Payment();
         payment.setMerchantDtuPayId(event.getArgument(1, String.class));
-        payment.setCustomerToken(event.getArgument(2, String.class));
+        payment.setCustomerToken(event.getArgument(2, Token.class));
         payment.setAmount(event.getArgument(3, Integer.class));
         payment.setCustomerDtuPayId(event.getArgument(4, String.class));
         payments.add(payment);
