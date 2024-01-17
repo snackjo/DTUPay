@@ -11,8 +11,7 @@ import token.service.*;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -91,5 +90,17 @@ public class TokenSteps {
     public void aEventIsPublished(String eventName) {
         verify(queueMock).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
+    }
+
+    @When("a CustomerDeregistered event is received")
+    public void aCustomerDeregisteredEventIsReceived() {
+        CorrelationId correlationId = CorrelationId.randomId();
+        Event event = new Event(TokenService.CUSTOMER_DEREGISTERED, new Object[]{correlationId, customer.getDtuPayId() });
+        tokenService.handleCustomerDeregistered(event);
+    }
+
+    @Then("the customer is removed")
+    public void theCustomerIsRemoved() {
+        assertNull(customerRepository.getCustomer(customer.getDtuPayId()));
     }
 }

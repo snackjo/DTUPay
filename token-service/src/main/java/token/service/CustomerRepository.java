@@ -34,4 +34,11 @@ public class CustomerRepository {
         customerIdToCustomer.get(customerDtuPayId).removeToken(token);
         tokenToCustomerId.remove(token);
     }
+
+    public void removeCustomer(String customerDtuPayId) {
+        Customer customer = customerIdToCustomer.remove(customerDtuPayId);
+        for (Token token : customer.getTokens()) {
+            tokenToCustomerId.remove(token);
+        }
+    }
 }

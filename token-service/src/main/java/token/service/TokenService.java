@@ -11,6 +11,7 @@ public class TokenService {
     public static final String PAYMENT_REQUESTED = "PaymentRequested";
     private static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
     private static final String TOKENS_REQUEST_REJECTED = "TokensRequestRejected";
+    public static final String CUSTOMER_DEREGISTERED = "CustomerDeregistered";
     private final MessageQueue queue;
     private final CustomerRepository customerRepository;
 
@@ -22,7 +23,7 @@ public class TokenService {
         queue.addHandler(TOKENS_REQUESTED, this::handleTokensRequested);
         queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
         queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
-
+        queue.addHandler(CUSTOMER_DEREGISTERED, this::handleCustomerDeregistered);
     }
 
     public void handlePaymentRequested(Event event) {
@@ -65,5 +66,10 @@ public class TokenService {
         Event publishedEvent = new Event(TOKENS_GENERATED,
                 new Object[] { correlationId, customerRepository.getCustomer(dtuPayId).getTokens() });
         queue.publish(publishedEvent);
+    }
+
+    public void handleCustomerDeregistered(Event event) {
+        String customerDtuPayId = event.getArgument(1, String.class);
+        customerRepository.removeCustomer(customerDtuPayId);
     }
 }

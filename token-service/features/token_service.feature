@@ -38,4 +38,7 @@ Feature: Token service test
         Then a "TokensRequestRejected" event is published
         And the customer has 1 tokens
 
-
+    Scenario: Customer is deregistered
+        Given a registered customer with 2 tokens
+        When a CustomerDeregistered event is received
+        Then the customer is removed
