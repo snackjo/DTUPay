@@ -172,8 +172,11 @@ public class DTUPaySteps {
 
     @When("a ManagerReportGenerated event is received")
     public void aManagerReportGeneratedEventIsReceived() {
-        List<Payment> report = new ArrayList<>();
-        report.add(new Payment());
+        Report report = new Report();
+        List<Payment> payments = new ArrayList<>();
+        payments.add(new Payment());
+
+        report.setPayments(payments);
         service.handleManagerReportGenerated(new Event(DTUPayService.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
@@ -194,8 +197,11 @@ public class DTUPaySteps {
 
     @When("a MerchantReportGenerated event is received")
     public void aMerchantReportGeneratedEventIsReceived() {
-        List<Payment> report = new ArrayList<>();
-        report.add(new Payment());
+        Report report = new Report();
+        List<Payment> payments = new ArrayList<>();
+        payments.add(new Payment());
+
+        report.setPayments(payments);
         service.handleMerchantReportGenerated(new Event(DTUPayService.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
@@ -210,8 +216,10 @@ public class DTUPaySteps {
 
     @When("a CustomerReportGenerated event is received")
     public void aCustomerReportGeneratedEventIsReceived() {
-        List<Payment> report = new ArrayList<>();
-        report.add(new Payment());
+        Report report = new Report();
+        List<Payment> payments = new ArrayList<>();
+        payments.add(new Payment());
+        report.setPayments(payments);
         service.handleCustomerReportGenerated(new Event(DTUPayService.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
 
     }
