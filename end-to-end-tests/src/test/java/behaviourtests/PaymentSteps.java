@@ -10,7 +10,6 @@ import dtu.ws.fastmoney.Account;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
-import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -41,7 +40,7 @@ public class PaymentSteps {
     }
 
     @And("the customer is registered with DTUPay")
-    public void theCustomerIsRegisteredWithDTUPay() throws Exception {
+    public void theCustomerIsRegisteredWithDTUPay() {
         customer = stateHolder.getCustomer();
         customer.setDtuPayId(customerDtuPay.registerCustomer(customer).getDtuPayId());
     }
@@ -59,7 +58,7 @@ public class PaymentSteps {
 
     @When("the merchant requests a payment of {int} using the token")
     public void theMerchantRequestsAPaymentOfUsingTheToken(int paymentAmount) throws Exception {
-        MerchantApp.Token token = MapperUtility.mapToken(tokenReceivedFromCustomer);
+        MerchantApp.Token token = MapperUtility.mapCustomerTokenToMerchantToken(tokenReceivedFromCustomer);
         paymentResponse = merchantDtuPay.requestPayment(paymentAmount, token, merchant.getDtuPayId());
     }
 

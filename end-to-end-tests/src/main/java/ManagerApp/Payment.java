@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class Payment {
     String merchantDtuPayId;
-    String customerToken;
+    Token customerToken;
     int amount;
     String customerDtuPayId;
 }

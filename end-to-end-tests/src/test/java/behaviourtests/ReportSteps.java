@@ -2,7 +2,6 @@ package behaviourtests;
 
 import CustomerApp.Customer;
 import CustomerApp.CustomerDTUPay;
-import CustomerApp.Token;
 import ManagerApp.ManagerClient;
 import ManagerApp.Payment;
 import ManagerApp.Report;
@@ -11,6 +10,7 @@ import MerchantApp.MerchantDtuPay;
 import Utility.MapperUtility;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceService;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -26,12 +26,14 @@ public class ReportSteps {
     private final MerchantDtuPay merchantDtuPay = new MerchantDtuPay();
     private final CustomerDTUPay customerDtuPay = new CustomerDTUPay();
     private final ManagerClient managerClient = new ManagerClient();
-    private Report report = new Report();
+    private final Report report = new Report();
     private Payment expectedPayment;
+    private Merchant merchant;
+    private Customer customer;
 
     @Given("a successful payment")
     public void aSuccessfulPayment() throws Exception {
-        Merchant merchant = new Merchant();
+        merchant = new Merchant();
         merchant.setCprNumber("merchant1-17");
         merchant.setFirstName("firstName1");
         merchant.setLastName("lastName1");
@@ -42,7 +44,7 @@ public class ReportSteps {
 
         merchant.setDtuPayId(merchantDtuPay.registerMerchant(merchant).getDtuPayId());
 
-        Customer customer = new Customer();
+        customer = new Customer();
         customer.setCprNumber("customer1-17");
         customer.setFirstName("firstName1");
         customer.setLastName("lastName1");
@@ -52,17 +54,17 @@ public class ReportSteps {
 
         customer.setDtuPayId(customerDtuPay.registerCustomer(customer).getDtuPayId());
 
-        List<Token> tokens = customerDtuPay.requestTokens(customer, 5);
+        List<CustomerApp.Token> tokens = customerDtuPay.requestTokens(customer, 5);
         customer.setTokens(tokens);
 
-        Token tokenReceivedFromCustomer = customer.provideToken();
+        CustomerApp.Token tokenReceivedFromCustomer = customer.provideToken();
 
-        MerchantApp.Token token = MapperUtility.mapToken(tokenReceivedFromCustomer);
+        MerchantApp.Token token = MapperUtility.mapCustomerTokenToMerchantToken(tokenReceivedFromCustomer);
         String paymentResponse = merchantDtuPay.requestPayment(100, token, merchant.getDtuPayId());
 
         expectedPayment = new Payment();
         expectedPayment.setAmount(100);
-        expectedPayment.setCustomerToken(tokenReceivedFromCustomer.toString());
+        expectedPayment.setCustomerToken(MapperUtility.mapCustomerTokenToManagerToken(tokenReceivedFromCustomer));
         expectedPayment.setCustomerDtuPayId(customer.getDtuPayId());
         expectedPayment.setMerchantDtuPayId(merchant.getDtuPayId());
 
@@ -77,5 +79,25 @@ public class ReportSteps {
     @Then("the report includes the payment")
     public void theReportIncludesThePayment() {
         assertTrue(report.getPayments().contains(expectedPayment));
+    }
+
+    @After
+    public void cleanBankAccounts() {
+        Customer[] customersToRetire = new Customer[]{customer};
+        Merchant[] merchantsToRetire = new Merchant[]{merchant};
+
+        for (Customer customerToRetire : customersToRetire) {
+            try {
+                bank.retireAccount(customerToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
+        }
+
+        for (Merchant merchantToRetire : merchantsToRetire) {
+            try {
+                bank.retireAccount(merchantToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
+        }
     }
 }

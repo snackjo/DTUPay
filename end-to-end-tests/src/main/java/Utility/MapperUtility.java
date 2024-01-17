@@ -24,9 +24,16 @@ public class MapperUtility {
         return user;
     }
 
-    public MerchantApp.Token mapToken(CustomerApp.Token customerToken) {
+    public MerchantApp.Token mapCustomerTokenToMerchantToken(CustomerApp.Token customerToken) {
         MerchantApp.Token merchantToken = new MerchantApp.Token();
         merchantToken.setId(customerToken.getId());
         return merchantToken;
     }
+
+    public ManagerApp.Token mapCustomerTokenToManagerToken(CustomerApp.Token customerToken) {
+        ManagerApp.Token managerToken = new ManagerApp.Token();
+        managerToken.setId(customerToken.getId());
+        return managerToken;
+    }
+
 }
