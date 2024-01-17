@@ -48,7 +48,7 @@ public class AccountSteps {
     }
 
     @And("the customer is given a non-empty DTUPay id")
-    public void theCustomerIsGivenANonEmptyDTUPayId() throws DTUPayException {
+    public void theCustomerIsGivenANonEmptyDTUPayId() throws DtuPayException {
         assertNotNull(accountRepository.getCustomerAccount(publishedEvent.getArgument(1, Customer.class).getDtuPayId()));
     }
 
@@ -66,12 +66,12 @@ public class AccountSteps {
     }
 
     @And("DTUPay id is part of published merchant event")
-    public void dtupayIdIsPartOfPublishedMerchantEvent() throws DTUPayException {
+    public void dtupayIdIsPartOfPublishedMerchantEvent() throws DtuPayException {
         assertNotNull(accountRepository.getMerchantAccount(publishedEvent.getArgument(1, Merchant.class).getDtuPayId()));
     }
 
     @And("the merchant is given a non-empty DTUPay id")
-    public void theMerchantIsGivenANonEmptyDTUPayId() throws DTUPayException {
+    public void theMerchantIsGivenANonEmptyDTUPayId() throws DtuPayException {
         assertNotNull(accountRepository.getMerchantAccount(publishedEvent.getArgument(1, Merchant.class).getDtuPayId()));
     }
 
@@ -133,10 +133,10 @@ public class AccountSteps {
 
     @And("the merchant's account is removed")
     public void theMerchantSAccountIsRemoved() {
-        DTUPayException exception = new DTUPayException("Placeholder");
+        DtuPayException exception = new DtuPayException("Placeholder");
         try {
             accountRepository.getMerchantAccount(merchant.getDtuPayId());
-        } catch (DTUPayException e) {
+        } catch (DtuPayException e) {
             exception = e;
         }
         assertEquals("Merchant is not registered", exception.getMessage());
@@ -151,10 +151,10 @@ public class AccountSteps {
 
     @And("the customer's account is removed")
     public void theCustomerSAccountIsRemoved() {
-        DTUPayException exception = new DTUPayException("Placeholder");
+        DtuPayException exception = new DtuPayException("Placeholder");
         try {
             accountRepository.getCustomerAccount(customer.getDtuPayId());
-        } catch (DTUPayException e) {
+        } catch (DtuPayException e) {
             exception = e;
         }
         assertEquals("Customer is not registered", exception.getMessage());

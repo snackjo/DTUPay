@@ -64,7 +64,7 @@ public class AccountService {
 		String customerAccount;
 		try {
 			customerAccount = accountRepository.getCustomerAccount(customerDtuPayId);
-		} catch (DTUPayException e) {
+		} catch (DtuPayException e) {
 			throw new RuntimeException(e);
 		}
 		Event publishEvent = new Event(CUSTOMER_BANK_ACCOUNT_FOUND, new Object[] {correlationId, customerAccount, customerDtuPayId});
@@ -78,7 +78,7 @@ public class AccountService {
 		String merchantAccount;
 		try {
 			merchantAccount = accountRepository.getMerchantAccount(merchantDtuPayId);
-		} catch (DTUPayException e) {
+		} catch (DtuPayException e) {
 			throw new RuntimeException(e);
 		}
 		Event publishEvent = new Event(MERCHANT_BANK_ACCOUNT_FOUND, new Object[] {correlationId, merchantAccount});
