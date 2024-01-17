@@ -21,4 +21,4 @@ Feature: Customer reporting
         Given a completed payment
         When a MerchantReportRequested event is received
         Then a "MerchantReportGenerated" event is published
-        And the payment is included
+        And the payment is included without the customer id

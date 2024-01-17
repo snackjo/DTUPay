@@ -1,11 +1,13 @@
 package report.service;
 
-import lombok.Data;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@RequiredArgsConstructor
 public class Payment {
-    String merchantDtuPayId;
-    Token customerToken;
-    int amount;
+    @NonNull String merchantDtuPayId;
+    @NonNull Token customerToken;
+    @NonNull int amount;
     String customerDtuPayId;
 }

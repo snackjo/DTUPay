@@ -12,8 +12,7 @@ import report.service.*;
 
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class ReportSteps {
@@ -111,5 +110,17 @@ public class ReportSteps {
         requestThread = new Thread(() -> reportService.handleMerchantReportRequested(new Event(ReportService.MERCHANT_REPORT_GENERATED,
                 new Object[]{correlationId, merchantDtuPayId})));
         requestThread.start();
+    }
+
+    @And("the payment is included without the customer id")
+    public void thePaymentIsIncludedWithoutTheCustomerId() throws InterruptedException {
+        requestThread.join();
+        Report report = publishedEvent.getArgument(1, Report.class);
+        assertEquals(1, report.getPayments().size());
+        Payment payment = new Gson().fromJson(new Gson().toJson(report.getPayments().get(0)), Payment.class);
+        assertEquals(merchantDtuPayId, payment.getMerchantDtuPayId());
+        assertEquals(customerToken, payment.getCustomerToken());
+        assertEquals(amount, payment.getAmount());
+        assertNull(payment.getCustomerDtuPayId());
     }
 }

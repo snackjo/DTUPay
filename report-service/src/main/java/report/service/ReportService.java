@@ -41,6 +41,7 @@ public class ReportService {
     private List<Payment> getMerchantReport(String merchantDtuPayId) {
         return payments.stream()
                 .filter(payment -> payment.getMerchantDtuPayId().equals(merchantDtuPayId))
+                .map(payment -> new Payment(payment.getMerchantDtuPayId(), payment.getCustomerToken(), payment.getAmount()))
                 .collect(Collectors.toList());
     }
 
