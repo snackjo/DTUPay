@@ -17,8 +17,8 @@ public class PaymentInformation {
         return paymentRequestedEvent.getArgument(1, String.class);
     }
 
-    public String getCustomerToken() {
-        return paymentRequestedEvent.getArgument(2, String.class);
+    public Token getCustomerToken() {
+        return paymentRequestedEvent.getArgument(2, Token.class);
     }
 
     public String getCustomerDtuPayId() {
