@@ -4,6 +4,8 @@ import CustomerApp.Customer;
 import CustomerApp.CustomerDtuPay;
 import CustomerApp.DtuPayException;
 import CustomerApp.Token;
+import MerchantApp.Merchant;
+import io.cucumber.java.After;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -26,7 +28,7 @@ public class TokenSteps {
     private DtuPayException tokenRequestException;
 
     @Given("customer registered in DTUPay with {int} tokens")
-    public void customerRegisteredInDTUPayWithTokens(int tokenAmount) throws Exception {
+    public void customerRegisteredInDTUPayWithTokens(int tokenAmount) {
         customer1 = new Customer();
         customer1.setCprNumber("customer1-17");
         customer1.setFirstName("firstName1");
@@ -55,7 +57,7 @@ public class TokenSteps {
     }
 
     @Given("another customer registered in DTUPay with {int} tokens")
-    public void anotherCustomerRegisteredInDTUPayWithTokens(int tokenAmount) throws Exception {
+    public void anotherCustomerRegisteredInDTUPayWithTokens(int tokenAmount) {
         customer2 = new Customer();
         customer2.setCprNumber("customer1-17");
         customer2.setFirstName("firstName1");
@@ -100,6 +102,11 @@ public class TokenSteps {
         }
     }
 
+    @Then("the request is rejected")
+    public void theRequestIsRejected() {
+        assertEquals("Tokens request rejected", tokenRequestException.getMessage());
+    }
+
     private Thread createTokenRequestThread(CompletableFuture<List<Token>> completableFuture, Customer customer, int tokenAmount) {
         return new Thread(() -> {
             try {
@@ -108,10 +115,5 @@ public class TokenSteps {
                 throw new RuntimeException(e);
             }
         });
-    }
-
-    @Then("the request is rejected")
-    public void theRequestIsRejected() {
-        assertEquals("Tokens request rejected", tokenRequestException.getMessage());
     }
 }

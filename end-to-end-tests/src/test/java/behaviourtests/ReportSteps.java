@@ -32,26 +32,6 @@ public class ReportSteps {
     private Merchant merchant;
     private Customer customer;
 
-    @After
-    public void cleanBankAccounts() {
-        Customer[] customersToRetire = new Customer[]{customer};
-        Merchant[] merchantsToRetire = new Merchant[]{merchant};
-
-        for (Customer customerToRetire : customersToRetire) {
-            try {
-                bank.retireAccount(customerToRetire.getAccountId());
-            } catch (Exception ignored) {
-            }
-        }
-
-        for (Merchant merchantToRetire : merchantsToRetire) {
-            try {
-                bank.retireAccount(merchantToRetire.getAccountId());
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
     @Given("a successful payment")
     public void aSuccessfulPayment() throws Exception {
         merchant = new Merchant();
@@ -130,5 +110,25 @@ public class ReportSteps {
     @Then("the merchant report includes the payment")
     public void theMerchantReportIncludesThePayment() {
         assertTrue(merchantReport.getPayments().contains(MapperUtility.mapManagerPaymentToMerchantPayment(expectedPayment)));
+    }
+
+    @After
+    public void cleanBankAccounts() {
+        Customer[] customersToRetire = new Customer[]{ customer };
+        Merchant[] merchantsToRetire = new Merchant[]{ merchant };
+
+        for (Customer customerToRetire : customersToRetire) {
+            try {
+                bank.retireAccount(customerToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
+        }
+
+        for (Merchant merchantToRetire : merchantsToRetire) {
+            try {
+                bank.retireAccount(merchantToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
+        }
     }
 }

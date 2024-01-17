@@ -10,6 +10,7 @@ import dtu.ws.fastmoney.Account;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankServiceService;
+import io.cucumber.java.After;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -21,7 +22,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class PaymentSteps {
-    StateHolder stateHolder;
     Customer customer;
     Merchant merchant;
     Token tokenReceivedFromCustomer;
@@ -30,18 +30,37 @@ public class PaymentSteps {
     private final CustomerDtuPay customerDtuPay = new CustomerDtuPay();
     private String paymentResponse;
 
-    public PaymentSteps(StateHolder stateHolder) {
-        this.stateHolder = stateHolder;
+    @Given("merchant registered in bank with a balance of {int}")
+    public void merchantRegisteredInBankWithABalanceOf(int startingBalance) throws BankServiceException_Exception {
+        merchant = new Merchant();
+        merchant.setCprNumber("merchant1-17");
+        merchant.setFirstName("firstName1");
+        merchant.setLastName("lastName1");
+        BigDecimal balance = new BigDecimal(startingBalance);
+
+        String accountId = bank.createAccountWithBalance(MapperUtility.merchantToUser(merchant), balance);
+        merchant.setAccountId(accountId);
     }
-    @And("the merchant is registered with DTUPay")
-    public void theMerchantIsRegisteredWithDTUPay() {
-        merchant = stateHolder.getMerchant();
+
+    @And("the merchant is also registered with DTUPay")
+    public void theMerchantIsAlsoRegisteredWithDTUPay() {
         merchant.setDtuPayId(merchantDtuPay.registerMerchant(merchant).getDtuPayId());
     }
 
-    @And("the customer is registered with DTUPay")
-    public void theCustomerIsRegisteredWithDTUPay() {
-        customer = stateHolder.getCustomer();
+    @Given("customer registered in bank with a balance of {int}")
+    public void customerRegisteredInBankWithABalanceOf(int startingBalance) throws BankServiceException_Exception {
+        customer = new Customer();
+        customer.setCprNumber("customer1-17");
+        customer.setFirstName("firstName1");
+        customer.setLastName("lastName1");
+        BigDecimal balance = new BigDecimal(startingBalance);
+
+        String accountId = bank.createAccountWithBalance(MapperUtility.costumerToUser(customer), balance);
+        customer.setAccountId(accountId);
+    }
+
+    @And("the customer is also registered with DTUPay")
+    public void theCustomerIsAlsoRegisteredWithDTUPay() {
         customer.setDtuPayId(customerDtuPay.registerCustomer(customer).getDtuPayId());
     }
 
@@ -77,5 +96,25 @@ public class PaymentSteps {
     public void theCustomerSBalanceIs(int expectedBalance) throws BankServiceException_Exception {
         Account account = bank.getAccount(customer.getAccountId());
         assertEquals(BigDecimal.valueOf(expectedBalance), account.getBalance());
+    }
+
+    @After
+    public void cleanBankAccounts() {
+        Customer[] customersToRetire = new Customer[]{ customer };
+        Merchant[] merchantsToRetire = new Merchant[]{ merchant };
+
+        for (Customer customerToRetire : customersToRetire) {
+            try {
+                bank.retireAccount(customerToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
+        }
+
+        for (Merchant merchantToRetire : merchantsToRetire) {
+            try {
+                bank.retireAccount(merchantToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
+        }
     }
 }

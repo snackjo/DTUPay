@@ -23,7 +23,6 @@ import static org.junit.Assert.*;
 
 public class RegistrationSteps {
     private Customer customer1;
-    private final StateHolder stateHolder;
     private Customer customer2;
     private Merchant merchant1;
     private Merchant merchant2;
@@ -44,22 +43,16 @@ public class RegistrationSteps {
     private final CompletableFuture<Response> customerDeregistrationResult1 = new CompletableFuture<>();
     private final CompletableFuture<Response> customerDeregistrationResult2 = new CompletableFuture<>();
 
-    public RegistrationSteps(StateHolder stateHolder) {
-        customer1 = stateHolder.getCustomer();
-        this.stateHolder = stateHolder;
-    }
-
-    @Given("customer registered in bank with a balance of {int}")
-    public void customerRegisteredInBankWithABalanceOf(int startingBalance) throws BankServiceException_Exception {
+    @Given("customer registered in the bank")
+    public void customerRegisteredInTheBank() throws BankServiceException_Exception {
         customer1 = new Customer();
         customer1.setCprNumber("customer1-17");
         customer1.setFirstName("firstName1");
         customer1.setLastName("lastName1");
-        BigDecimal balance = new BigDecimal(startingBalance);
+        BigDecimal balance = new BigDecimal(1000);
 
         String accountId = bank.createAccountWithBalance(MapperUtility.costumerToUser(customer1), balance);
         customer1.setAccountId(accountId);
-        stateHolder.setCustomer(customer1);
     }
 
     @When("the customer registers with DTUPay")
@@ -70,26 +63,6 @@ public class RegistrationSteps {
     @Then("the customer is successfully registered")
     public void theCustomerIsSuccessfullyRegistered() {
         assertNotNull(customerRegistrationResponse.getDtuPayId());
-    }
-
-    @After
-    public void cleanBankAccounts() {
-        Customer[] customersToRetire = new Customer[]{customer1, customer2};
-        Merchant[] merchantsToRetire = new Merchant[]{merchant1, merchant2};
-
-        for (Customer customerToRetire : customersToRetire) {
-            try {
-                bank.retireAccount(customerToRetire.getAccountId());
-            } catch (Exception ignored) {
-            }
-        }
-
-        for (Merchant merchantToRetire : merchantsToRetire) {
-            try {
-                bank.retireAccount(merchantToRetire.getAccountId());
-            } catch (Exception ignored) {
-            }
-        }
     }
 
     @And("another customer registered in bank")
@@ -125,17 +98,21 @@ public class RegistrationSteps {
         assertNotEquals(customerDtuPayId1, customerDtuPayId2);
     }
 
-    @Given("merchant registered in bank with a balance of {int}")
-    public void merchantRegisteredInBankWithABalanceOf(int startingBalance) throws BankServiceException_Exception {
+    @And("the customer is registered with DTUPay")
+    public void theCustomerIsRegisteredWithDTUPay() {
+        customer1.setDtuPayId(customerDtuPay.registerCustomer(customer1).getDtuPayId());
+    }
+
+    @Given("merchant registered in the bank")
+    public void merchantRegisteredInTheBank() throws BankServiceException_Exception {
         merchant1 = new Merchant();
         merchant1.setCprNumber("merchant1-17");
         merchant1.setFirstName("firstName1");
         merchant1.setLastName("lastName1");
-        BigDecimal balance = new BigDecimal(startingBalance);
+        BigDecimal balance = new BigDecimal(1000);
 
         String accountId = bank.createAccountWithBalance(MapperUtility.merchantToUser(merchant1), balance);
         merchant1.setAccountId(accountId);
-        stateHolder.setMerchant(merchant1);
     }
 
     @When("the merchant registers with DTUPay")
@@ -181,9 +158,14 @@ public class RegistrationSteps {
         assertNotEquals(merchantDtuPayId1, merchantDtuPayId2);
     }
 
+    @And("the merchant is registered with DTUPay")
+    public void theMerchantIsRegisteredWithDTUPay() {
+        merchant1.setDtuPayId(merchantDtuPay.registerMerchant(merchant1).getDtuPayId());
+    }
+
     @When("the merchant deregisters from DTUPay")
     public void theMerchantDeregistersFromDTUPay() {
-        merchantDeregistrationResponse = merchantDtuPay.deregisterMerchant(stateHolder.getMerchant().getDtuPayId());
+        merchantDeregistrationResponse = merchantDtuPay.deregisterMerchant(merchant1.getDtuPayId());
     }
 
     @Then("the merchant is successfully deregistered")
@@ -222,7 +204,7 @@ public class RegistrationSteps {
 
     @When("the customer deregisters from DTUPay")
     public void theCustomerDeregistersFromDTUPay() {
-        customerDeregistrationResponse = customerDtuPay.deregisterCustomer(stateHolder.getCustomer().getDtuPayId());
+        customerDeregistrationResponse = customerDtuPay.deregisterCustomer(customer1.getDtuPayId());
     }
 
     @Then("the customer is successfully deregistered")
@@ -287,5 +269,25 @@ public class RegistrationSteps {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    @After
+    public void cleanBankAccounts() {
+        Customer[] customersToRetire = new Customer[]{customer1, customer2};
+        Merchant[] merchantsToRetire = new Merchant[]{merchant1, merchant2};
+
+        for (Customer customerToRetire : customersToRetire) {
+            try {
+                bank.retireAccount(customerToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
+        }
+
+        for (Merchant merchantToRetire : merchantsToRetire) {
+            try {
+                bank.retireAccount(merchantToRetire.getAccountId());
+            } catch (Exception ignored) {
+            }
+        }
     }
 }
