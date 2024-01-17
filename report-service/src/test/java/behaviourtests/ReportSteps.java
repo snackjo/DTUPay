@@ -30,6 +30,7 @@ public class ReportSteps {
     private String customerDtuPayId;
     private Thread requestThread;
     private Event publishedEvent;
+    private Payment payment;
 
 
     @Given("that no payments have completed yet")
@@ -54,6 +55,13 @@ public class ReportSteps {
         customerToken = "customerToken";
         amount = 100;
         customerDtuPayId = "customerDtuPayId";
+
+        payment = new Payment();
+        payment.setMerchantDtuPayId(merchantDtuPayId);
+        payment.setCustomerToken(customerToken);
+        payment.setAmount(amount);
+        payment.setCustomerDtuPayId(customerDtuPayId);
+
         reportService.handlePaymentCompletedEvent(new Event(ReportService.PAYMENT_COMPLETED
                 , new Object[]{
                 "",
@@ -90,5 +98,21 @@ public class ReportSteps {
         assertEquals(customerToken, payment.getCustomerToken());
         assertEquals(amount, payment.getAmount());
         assertEquals(customerDtuPayId, payment.getCustomerDtuPayId());
+    }
+
+    @When("a CustomerReportRequested event is received")
+    public void aCustomerReportRequestedEventIsReceived() {
+        CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+        requestThread = new Thread(() -> reportService.handleCustomerReportRequested(new Event(ReportService.CUSTOMER_REPORT_REQUESTED,
+                new Object[]{correlationId, customerDtuPayId})));
+        requestThread.start();
+    }
+
+    @When("a MerchantReportRequested event is received")
+    public void aMerchantReportRequestedEventIsReceived() {
+        CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+        requestThread = new Thread(() -> reportService.handleMerchantReportRequested(new Event(ReportService.MERCHANT_REPORT_GENERATED,
+                new Object[]{correlationId, merchantDtuPayId})));
+        requestThread.start();
     }
 }
