@@ -5,13 +5,6 @@ import messaging.Event;
 import messaging.MessageQueue;
 
 public class TokenService {
-    public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
-    public static final String TOKENS_REQUESTED = "TokensRequested";
-    public static final String TOKENS_GENERATED = "TokensGenerated";
-    public static final String PAYMENT_REQUESTED = "PaymentRequested";
-    public static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
-    public static final String TOKENS_REQUEST_REJECTED = "TokensRequestRejected";
-    public static final String CUSTOMER_DEREGISTERED = "CustomerDeregistered";
     private final MessageQueue queue;
     private final CustomerRepository customerRepository;
 
@@ -20,10 +13,10 @@ public class TokenService {
         queue = q;
         this.customerRepository = customerRepository;
 
-        queue.addHandler(TOKENS_REQUESTED, this::handleTokensRequested);
-        queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
-        queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
-        queue.addHandler(CUSTOMER_DEREGISTERED, this::handleCustomerDeregistered);
+        queue.addHandler(EventNames.TOKENS_REQUESTED, this::handleTokensRequested);
+        queue.addHandler(EventNames.CUSTOMER_REGISTERED, this::handleCustomerRegistered);
+        queue.addHandler(EventNames.PAYMENT_REQUESTED, this::handlePaymentRequested);
+        queue.addHandler(EventNames.CUSTOMER_DEREGISTERED, this::handleCustomerDeregistered);
     }
 
     public void handlePaymentRequested(Event event) {
@@ -33,7 +26,7 @@ public class TokenService {
         String customerDtuPayId = customerRepository.getCustomerByToken(token);
         customerRepository.removeToken(customerDtuPayId, token);
 
-        Event publishedEvent = new Event(TOKEN_MATCH_FOUND,
+        Event publishedEvent = new Event(EventNames.TOKEN_MATCH_FOUND,
                 new Object[]{correlationId, customerDtuPayId});
         queue.publish(publishedEvent);
     }
@@ -50,20 +43,20 @@ public class TokenService {
         int tokenRequestAmount = event.getArgument(2, Integer.class);
 
         if(tokenRequestAmount > 5 || tokenRequestAmount < 1) {
-            Event publishedEvent = new Event(TOKENS_REQUEST_REJECTED, new Object[] { correlationId });
+            Event publishedEvent = new Event(EventNames.TOKENS_REQUEST_REJECTED, new Object[] { correlationId });
             queue.publish(publishedEvent);
             return;
         }
 
         int numberOfTokens = customerRepository.getCustomer(dtuPayId).getTokens().size();
         if(numberOfTokens > 1) {
-            Event publishedEvent = new Event(TOKENS_REQUEST_REJECTED, new Object[] { correlationId });
+            Event publishedEvent = new Event(EventNames.TOKENS_REQUEST_REJECTED, new Object[] { correlationId });
             queue.publish(publishedEvent);
             return;
         }
 
         customerRepository.addTokensToCustomer(dtuPayId, Token.generateTokens(tokenRequestAmount));
-        Event publishedEvent = new Event(TOKENS_GENERATED,
+        Event publishedEvent = new Event(EventNames.TOKENS_GENERATED,
                 new Object[] { correlationId, customerRepository.getCustomer(dtuPayId).getTokens() });
         queue.publish(publishedEvent);
     }

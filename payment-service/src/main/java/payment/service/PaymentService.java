@@ -11,11 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PaymentService {
 
-    public static final String PAYMENT_REQUESTED = "PaymentRequested";
-    public static final String CUSTOMER_BANK_ACCOUNT_FOUND = "CustomerBankAccountFound";
-    public static final String MERCHANT_BANK_ACCOUNT_FOUND = "MerchantBankAccountFound";
-    public static final String PAYMENT_COMPLETED = "PaymentCompleted";
-
     private final Map<String, PaymentInformation> paymentInformation = new ConcurrentHashMap<>();
     private final BankService bank;
     MessageQueue queue;
@@ -24,9 +19,9 @@ public class PaymentService {
         this.queue = q;
         this.bank = bank;
 
-        this.queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
-        this.queue.addHandler(CUSTOMER_BANK_ACCOUNT_FOUND, this::handleCustomerBankAccountFound);
-        this.queue.addHandler(MERCHANT_BANK_ACCOUNT_FOUND, this::handleMerchantBankAccountFound);
+        this.queue.addHandler(EventNames.PAYMENT_REQUESTED, this::handlePaymentRequested);
+        this.queue.addHandler(EventNames.CUSTOMER_BANK_ACCOUNT_FOUND, this::handleCustomerBankAccountFound);
+        this.queue.addHandler(EventNames.MERCHANT_BANK_ACCOUNT_FOUND, this::handleMerchantBankAccountFound);
 
     }
 
@@ -61,7 +56,7 @@ public class PaymentService {
         PaymentInformation information = paymentInformation.get(correlationId.getId());
         if (information != null && information.isAllInformationSet()) {
             tryTransferringThroughBank(information);
-            Event publishEvent = new Event(PAYMENT_COMPLETED,
+            Event publishEvent = new Event(EventNames.PAYMENT_COMPLETED,
                     new Object[]{
                             correlationId,
                             information.getMerchantDtuPayId(),

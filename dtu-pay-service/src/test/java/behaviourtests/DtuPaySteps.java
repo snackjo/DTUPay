@@ -60,7 +60,7 @@ public class DtuPaySteps {
     public void aCustomerRegisteredEventIsReceived() {
         Customer customer = new Customer();
         customer.setDtuPayId("123");
-        service.handleCustomerRegistered(new Event(DtuPayService.CUSTOMER_REGISTERED,
+        service.handleCustomerRegistered(new Event(EventNames.CUSTOMER_REGISTERED,
                 new Object[] {correlationId, customer}));
     }
 
@@ -82,7 +82,7 @@ public class DtuPaySteps {
 
     @When("a TokensRequestRejected event is received")
     public void aTokensRequestRejectedEventIsReceived() {
-        service.handleTokensRequestRejected(new Event(DtuPayService.TOKENS_REQUEST_REJECTED,
+        service.handleTokensRequestRejected(new Event(EventNames.TOKENS_REQUEST_REJECTED,
                 new Object[] {correlationId}));
     }
 
@@ -123,7 +123,7 @@ public class DtuPaySteps {
     public void aMerchantRegisteredEventIsReceived() {
         Merchant merchant = new Merchant();
         merchant.setDtuPayId("123");
-        service.handleMerchantRegistered(new Event(DtuPayService.MERCHANT_REGISTERED,
+        service.handleMerchantRegistered(new Event(EventNames.MERCHANT_REGISTERED,
                 new Object[] {correlationId, merchant}));
     }
 
@@ -135,7 +135,7 @@ public class DtuPaySteps {
 
     @When("a PaymentCompleted event is received")
     public void aPaymentCompletedEventIsReceived() {
-        service.handlePaymentCompleted(new Event(DtuPayService.PAYMENT_COMPLETED,
+        service.handlePaymentCompleted(new Event(EventNames.PAYMENT_COMPLETED,
                 new Object[] {correlationId}));
     }
 
@@ -154,7 +154,7 @@ public class DtuPaySteps {
             token.setId(String.valueOf(i));
             tokens.add(token);
         }
-        service.handleTokensGenerated(new Event(DtuPayService.TOKENS_GENERATED,
+        service.handleTokensGenerated(new Event(EventNames.TOKENS_GENERATED,
                 new Object[]{correlationId, tokens}));
     }
 
@@ -179,7 +179,7 @@ public class DtuPaySteps {
         payments.add(new Payment());
 
         report.setPayments(payments);
-        service.handleManagerReportGenerated(new Event(DtuPayService.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
+        service.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @Then("report is returned")
@@ -204,7 +204,7 @@ public class DtuPaySteps {
         payments.add(new Payment());
 
         report.setPayments(payments);
-        service.handleMerchantReportGenerated(new Event(DtuPayService.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
+        service.handleMerchantReportGenerated(new Event(EventNames.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @When("a customer requests a report")
@@ -222,7 +222,7 @@ public class DtuPaySteps {
         List<Payment> payments = new ArrayList<>();
         payments.add(new Payment());
         report.setPayments(payments);
-        service.handleCustomerReportGenerated(new Event(DtuPayService.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
+        service.handleCustomerReportGenerated(new Event(EventNames.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
 
     }
 
@@ -242,7 +242,7 @@ public class DtuPaySteps {
 
     @When("a MerchantDeregisteredEvent is received")
     public void aMerchantDeregisteredEventIsReceived() {
-        Event event = new Event(DtuPayService.MERCHANT_DEREGISTERED, new Object[]{correlationId});
+        Event event = new Event(EventNames.MERCHANT_DEREGISTERED, new Object[]{correlationId});
         service.handleMerchantDeregistered(event);
     }
 
@@ -269,7 +269,7 @@ public class DtuPaySteps {
 
     @When("a CustomerDeregisteredEvent is received")
     public void aCustomerDeregisteredEventIsReceived() {
-        Event event = new Event(DtuPayService.CUSTOMER_DEREGISTERED, new Object[]{correlationId, customer.getDtuPayId()});
+        Event event = new Event(EventNames.CUSTOMER_DEREGISTERED, new Object[]{correlationId, customer.getDtuPayId()});
         service.handleCustomerDeregistered(event);
     }
 

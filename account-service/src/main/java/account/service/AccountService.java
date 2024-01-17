@@ -7,19 +7,6 @@ import messaging.MessageQueue;
 
 public class AccountService {
 
-	public static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
-	public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
-	public static final String MERCHANT_REGISTERED = "MerchantRegistered";
-	public static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
-	public static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
-	public static final String CUSTOMER_BANK_ACCOUNT_FOUND = "CustomerBankAccountFound";
-	public static final String PAYMENT_REQUESTED = "PaymentRequested";
-	public static final String MERCHANT_BANK_ACCOUNT_FOUND = "MerchantBankAccountFound";
-	public static final String MERCHANT_DEREGISTRATION_REQUESTED = "MerchantDeregistrationRequested";
-	public static final String MERCHANT_DEREGISTERED = "MerchantDeregistered";
-    public static final String CUSTOMER_DEREGISTRATION_REQUESTED = "CustomerDeregistrationRequested";
-	public static final String CUSTOMER_DEREGISTERED = "CustomerDeregistered";
-
 	private final MessageQueue queue;
 	private final AccountRepository accountRepository;
 
@@ -27,12 +14,12 @@ public class AccountService {
 		this.queue = q;
 		this.accountRepository = accountRepository;
 
-		this.queue.addHandler(CUSTOMER_REGISTRATION_REQUESTED, this::handleCustomerRegistrationRequested);
-		this.queue.addHandler(MERCHANT_REGISTRATION_REQUESTED, this::handleMerchantRegistrationRequested);
-		this.queue.addHandler(TOKEN_MATCH_FOUND, this::handleTokenMatchFound);
-		this.queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
-		this.queue.addHandler(MERCHANT_DEREGISTRATION_REQUESTED, this::handleMerchantDeregistrationRequested);
-		this.queue.addHandler(CUSTOMER_DEREGISTRATION_REQUESTED, this::handleCustomerDeregistrationRequested);
+		this.queue.addHandler(EventNames.CUSTOMER_REGISTRATION_REQUESTED, this::handleCustomerRegistrationRequested);
+		this.queue.addHandler(EventNames.MERCHANT_REGISTRATION_REQUESTED, this::handleMerchantRegistrationRequested);
+		this.queue.addHandler(EventNames.TOKEN_MATCH_FOUND, this::handleTokenMatchFound);
+		this.queue.addHandler(EventNames.PAYMENT_REQUESTED, this::handlePaymentRequested);
+		this.queue.addHandler(EventNames.MERCHANT_DEREGISTRATION_REQUESTED, this::handleMerchantDeregistrationRequested);
+		this.queue.addHandler(EventNames.CUSTOMER_DEREGISTRATION_REQUESTED, this::handleCustomerDeregistrationRequested);
 	}
 
 	public void handleCustomerRegistrationRequested(Event ev) {
@@ -42,7 +29,7 @@ public class AccountService {
 		customer.setDtuPayId(UUID.randomUUID().toString());
 		accountRepository.addCustomer(customer);
 
-		Event event = new Event(CUSTOMER_REGISTERED, new Object[] { correlationId, customer });
+		Event event = new Event(EventNames.CUSTOMER_REGISTERED, new Object[] { correlationId, customer });
 		queue.publish(event);
 	}
 
@@ -53,7 +40,7 @@ public class AccountService {
 		merchant.setDtuPayId(UUID.randomUUID().toString());
 		accountRepository.addMerchant(merchant);
 
-		Event publishEvent = new Event(MERCHANT_REGISTERED, new Object[] { correlationId, merchant });
+		Event publishEvent = new Event(EventNames.MERCHANT_REGISTERED, new Object[] { correlationId, merchant });
 		queue.publish(publishEvent);
     }
 
@@ -67,7 +54,7 @@ public class AccountService {
 		} catch (DtuPayException e) {
 			throw new RuntimeException(e);
 		}
-		Event publishEvent = new Event(CUSTOMER_BANK_ACCOUNT_FOUND, new Object[] {correlationId, customerAccount, customerDtuPayId});
+		Event publishEvent = new Event(EventNames.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[] {correlationId, customerAccount, customerDtuPayId});
 		queue.publish(publishEvent);
 	}
 
@@ -81,7 +68,7 @@ public class AccountService {
 		} catch (DtuPayException e) {
 			throw new RuntimeException(e);
 		}
-		Event publishEvent = new Event(MERCHANT_BANK_ACCOUNT_FOUND, new Object[] {correlationId, merchantAccount});
+		Event publishEvent = new Event(EventNames.MERCHANT_BANK_ACCOUNT_FOUND, new Object[] {correlationId, merchantAccount});
 		queue.publish(publishEvent);
 	}
 
@@ -91,7 +78,7 @@ public class AccountService {
 
 		accountRepository.removeMerchant(merchantDtuPayId);
 
-		Event publishEvent = new Event(MERCHANT_DEREGISTERED, new Object[] { correlationId });
+		Event publishEvent = new Event(EventNames.MERCHANT_DEREGISTERED, new Object[] { correlationId });
 		queue.publish(publishEvent);
 	}
 
@@ -101,7 +88,7 @@ public class AccountService {
 
 		accountRepository.removeCustomer(customerDtuPayId);
 
-		Event publishEvent = new Event(CUSTOMER_DEREGISTERED, new Object[] { correlationId, customerDtuPayId });
+		Event publishEvent = new Event(EventNames.CUSTOMER_DEREGISTERED, new Object[] { correlationId, customerDtuPayId });
 		queue.publish(publishEvent);
 	}
 }

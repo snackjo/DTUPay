@@ -28,7 +28,7 @@ public class TokenSteps {
         customer.setDtuPayId("cid1");
         CorrelationId correlationId = CorrelationId.randomId();
 
-        Event event = new Event(TokenService.CUSTOMER_REGISTERED, new Object[]{correlationId, customer});
+        Event event = new Event(EventNames.CUSTOMER_REGISTERED, new Object[]{correlationId, customer});
         tokenService.handleCustomerRegistered(event);
     }
 
@@ -54,14 +54,14 @@ public class TokenSteps {
     @When("a TokensRequested event for a customer is received for {int} tokens")
     public void aTokensRequestedEventForACustomerIsReceivedForTokens(int tokenAmount) {
         CorrelationId correlationId = CorrelationId.randomId();
-        Event event = new Event(TokenService.TOKENS_REQUESTED, new Object[]{correlationId, customer.getDtuPayId(), tokenAmount});
+        Event event = new Event(EventNames.TOKENS_REQUESTED, new Object[]{correlationId, customer.getDtuPayId(), tokenAmount});
         tokenService.handleTokensRequested(event);
     }
 
     @Then("a TokensGenerated event with {int} tokens is published")
     public void aTokensGeneratedEventWithTokensIsPublished(int tokenAmount) {
         verify(queueMock).publish(eventCaptor.capture());
-        assertEquals(TokenService.TOKENS_GENERATED, eventCaptor.getValue().getType());
+        assertEquals(EventNames.TOKENS_GENERATED, eventCaptor.getValue().getType());
         assertEquals(tokenAmount, eventCaptor.getValue().getArgument(1, List.class).size());
     }
 
@@ -74,7 +74,7 @@ public class TokenSteps {
     public void aPaymentRequestedEventIsReceivedWithATokenMatchingTheCustomers() {
         CorrelationId correlationId = CorrelationId.randomId();
         Token token = generatedTokens.get(0);
-        Event event = new Event(TokenService.PAYMENT_REQUESTED, new Object[]{correlationId, null, token, null});
+        Event event = new Event(EventNames.PAYMENT_REQUESTED, new Object[]{correlationId, null, token, null});
         tokenService.handlePaymentRequested(event);
     }
 
@@ -87,7 +87,7 @@ public class TokenSteps {
     @When("a CustomerDeregistered event is received")
     public void aCustomerDeregisteredEventIsReceived() {
         CorrelationId correlationId = CorrelationId.randomId();
-        Event event = new Event(TokenService.CUSTOMER_DEREGISTERED, new Object[]{correlationId, customer.getDtuPayId() });
+        Event event = new Event(EventNames.CUSTOMER_DEREGISTERED, new Object[]{correlationId, customer.getDtuPayId() });
         tokenService.handleCustomerDeregistered(event);
     }
 

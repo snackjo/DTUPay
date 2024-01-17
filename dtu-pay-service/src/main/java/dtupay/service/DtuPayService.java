@@ -10,25 +10,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DtuPayService {
-    public static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
-    public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
-    public static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
-    public static final String MERCHANT_REGISTERED = "MerchantRegistered";
-    public static final String TOKENS_REQUESTED = "TokensRequested";
-    public static final String TOKENS_GENERATED = "TokensGenerated";
-    public static final String PAYMENT_REQUESTED = "PaymentRequested";
-    public static final String PAYMENT_COMPLETED = "PaymentCompleted";
-    public static final String TOKENS_REQUEST_REJECTED = "TokensRequestRejected";
-    public static final String MANAGER_REPORT_REQUESTED = "ManagerReportRequested";
-    public static final String MANAGER_REPORT_GENERATED = "ManagerReportGenerated";
-    public static final String CUSTOMER_REPORT_REQUESTED = "CustomerReportRequested";
-    public static final String CUSTOMER_REPORT_GENERATED = "CustomerReportGenerated";
-    public static final String MERCHANT_REPORT_REQUESTED = "MerchantReportRequested";
-    public static final String MERCHANT_REPORT_GENERATED = "MerchantReportGenerated";
-    public static final String MERCHANT_DEREGISTRATION_REQUESTED = "MerchantDeregistrationRequested";
-    public static final String MERCHANT_DEREGISTERED = "MerchantDeregistered";
-    public static final String CUSTOMER_DEREGISTRATION_REQUESTED = "CustomerDeregistrationRequested";
-    public static final String CUSTOMER_DEREGISTERED = "CustomerDeregistered";
 
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
@@ -43,22 +24,22 @@ public class DtuPayService {
 
     public DtuPayService(MessageQueue q) {
         queue = q;
-        queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
-        queue.addHandler(MERCHANT_REGISTERED, this::handleMerchantRegistered);
-        queue.addHandler(TOKENS_GENERATED, this::handleTokensGenerated);
-        queue.addHandler(PAYMENT_COMPLETED, this::handlePaymentCompleted);
-        queue.addHandler(TOKENS_REQUEST_REJECTED, this::handleTokensRequestRejected);
-        queue.addHandler(MANAGER_REPORT_GENERATED, this::handleManagerReportGenerated);
-        queue.addHandler(CUSTOMER_REPORT_GENERATED, this::handleCustomerReportGenerated);
-        queue.addHandler(MERCHANT_REPORT_GENERATED, this::handleMerchantReportGenerated);
-        queue.addHandler(MERCHANT_DEREGISTERED, this::handleMerchantDeregistered);
-        queue.addHandler(CUSTOMER_DEREGISTERED, this::handleCustomerDeregistered);
+        queue.addHandler(EventNames.CUSTOMER_REGISTERED, this::handleCustomerRegistered);
+        queue.addHandler(EventNames.MERCHANT_REGISTERED, this::handleMerchantRegistered);
+        queue.addHandler(EventNames.TOKENS_GENERATED, this::handleTokensGenerated);
+        queue.addHandler(EventNames.PAYMENT_COMPLETED, this::handlePaymentCompleted);
+        queue.addHandler(EventNames.TOKENS_REQUEST_REJECTED, this::handleTokensRequestRejected);
+        queue.addHandler(EventNames.MANAGER_REPORT_GENERATED, this::handleManagerReportGenerated);
+        queue.addHandler(EventNames.CUSTOMER_REPORT_GENERATED, this::handleCustomerReportGenerated);
+        queue.addHandler(EventNames.MERCHANT_REPORT_GENERATED, this::handleMerchantReportGenerated);
+        queue.addHandler(EventNames.MERCHANT_DEREGISTERED, this::handleMerchantDeregistered);
+        queue.addHandler(EventNames.CUSTOMER_DEREGISTERED, this::handleCustomerDeregistered);
     }
 
     public Customer registerCustomer(Customer customer) {
         CorrelationId correlationId = CorrelationId.randomId();
         customerCorrelations.put(correlationId,new CompletableFuture<>());
-        Event event = new Event(CUSTOMER_REGISTRATION_REQUESTED, new Object[] { correlationId, customer });
+        Event event = new Event(EventNames.CUSTOMER_REGISTRATION_REQUESTED, new Object[] { correlationId, customer });
         queue.publish(event);
         Customer response = customerCorrelations.get(correlationId).join();
         customerCorrelations.remove(correlationId);
@@ -74,7 +55,7 @@ public class DtuPayService {
     public Merchant registerMerchant(Merchant merchant) {
         CorrelationId correlationId = CorrelationId.randomId();
         merchantCorrelations.put(correlationId, new CompletableFuture<>());
-        Event event = new Event(MERCHANT_REGISTRATION_REQUESTED, new Object[] { correlationId, merchant });
+        Event event = new Event(EventNames.MERCHANT_REGISTRATION_REQUESTED, new Object[] { correlationId, merchant });
         queue.publish(event);
         Merchant response = merchantCorrelations.get(correlationId).join();
         merchantCorrelations.remove(correlationId);
@@ -89,7 +70,7 @@ public class DtuPayService {
     public List<Token> requestTokens(String dtuPayId, int tokenAmount) throws DtuPayException {
         CorrelationId correlationId = CorrelationId.randomId();
         tokenCorrelations.put(correlationId, new CompletableFuture<>());
-        Event event = new Event(TOKENS_REQUESTED, new Object[]{correlationId, dtuPayId, tokenAmount});
+        Event event = new Event(EventNames.TOKENS_REQUESTED, new Object[]{correlationId, dtuPayId, tokenAmount});
         queue.publish(event);
         ResponseObject<List<Token>> responseObject = tokenCorrelations.get(correlationId).join();
         tokenCorrelations.remove(correlationId);
@@ -107,7 +88,7 @@ public class DtuPayService {
         CorrelationId correlationId = CorrelationId.randomId();
         paymentCorrelations.put(correlationId, new CompletableFuture<>());
 
-        Event event = new Event(PAYMENT_REQUESTED, new Object[]{correlationId, merchantDtuPayId, token, amount});
+        Event event = new Event(EventNames.PAYMENT_REQUESTED, new Object[]{correlationId, merchantDtuPayId, token, amount});
         queue.publish(event);
         String response = paymentCorrelations.get(correlationId).join();
         paymentCorrelations.remove(correlationId);
@@ -129,7 +110,7 @@ public class DtuPayService {
         CorrelationId correlationId = CorrelationId.randomId();
         managerReportCorrelations.put(correlationId, new CompletableFuture<>());
 
-        Event event = new Event(MANAGER_REPORT_REQUESTED, new Object[]{correlationId});
+        Event event = new Event(EventNames.MANAGER_REPORT_REQUESTED, new Object[]{correlationId});
         queue.publish(event);
 
         Report response = managerReportCorrelations.get(correlationId).join();
@@ -147,7 +128,7 @@ public class DtuPayService {
         CorrelationId correlationId = CorrelationId.randomId();
         merchantReportCorrelations.put(correlationId, new CompletableFuture<>());
 
-        Event event = new Event(MERCHANT_REPORT_REQUESTED, new Object[]{correlationId, merchantDtuPayId});
+        Event event = new Event(EventNames.MERCHANT_REPORT_REQUESTED, new Object[]{correlationId, merchantDtuPayId});
         queue.publish(event);
 
         Report response = merchantReportCorrelations.get(correlationId).join();
@@ -165,7 +146,7 @@ public class DtuPayService {
         CorrelationId correlationId = CorrelationId.randomId();
         customerReportCorrelations.put(correlationId, new CompletableFuture<>());
 
-        Event event = new Event(CUSTOMER_REPORT_REQUESTED, new Object[]{correlationId, customerDtuPayId});
+        Event event = new Event(EventNames.CUSTOMER_REPORT_REQUESTED, new Object[]{correlationId, customerDtuPayId});
         queue.publish(event);
 
         Report response = customerReportCorrelations.get(correlationId).join();
@@ -183,7 +164,7 @@ public class DtuPayService {
         CorrelationId correlationId = CorrelationId.randomId();
         merchantDeregistrationCorrelations.put(correlationId, new CompletableFuture<>());
 
-        Event event = new Event(MERCHANT_DEREGISTRATION_REQUESTED, new Object[]{correlationId, merchantDtuPayId});
+        Event event = new Event(EventNames.MERCHANT_DEREGISTRATION_REQUESTED, new Object[]{correlationId, merchantDtuPayId});
         queue.publish(event);
 
         merchantDeregistrationCorrelations.get(correlationId).join();
@@ -199,7 +180,7 @@ public class DtuPayService {
         CorrelationId correlationId = CorrelationId.randomId();
         customerDeregistrationCorrelations.put(correlationId, new CompletableFuture<>());
 
-        Event event = new Event(CUSTOMER_DEREGISTRATION_REQUESTED, new Object[]{correlationId, customerDtuPayId});
+        Event event = new Event(EventNames.CUSTOMER_DEREGISTRATION_REQUESTED, new Object[]{correlationId, customerDtuPayId});
         queue.publish(event);
 
         customerDeregistrationCorrelations.get(correlationId).join();

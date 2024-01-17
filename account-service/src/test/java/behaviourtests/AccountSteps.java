@@ -30,7 +30,7 @@ public class AccountSteps {
         customer.setLastName("lastName");
         customer.setAccountId("bank-id-123");
         CorrelationId correlationId = CorrelationId.randomId();
-        Event event = new Event(AccountService.CUSTOMER_REGISTRATION_REQUESTED, new Object[]{correlationId, customer});
+        Event event = new Event(EventNames.CUSTOMER_REGISTRATION_REQUESTED, new Object[]{correlationId, customer});
 
         accountService.handleCustomerRegistrationRequested(event);
     }
@@ -60,7 +60,7 @@ public class AccountSteps {
         merchant.setLastName("lastName");
         merchant.setAccountId("bank-id-321");
         CorrelationId correlationId = CorrelationId.randomId();
-        Event event = new Event(AccountService.MERCHANT_REGISTRATION_REQUESTED, new Object[]{correlationId, merchant});
+        Event event = new Event(EventNames.MERCHANT_REGISTRATION_REQUESTED, new Object[]{correlationId, merchant});
 
         accountService.handleMerchantRegistrationRequested(event);
     }
@@ -87,7 +87,7 @@ public class AccountSteps {
     @When("a TokenMatchFound event is received")
     public void aTokenMatchFoundEventIsReceived() {
         correlationId = CorrelationId.randomId();
-        Event event = new Event(AccountService.TOKEN_MATCH_FOUND, new Object[]{correlationId, customer.getDtuPayId()});
+        Event event = new Event(EventNames.TOKEN_MATCH_FOUND, new Object[]{correlationId, customer.getDtuPayId()});
 
         accountService.handleTokenMatchFound(event);
     }
@@ -95,7 +95,7 @@ public class AccountSteps {
     @When("a PaymentRequested event is received")
     public void aPaymentRequestedEventIsReceived() {
         correlationId = CorrelationId.randomId();
-        Event event = new Event(AccountService.PAYMENT_REQUESTED, new Object[]{correlationId, merchant.getDtuPayId(), null, null});
+        Event event = new Event(EventNames.PAYMENT_REQUESTED, new Object[]{correlationId, merchant.getDtuPayId(), null, null});
 
         accountService.handlePaymentRequested(event);
     }
@@ -127,7 +127,7 @@ public class AccountSteps {
     @When("a MerchantDeregistrationRequested event is received")
     public void aMerchantDeregistrationRequestedEventIsReceived() {
         correlationId = CorrelationId.randomId();
-        Event event = new Event(AccountService.MERCHANT_DEREGISTRATION_REQUESTED, new Object[]{correlationId, merchant.getDtuPayId()});
+        Event event = new Event(EventNames.MERCHANT_DEREGISTRATION_REQUESTED, new Object[]{correlationId, merchant.getDtuPayId()});
         accountService.handleMerchantDeregistrationRequested(event);
     }
 
@@ -145,7 +145,7 @@ public class AccountSteps {
     @When("a CustomerDeregistrationRequested event is received")
     public void aCustomerDeregistrationRequestedEventIsReceived() {
         correlationId = CorrelationId.randomId();
-        Event event = new Event(AccountService.CUSTOMER_DEREGISTRATION_REQUESTED, new Object[]{correlationId, customer.getDtuPayId()});
+        Event event = new Event(EventNames.CUSTOMER_DEREGISTRATION_REQUESTED, new Object[]{correlationId, customer.getDtuPayId()});
         accountService.handleCustomerDeregistrationRequested(event);
     }
 

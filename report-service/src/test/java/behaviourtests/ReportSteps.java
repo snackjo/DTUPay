@@ -36,7 +36,7 @@ public class ReportSteps {
 
     @When("a PaymentCompleted event is received")
     public void aPaymentCompletedEventIsReceived() {
-        reportService.handlePaymentCompletedEvent(new Event(ReportService.PAYMENT_COMPLETED,
+        reportService.handlePaymentCompletedEvent(new Event(EventNames.PAYMENT_COMPLETED,
                 new Object[]{"", "merchantDtuPayId", new Token("123"), 100, "customerDtuPayId"}));
     }
 
@@ -58,7 +58,7 @@ public class ReportSteps {
         payment.setAmount(amount);
         payment.setCustomerDtuPayId(customerDtuPayId);
 
-        reportService.handlePaymentCompletedEvent(new Event(ReportService.PAYMENT_COMPLETED
+        reportService.handlePaymentCompletedEvent(new Event(EventNames.PAYMENT_COMPLETED
                 , new Object[]{
                 "",
                 merchantDtuPayId,
@@ -71,7 +71,7 @@ public class ReportSteps {
     @When("a ManagerReportRequested event is received")
     public void aManagerReportRequestedEventIsReceived() {
         CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
-        requestThread = new Thread(() -> reportService.handleManagerReportRequested(new Event(ReportService.MANAGER_REPORT_REQUESTED,
+        requestThread = new Thread(() -> reportService.handleManagerReportRequested(new Event(EventNames.MANAGER_REPORT_REQUESTED,
                 new Object[]{correlationId})));
         requestThread.start();
     }
@@ -99,7 +99,7 @@ public class ReportSteps {
     @When("a CustomerReportRequested event is received")
     public void aCustomerReportRequestedEventIsReceived() {
         CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
-        requestThread = new Thread(() -> reportService.handleCustomerReportRequested(new Event(ReportService.CUSTOMER_REPORT_REQUESTED,
+        requestThread = new Thread(() -> reportService.handleCustomerReportRequested(new Event(EventNames.CUSTOMER_REPORT_REQUESTED,
                 new Object[]{correlationId, customerDtuPayId})));
         requestThread.start();
     }
@@ -107,7 +107,7 @@ public class ReportSteps {
     @When("a MerchantReportRequested event is received")
     public void aMerchantReportRequestedEventIsReceived() {
         CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
-        requestThread = new Thread(() -> reportService.handleMerchantReportRequested(new Event(ReportService.MERCHANT_REPORT_GENERATED,
+        requestThread = new Thread(() -> reportService.handleMerchantReportRequested(new Event(EventNames.MERCHANT_REPORT_GENERATED,
                 new Object[]{correlationId, merchantDtuPayId})));
         requestThread.start();
     }
