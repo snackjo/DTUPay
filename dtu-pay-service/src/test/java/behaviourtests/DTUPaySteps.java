@@ -30,6 +30,7 @@ public class DTUPaySteps {
     private Thread requestThread;
     private Report reportGenerated;
     private Exception merchantDeregistrationException;
+    private Exception customerDeregistrationException;
 
     @Given("a customer with empty DTUPay id")
     public void aCustomerWithEmptyDTUPayId() {
@@ -245,9 +246,36 @@ public class DTUPaySteps {
         service.handleMerchantDeregistered(event);
     }
 
-    @Then("the deregistration was successful")
-    public void theDeregistrationWasSuccessful() throws InterruptedException {
+    @Then("the merchant deregistration was successful")
+    public void theMerchantDeregistrationWasSuccessful() throws InterruptedException {
         requestThread.join();
         assertNull(merchantDeregistrationException);
+    }
+
+    @When("a customer requests to be deregistered")
+    public void aCustomerRequestsToBeDeregistered() {
+        customer = new Customer();
+        customer.setDtuPayId("12345");
+        requestThread = new Thread(() -> {
+            try {
+                service.requestCustomerDeregistration(customer.getDtuPayId());
+            } catch (Exception e) {
+                customerDeregistrationException = e;
+            }
+
+        });
+        requestThread.start();
+    }
+
+    @When("a CustomerDeregisteredEvent is received")
+    public void aCustomerDeregisteredEventIsReceived() {
+        Event event = new Event(DTUPayService.CUSTOMER_DEREGISTERED, new Object[]{correlationId, customer.getDtuPayId()});
+        service.handleCustomerDeregistered(event);
+    }
+
+    @Then("the customer deregistration was successful")
+    public void theCustomerDeregistrationWasSuccessful() throws InterruptedException {
+        requestThread.join();
+        assertNull(customerDeregistrationException);
     }
 }

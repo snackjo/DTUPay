@@ -23,3 +23,9 @@ Feature: DTUPay service customer feature
         Then a "CustomerReportRequested" event is published
         When a CustomerReportGenerated event is received
         Then report is returned
+
+    Scenario: Customer deregistration
+        When a customer requests to be deregistered
+        Then a "CustomerDeregistrationRequested" event is published
+        When a CustomerDeregisteredEvent is received
+        Then the customer deregistration was successful

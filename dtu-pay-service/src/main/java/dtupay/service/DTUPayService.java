@@ -27,16 +27,19 @@ public class DTUPayService {
     public static final String MERCHANT_REPORT_GENERATED = "MerchantReportGenerated";
     public static final String MERCHANT_DEREGISTRATION_REQUESTED = "MerchantDeregistrationRequested";
     public static final String MERCHANT_DEREGISTERED = "MerchantDeregistered";
+    public static final String CUSTOMER_DEREGISTRATION_REQUESTED = "CustomerDeregistrationRequested";
+    public static final String CUSTOMER_DEREGISTERED = "CustomerDeregistered";
 
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<ResponseObject<List<Token>>>> tokenCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<String>> paymentCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
-    private Map<CorrelationId, CompletableFuture<Report>> managerReportCorrelations = new ConcurrentHashMap<>();
-    private Map<CorrelationId, CompletableFuture<Report>> merchantReportCorrelations = new ConcurrentHashMap<>();
-    private Map<CorrelationId, CompletableFuture<Report>> customerReportCorrelations = new ConcurrentHashMap<>();
-    private Map<CorrelationId, CompletableFuture<String>> merchantDeregistrationCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<Report>> managerReportCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<Report>> merchantReportCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<Report>> customerReportCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<Void>> merchantDeregistrationCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<Void>> customerDeregistrationCorrelations = new ConcurrentHashMap<>();
 
     public DTUPayService(MessageQueue q) {
         queue = q;
@@ -49,6 +52,7 @@ public class DTUPayService {
         queue.addHandler(CUSTOMER_REPORT_GENERATED, this::handleCustomerReportGenerated);
         queue.addHandler(MERCHANT_REPORT_GENERATED, this::handleMerchantReportGenerated);
         queue.addHandler(MERCHANT_DEREGISTERED, this::handleMerchantDeregistered);
+        queue.addHandler(CUSTOMER_DEREGISTERED, this::handleCustomerDeregistered);
     }
 
     public Customer registerCustomer(Customer customer) {
@@ -188,6 +192,22 @@ public class DTUPayService {
 
     public void handleMerchantDeregistered(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
-        merchantDeregistrationCorrelations.get(correlationId).complete("Success");
+        merchantDeregistrationCorrelations.get(correlationId).complete(null);
+    }
+
+    public void requestCustomerDeregistration(String customerDtuPayId) {
+        CorrelationId correlationId = CorrelationId.randomId();
+        customerDeregistrationCorrelations.put(correlationId, new CompletableFuture<>());
+
+        Event event = new Event(CUSTOMER_DEREGISTRATION_REQUESTED, new Object[]{correlationId, customerDtuPayId});
+        queue.publish(event);
+
+        customerDeregistrationCorrelations.get(correlationId).join();
+        customerDeregistrationCorrelations.remove(correlationId);
+    }
+
+    public void handleCustomerDeregistered(Event event) {
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        customerDeregistrationCorrelations.get(correlationId).complete(null);
     }
 }

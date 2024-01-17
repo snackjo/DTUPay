@@ -22,4 +22,4 @@ Feature: DTUPay service merchant feature
         When a merchant requests to be deregistered
         Then a "MerchantDeregistrationRequested" event is published
         When a MerchantDeregisteredEvent is received
-        Then the deregistration was successful
+        Then the merchant deregistration was successful
