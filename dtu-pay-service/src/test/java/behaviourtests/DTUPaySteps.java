@@ -1,7 +1,6 @@
 package behaviourtests;
 
 import dtupay.service.*;
-import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -10,9 +9,7 @@ import messaging.MessageQueue;
 import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,7 +28,7 @@ public class DTUPaySteps {
     private Event publishedEvent;
     private List<Token> tokensGenerated;
     private Thread requestThread;
-    private List<Payment> managerReportGenerated;
+    private List<Payment> reportGenerated;
 
     @Given("a customer with empty DTUPay id")
     public void aCustomerWithEmptyDTUPayId() {
@@ -166,7 +163,7 @@ public class DTUPaySteps {
     @When("a manager requests a report")
     public void aManagerRequestsAReport() {
         requestThread = new Thread(() -> {
-                managerReportGenerated = service.requestManagerReport();
+                reportGenerated = service.requestManagerReport();
         });
         requestThread.start();
     }
@@ -181,6 +178,39 @@ public class DTUPaySteps {
     @Then("report is returned")
     public void reportIsReturned() throws InterruptedException {
         requestThread.join();
-        assertEquals(1, managerReportGenerated.size());
+        assertEquals(1, reportGenerated.size());
+    }
+
+    @When("a merchant requests a report")
+    public void aMerchantRequestsAReport() {
+        String merchantDtuPayId = "12345";
+        requestThread = new Thread(() -> {
+            reportGenerated = service.requestMerchantReport(merchantDtuPayId);
+        });
+        requestThread.start();
+    }
+
+    @When("a MerchantReportGenerated event is received")
+    public void aMerchantReportGeneratedEventIsReceived() {
+        List<Payment> report = new ArrayList<>();
+        report.add(new Payment());
+        service.handleMerchantReportGenerated(new Event(DTUPayService.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
+    }
+
+    @When("a customer requests a report")
+    public void aCustomerRequestsAReport() {
+        String customerDtuPayId = "12345";
+        requestThread = new Thread(() -> {
+            reportGenerated = service.requestCustomerReport(customerDtuPayId);
+        });
+        requestThread.start();
+    }
+
+    @When("a CustomerReportGenerated event is received")
+    public void aCustomerReportGeneratedEventIsReceived() {
+        List<Payment> report = new ArrayList<>();
+        report.add(new Payment());
+        service.handleCustomerReportGenerated(new Event(DTUPayService.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
+
     }
 }

@@ -21,13 +21,19 @@ public class DTUPayService {
     public static final String TOKENS_REQUEST_REJECTED = "TokensRequestRejected";
     public static final String MANAGER_REPORT_REQUESTED = "ManagerReportRequested";
     public static final String MANAGER_REPORT_GENERATED = "ManagerReportGenerated";
+    public static final String CUSTOMER_REPORT_REQUESTED = "CustomerReportRequested";
+    public static final String CUSTOMER_REPORT_GENERATED = "CustomerReportGenerated";
+    public static final String MERCHANT_REPORT_REQUESTED = "MerchantReportRequested";
+    public static final String MERCHANT_REPORT_GENERATED = "MerchantReportGenerated";
+
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<ResponseObject<List<Token>>>> tokenCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<String>> paymentCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
     private Map<CorrelationId, CompletableFuture<List<Payment>>> managerReportCorrelations = new ConcurrentHashMap<>();
-
+    private Map<CorrelationId, CompletableFuture<List<Payment>>> merchantReportCorrelations = new ConcurrentHashMap<>();
+    private Map<CorrelationId, CompletableFuture<List<Payment>>> customerReportCorrelations = new ConcurrentHashMap<>();
     public DTUPayService(MessageQueue q) {
         queue = q;
         queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
@@ -124,5 +130,41 @@ public class DTUPayService {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         List<Payment> report = (List<Payment>) event.getArgument(1, List.class);
         managerReportCorrelations.get(correlationId).complete(report);
+    }
+
+    public List<Payment> requestMerchantReport(String merchantDtuPayId) {
+        CorrelationId correlationId = CorrelationId.randomId();
+        merchantReportCorrelations.put(correlationId, new CompletableFuture<>());
+
+        Event event = new Event(MERCHANT_REPORT_REQUESTED, new Object[]{correlationId, merchantDtuPayId});
+        queue.publish(event);
+
+        List<Payment> response = merchantReportCorrelations.get(correlationId).join();
+        merchantReportCorrelations.remove(correlationId);
+        return response;
+    }
+
+    public void handleMerchantReportGenerated(Event event) {
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        List<Payment> report = (List<Payment>) event.getArgument(1, List.class);
+        merchantReportCorrelations.get(correlationId).complete(report);
+    }
+
+    public List<Payment> requestCustomerReport(String customerDtuPayId) {
+        CorrelationId correlationId = CorrelationId.randomId();
+        customerReportCorrelations.put(correlationId, new CompletableFuture<>());
+
+        Event event = new Event(CUSTOMER_REPORT_REQUESTED, new Object[]{correlationId, customerDtuPayId});
+        queue.publish(event);
+
+        List<Payment> response = customerReportCorrelations.get(correlationId).join();
+        customerReportCorrelations.remove(correlationId);
+        return response;
+    }
+
+    public void handleCustomerReportGenerated(Event event) {
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        List<Payment> report = (List<Payment>) event.getArgument(1, List.class);
+        customerReportCorrelations.get(correlationId).complete(report);
     }
 }

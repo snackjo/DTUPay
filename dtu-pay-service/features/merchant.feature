@@ -11,3 +11,9 @@ Feature: DTUPay service merchant feature
         Then a "PaymentRequested" event is published
         When a PaymentCompleted event is received
         Then the payment is successful
+
+    Scenario: Get merchant report for successful payment
+        When a merchant requests a report
+        Then a "MerchantReportRequested" event is published
+        When a MerchantReportGenerated event is received
+        Then report is returned

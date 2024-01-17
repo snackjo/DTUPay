@@ -46,9 +46,9 @@ public class TokenService {
     public void handleTokensRequested(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         String dtuPayId = event.getArgument(1, String.class);
-        int tokenAmount = event.getArgument(2, Integer.class);
+        int tokenRequestAmount = event.getArgument(2, Integer.class);
 
-        if(tokenAmount > 5 || tokenAmount < 1) {
+        if(tokenRequestAmount > 5 || tokenRequestAmount < 1) {
             Event publishedEvent = new Event(TOKENS_REQUEST_REJECTED, new Object[] { correlationId });
             queue.publish(publishedEvent);
             return;
@@ -61,7 +61,7 @@ public class TokenService {
             return;
         }
 
-        customerRepository.addTokensToCustomer(dtuPayId, Token.generateTokens(tokenAmount));
+        customerRepository.addTokensToCustomer(dtuPayId, Token.generateTokens(tokenRequestAmount));
         Event publishedEvent = new Event(TOKENS_GENERATED,
                 new Object[] { correlationId, customerRepository.getCustomer(dtuPayId).getTokens() });
         queue.publish(publishedEvent);
