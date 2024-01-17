@@ -1,5 +1,6 @@
-package dtupay.service;
+package dtupay.service.customer;
 
+import dtupay.service.*;
 import messaging.Event;
 import messaging.MessageQueue;
 

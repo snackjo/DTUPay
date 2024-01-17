@@ -1,4 +1,6 @@
-package dtupay.service;
+package dtupay.service.customer;
+
+import dtupay.service.DtuPayException;
 
 public class ResponseObject<T> {
     private T successContent;

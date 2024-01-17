@@ -1,7 +1,7 @@
 package dtupay.service.adapter.rest;
 
-import dtupay.service.Customer;
-import dtupay.service.CustomerService;
+import dtupay.service.customer.Customer;
+import dtupay.service.customer.CustomerService;
 import dtupay.service.DtuPayException;
 import dtupay.service.Report;
 
