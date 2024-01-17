@@ -29,3 +29,12 @@ Feature: Registration feature
         And the merchant is registered with DTUPay
         When the merchant deregisters from DTUPay
         Then the merchant is successfully deregistered
+
+    Scenario: Merchant deregistration race condition
+        Given merchant registered in bank with a balance of 1000
+        And the merchant is registered with DTUPay
+        Given another merchant registered in bank
+        And the other merchant is registered in with DTUPay
+        When the two merchants are deregistered with DTUPay at the same time
+        Then the first merchant is successfully deregistered
+        And the second merchant is also successfully deregistered

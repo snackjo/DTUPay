@@ -38,6 +38,8 @@ public class RegistrationSteps {
     private final CompletableFuture<Merchant> merchantRegistrationResult1 = new CompletableFuture<>();
     private final CompletableFuture<Merchant> merchantRegistrationResult2 = new CompletableFuture<>();
     private Response merchantDeregistrationResponse;
+    private final CompletableFuture<Response> merchantDeregistrationResult1 = new CompletableFuture<>();
+    private final CompletableFuture<Response> merchantDeregistrationResult2 = new CompletableFuture<>();
 
     public RegistrationSteps(StateHolder stateHolder) {
         customer1 = stateHolder.getCustomer();
@@ -58,7 +60,7 @@ public class RegistrationSteps {
     }
 
     @When("the customer registers with DTUPay")
-    public void theCustomerRegistersWithDTUPay() throws Exception {
+    public void theCustomerRegistersWithDTUPay() {
         customerRegistrationResponse = customerDtuPay.registerCustomer(customer1);
     }
 
@@ -184,6 +186,41 @@ public class RegistrationSteps {
     @Then("the merchant is successfully deregistered")
     public void theMerchantIsSuccessfullyDeregistered() {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), merchantDeregistrationResponse.getStatus());
+    }
+
+    @And("the other merchant is registered in with DTUPay")
+    public void theOtherMerchantIsRegisteredInWithDTUPay() {
+        merchant2.setDtuPayId(merchantDtuPay.registerMerchant(merchant2).getDtuPayId());
+    }
+
+    @When("the two merchants are deregistered with DTUPay at the same time")
+    public void theTwoMerchantsAreDeregisteredWithDTUPayAtTheSameTime() {
+        Thread thread1 = createMerchantDeregistaionThread(merchantDeregistrationResult1, merchant1.getDtuPayId());
+        Thread thread2 = createMerchantDeregistaionThread(merchantDeregistrationResult2, merchant2.getDtuPayId());
+        thread1.start();
+        thread2.start();
+    }
+
+    @Then("the first merchant is successfully deregistered")
+    public void theFirstMerchantIsSuccessfullyDeregistered() {
+        int responseStatus = merchantDeregistrationResult1.join().getStatus();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+    }
+
+    @And("the second merchant is also successfully deregistered")
+    public void theSecondMerchantIsAlsoSuccessfullyDeregistered() {
+        int responseStatus = merchantDeregistrationResult2.join().getStatus();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+    }
+
+    private Thread createMerchantDeregistaionThread(CompletableFuture<Response> completableFuture, String dtuPayId) {
+        return new Thread(() -> {
+            try {
+                completableFuture.complete(merchantDtuPay.deregisterMerchant(dtuPayId));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private Thread createCustomerRegistrationThread(CompletableFuture<Customer> completableFuture, Customer customer) {
