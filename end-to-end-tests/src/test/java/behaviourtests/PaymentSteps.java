@@ -1,7 +1,7 @@
 package behaviourtests;
 
 import CustomerApp.Customer;
-import CustomerApp.CustomerDTUPay;
+import CustomerApp.CustomerDtuPay;
 import CustomerApp.Token;
 import MerchantApp.Merchant;
 import MerchantApp.MerchantDtuPay;
@@ -27,7 +27,7 @@ public class PaymentSteps {
     Token tokenReceivedFromCustomer;
     private final BankService bank = new BankServiceService().getBankServicePort();
     private final MerchantDtuPay merchantDtuPay = new MerchantDtuPay();
-    private final CustomerDTUPay customerDtuPay = new CustomerDTUPay();
+    private final CustomerDtuPay customerDtuPay = new CustomerDtuPay();
     private String paymentResponse;
 
     public PaymentSteps(StateHolder stateHolder) {

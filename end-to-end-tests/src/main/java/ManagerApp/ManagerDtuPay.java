@@ -4,11 +4,11 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 
-public class ManagerClient {
+public class ManagerDtuPay {
 
     private final WebTarget serverTarget;
 
-    public ManagerClient() {
+    public ManagerDtuPay() {
         Client serverClient = ClientBuilder.newBuilder().build();
         this.serverTarget = serverClient.target("http://localhost:8080/reports");
     }

@@ -1,7 +1,7 @@
 package behaviourtests;
 
 import CustomerApp.Customer;
-import CustomerApp.CustomerDTUPay;
+import CustomerApp.CustomerDtuPay;
 import MerchantApp.Merchant;
 import MerchantApp.MerchantDtuPay;
 import Utility.MapperUtility;
@@ -30,7 +30,7 @@ public class RegistrationSteps {
     private final BankService bank = new BankServiceService().getBankServicePort();
 
     private final MerchantDtuPay merchantDtuPay = new MerchantDtuPay();
-    private final CustomerDTUPay customerDtuPay = new CustomerDTUPay();
+    private final CustomerDtuPay customerDtuPay = new CustomerDtuPay();
     private Customer customerRegistrationResponse;
     private Merchant merchantRegistrationResponse;
     private final CompletableFuture<Customer> customerRegistrationResult1 = new CompletableFuture<>();

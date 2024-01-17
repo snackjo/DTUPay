@@ -11,10 +11,10 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
-public class CustomerDTUPay {
+public class CustomerDtuPay {
     private final WebTarget serverTarget;
 
-    public CustomerDTUPay() {
+    public CustomerDtuPay() {
         Client serverClient = ClientBuilder.newBuilder().build();
         this.serverTarget = serverClient.target("http://localhost:8080/customers/");
     }
@@ -23,14 +23,14 @@ public class CustomerDTUPay {
         return serverTarget.request().post(Entity.entity(customer, MediaType.APPLICATION_JSON), Customer.class);
     }
 
-    public List<Token> requestTokens(Customer customer, int tokenAmount) throws DTUPayException {
+    public List<Token> requestTokens(Customer customer, int tokenAmount) throws DtuPayException {
         try {
             return serverTarget
                     .path(customer.getDtuPayId() + "/tokens")
                     .request()
                     .post(Entity.entity(tokenAmount, MediaType.APPLICATION_JSON),new GenericType<List<Token>>(){});
         } catch (BadRequestException e) {
-            throw new DTUPayException(e.getResponse().readEntity(String.class));
+            throw new DtuPayException(e.getResponse().readEntity(String.class));
         }
     }
 

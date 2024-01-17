@@ -1,8 +1,8 @@
 package behaviourtests;
 
 import CustomerApp.Customer;
-import CustomerApp.CustomerDTUPay;
-import ManagerApp.ManagerClient;
+import CustomerApp.CustomerDtuPay;
+import ManagerApp.ManagerDtuPay;
 import MerchantApp.Merchant;
 import MerchantApp.MerchantDtuPay;
 import Utility.MapperUtility;
@@ -23,8 +23,8 @@ import static org.junit.Assert.assertTrue;
 public class ReportSteps {
     private final BankService bank = new BankServiceService().getBankServicePort();
     private final MerchantDtuPay merchantDtuPay = new MerchantDtuPay();
-    private final CustomerDTUPay customerDtuPay = new CustomerDTUPay();
-    private final ManagerClient managerClient = new ManagerClient();
+    private final CustomerDtuPay customerDtuPay = new CustomerDtuPay();
+    private final ManagerDtuPay managerDtuPay = new ManagerDtuPay();
     private final ManagerApp.Report managerReport = new ManagerApp.Report();
     private final CustomerApp.Report customerReport = new CustomerApp.Report();
     private final MerchantApp.Report merchantReport = new MerchantApp.Report();
@@ -94,7 +94,7 @@ public class ReportSteps {
 
     @When("the manager requests a report")
     public void theManagerRequestsAReport() {
-        managerReport.setPayments(managerClient.requestReport().getPayments());
+        managerReport.setPayments(managerDtuPay.requestReport().getPayments());
     }
 
     @Then("the manager report includes the payment")

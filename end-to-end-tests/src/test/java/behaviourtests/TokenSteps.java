@@ -1,8 +1,8 @@
 package behaviourtests;
 
 import CustomerApp.Customer;
-import CustomerApp.CustomerDTUPay;
-import CustomerApp.DTUPayException;
+import CustomerApp.CustomerDtuPay;
+import CustomerApp.DtuPayException;
 import CustomerApp.Token;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -19,11 +19,11 @@ public class TokenSteps {
 
     private Customer customer1;
     private Customer customer2;
-    private final CustomerDTUPay customerDtuPay = new CustomerDTUPay();
+    private final CustomerDtuPay customerDtuPay = new CustomerDtuPay();
     private List<Token> tokensRequestResponse;
     private final CompletableFuture<List<Token>> tokenRequestResult1 = new CompletableFuture<>();
     private final CompletableFuture<List<Token>> tokenRequestResult2 = new CompletableFuture<>();
-    private DTUPayException tokenRequestException;
+    private DtuPayException tokenRequestException;
 
     @Given("customer registered in DTUPay with {int} tokens")
     public void customerRegisteredInDTUPayWithTokens(int tokenAmount) throws Exception {
@@ -44,7 +44,7 @@ public class TokenSteps {
     public void theCustomerRequestsTokens(int tokenAmount) {
         try {
             tokensRequestResponse = customerDtuPay.requestTokens(customer1, tokenAmount);
-        } catch (DTUPayException e) {
+        } catch (DtuPayException e) {
             tokenRequestException = e;
         }
     }
