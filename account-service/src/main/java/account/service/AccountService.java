@@ -30,6 +30,7 @@ public class AccountService {
 		this.queue.addHandler(MERCHANT_REGISTRATION_REQUESTED, this::handleMerchantRegistrationRequested);
 		this.queue.addHandler(TOKEN_MATCH_FOUND, this::handleTokenMatchFound);
 		this.queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
+		this.queue.addHandler(MERCHANT_DEREGISTRATION_REQUESTED, this::handleMerchantDeregistrationRequested);
 	}
 
 	public void handleCustomerRegistrationRequested(Event ev) {

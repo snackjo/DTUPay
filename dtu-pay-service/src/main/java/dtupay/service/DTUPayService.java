@@ -25,6 +25,8 @@ public class DTUPayService {
     public static final String CUSTOMER_REPORT_GENERATED = "CustomerReportGenerated";
     public static final String MERCHANT_REPORT_REQUESTED = "MerchantReportRequested";
     public static final String MERCHANT_REPORT_GENERATED = "MerchantReportGenerated";
+    public static final String MERCHANT_DEREGISTRATION_REQUESTED = "MerchantDeregistrationRequested";
+    public static final String MERCHANT_DEREGISTERED = "MerchantDeregistered";
 
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
@@ -34,6 +36,8 @@ public class DTUPayService {
     private Map<CorrelationId, CompletableFuture<Report>> managerReportCorrelations = new ConcurrentHashMap<>();
     private Map<CorrelationId, CompletableFuture<Report>> merchantReportCorrelations = new ConcurrentHashMap<>();
     private Map<CorrelationId, CompletableFuture<Report>> customerReportCorrelations = new ConcurrentHashMap<>();
+    private Map<CorrelationId, CompletableFuture<String>> merchantDeregistrationCorrelations = new ConcurrentHashMap<>();
+
     public DTUPayService(MessageQueue q) {
         queue = q;
         queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
@@ -44,6 +48,7 @@ public class DTUPayService {
         queue.addHandler(MANAGER_REPORT_GENERATED, this::handleManagerReportGenerated);
         queue.addHandler(CUSTOMER_REPORT_GENERATED, this::handleCustomerReportGenerated);
         queue.addHandler(MERCHANT_REPORT_GENERATED, this::handleMerchantReportGenerated);
+        queue.addHandler(MERCHANT_DEREGISTERED, this::handleMerchantDeregistered);
     }
 
     public Customer registerCustomer(Customer customer) {
@@ -168,5 +173,22 @@ public class DTUPayService {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         Report report = event.getArgument(1, Report.class);
         customerReportCorrelations.get(correlationId).complete(report);
+    }
+
+    public String requestMerchantDeregistration(String merchantDtuPayId) {
+        CorrelationId correlationId = CorrelationId.randomId();
+        merchantDeregistrationCorrelations.put(correlationId, new CompletableFuture<>());
+
+        Event event = new Event(MERCHANT_DEREGISTRATION_REQUESTED, new Object[]{correlationId, merchantDtuPayId});
+        queue.publish(event);
+
+        String response = merchantDeregistrationCorrelations.get(correlationId).join();
+        merchantDeregistrationCorrelations.remove(correlationId);
+        return response;
+    }
+
+    public void handleMerchantDeregistered(Event event) {
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        merchantDeregistrationCorrelations.get(correlationId).complete("Success");
     }
 }

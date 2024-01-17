@@ -17,3 +17,9 @@ Feature: DTUPay service merchant feature
         Then a "MerchantReportRequested" event is published
         When a MerchantReportGenerated event is received
         Then report is returned
+
+    Scenario: Merchant deregistration
+        When a merchant requests to be deregistered
+        Then a "MerchantDeregistrationRequested" event is published
+        When a MerchantDeregisteredEvent is received
+        Then the deregistration was successful
