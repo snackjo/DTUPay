@@ -96,7 +96,8 @@ public class DTUPaySteps {
     }
 
     @Then("a DTUPay exception is thrown")
-    public void aDTUPayExceptionIsThrown() {
+    public void aDTUPayExceptionIsThrown() throws InterruptedException {
+        requestThread.join();
         assertNotNull(tokenRequestException);
     }
 
