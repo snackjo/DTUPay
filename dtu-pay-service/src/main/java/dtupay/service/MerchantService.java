@@ -1,6 +1,5 @@
 package dtupay.service;
 
-
 import messaging.Event;
 import messaging.MessageQueue;
 
@@ -8,19 +7,17 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DtuPayService {
+public class MerchantService {
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<String>> paymentCorrelations = new ConcurrentHashMap<>();
-    private final MessageQueue queue;
-    private final Map<CorrelationId, CompletableFuture<Report>> managerReportCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Report>> merchantReportCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Void>> merchantDeregistrationCorrelations = new ConcurrentHashMap<>();
+    private final MessageQueue queue;
 
-    public DtuPayService(MessageQueue q) {
+    public MerchantService(MessageQueue q) {
         queue = q;
         queue.addHandler(EventNames.MERCHANT_REGISTERED, this::handleMerchantRegistered);
         queue.addHandler(EventNames.PAYMENT_COMPLETED, this::handlePaymentCompleted);
-        queue.addHandler(EventNames.MANAGER_REPORT_GENERATED, this::handleManagerReportGenerated);
         queue.addHandler(EventNames.MERCHANT_REPORT_GENERATED, this::handleMerchantReportGenerated);
         queue.addHandler(EventNames.MERCHANT_DEREGISTERED, this::handleMerchantDeregistered);
     }
@@ -34,6 +31,7 @@ public class DtuPayService {
         merchantCorrelations.remove(correlationId);
         return response;
     }
+
     public void handleMerchantRegistered(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         Merchant merchant = event.getArgument(1, Merchant.class);
@@ -50,27 +48,10 @@ public class DtuPayService {
         paymentCorrelations.remove(correlationId);
         return response;
     }
+
     public void handlePaymentCompleted(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         paymentCorrelations.get(correlationId).complete("Success");
-    }
-
-    public Report requestManagerReport() {
-        CorrelationId correlationId = CorrelationId.randomId();
-        managerReportCorrelations.put(correlationId, new CompletableFuture<>());
-
-        Event event = new Event(EventNames.MANAGER_REPORT_REQUESTED, new Object[]{correlationId});
-        queue.publish(event);
-
-        Report response = managerReportCorrelations.get(correlationId).join();
-        managerReportCorrelations.remove(correlationId);
-        return response;
-    }
-
-    public void handleManagerReportGenerated(Event event) {
-        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
-        Report report = event.getArgument(1, Report.class);
-        managerReportCorrelations.get(correlationId).complete(report);
     }
 
     public Report requestMerchantReport(String merchantDtuPayId) {

@@ -18,8 +18,10 @@ public class DtuPaySteps {
     Customer customer;
     private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
     private final MessageQueue queueMock = mock(MessageQueue.class);
-    private final DtuPayService service = new DtuPayService(queueMock);
+    private final ManagerService managerService = new ManagerService(queueMock);
     private final CustomerService customerService = new CustomerService(queueMock);
+    private final MerchantService merchantService = new MerchantService(queueMock);
+
     private Customer customerRegistrationResult;
     private Merchant merchantRegistrationResult;
     private String paymentCompletedResponse;
@@ -77,7 +79,7 @@ public class DtuPaySteps {
         Token token = new Token();
         token.setId("abcd");
 
-        requestThread = new Thread(() -> paymentCompletedResponse = service.requestPayment(merchantDtuPayId, token, paymentAmount));
+        requestThread = new Thread(() -> paymentCompletedResponse = merchantService.requestPayment(merchantDtuPayId, token, paymentAmount));
         requestThread.start();
     }
 
@@ -116,7 +118,7 @@ public class DtuPaySteps {
 
     @When("the merchant is being registered")
     public void theMerchantIsBeingRegistered() {
-        requestThread = new Thread(() -> merchantRegistrationResult = service.registerMerchant(merchant));
+        requestThread = new Thread(() -> merchantRegistrationResult = merchantService.registerMerchant(merchant));
         requestThread.start();
     }
 
@@ -124,7 +126,7 @@ public class DtuPaySteps {
     public void aMerchantRegisteredEventIsReceived() {
         Merchant merchant = new Merchant();
         merchant.setDtuPayId("123");
-        service.handleMerchantRegistered(new Event(EventNames.MERCHANT_REGISTERED,
+        merchantService.handleMerchantRegistered(new Event(EventNames.MERCHANT_REGISTERED,
                 new Object[] {correlationId, merchant}));
     }
 
@@ -136,7 +138,7 @@ public class DtuPaySteps {
 
     @When("a PaymentCompleted event is received")
     public void aPaymentCompletedEventIsReceived() {
-        service.handlePaymentCompleted(new Event(EventNames.PAYMENT_COMPLETED,
+        merchantService.handlePaymentCompleted(new Event(EventNames.PAYMENT_COMPLETED,
                 new Object[] {correlationId}));
     }
 
@@ -168,7 +170,7 @@ public class DtuPaySteps {
     @When("a manager requests a report")
     public void aManagerRequestsAReport() {
         requestThread = new Thread(() -> {
-                reportGenerated = service.requestManagerReport();
+                reportGenerated = managerService.requestManagerReport();
         });
         requestThread.start();
     }
@@ -180,7 +182,7 @@ public class DtuPaySteps {
         payments.add(new Payment());
 
         report.setPayments(payments);
-        service.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
+        managerService.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @Then("report is returned")
@@ -193,7 +195,7 @@ public class DtuPaySteps {
     public void aMerchantRequestsAReport() {
         String merchantDtuPayId = "12345";
         requestThread = new Thread(() -> {
-            reportGenerated = service.requestMerchantReport(merchantDtuPayId);
+            reportGenerated = merchantService.requestMerchantReport(merchantDtuPayId);
         });
         requestThread.start();
     }
@@ -205,7 +207,7 @@ public class DtuPaySteps {
         payments.add(new Payment());
 
         report.setPayments(payments);
-        service.handleMerchantReportGenerated(new Event(EventNames.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
+        merchantService.handleMerchantReportGenerated(new Event(EventNames.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @When("a customer requests a report")
@@ -231,7 +233,7 @@ public class DtuPaySteps {
         String merchantDtuPayId = "12345";
         requestThread = new Thread(() -> {
             try {
-                service.requestMerchantDeregistration(merchantDtuPayId);
+                merchantService.requestMerchantDeregistration(merchantDtuPayId);
             } catch (Exception e) {
                 merchantDeregistrationException = e;
             }
@@ -243,7 +245,7 @@ public class DtuPaySteps {
     @When("a MerchantDeregisteredEvent is received")
     public void aMerchantDeregisteredEventIsReceived() {
         Event event = new Event(EventNames.MERCHANT_DEREGISTERED, new Object[]{correlationId});
-        service.handleMerchantDeregistered(event);
+        merchantService.handleMerchantDeregistered(event);
     }
 
     @Then("the merchant deregistration was successful")

@@ -1,7 +1,7 @@
 package dtupay.service.adapter.rest;
 
-import dtupay.service.DtuPayService;
 import dtupay.service.Merchant;
+import dtupay.service.MerchantService;
 import dtupay.service.PaymentRequest;
 import dtupay.service.Report;
 
@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 @Path("/merchants")
 public class MerchantResource {
 
-    private final DtuPayService service = new DtuPayFactory().getService();
+    private final MerchantService service = new MerchantService(new MessageQueueFactory().getQueue());
 
     @POST
     @Consumes("application/json")
