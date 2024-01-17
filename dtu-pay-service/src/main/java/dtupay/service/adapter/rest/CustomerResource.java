@@ -3,6 +3,7 @@ package dtupay.service.adapter.rest;
 import dtupay.service.Customer;
 import dtupay.service.DTUPayException;
 import dtupay.service.DTUPayService;
+import dtupay.service.Report;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -30,4 +31,11 @@ public class CustomerResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
+
+	@GET
+	@Path("{dtuPayId}" + "/reports")
+	@Produces("application/json")
+	public Report requestReport(@PathParam("dtuPayId") String dtuPayId){
+		return service.requestCustomerReport(dtuPayId);
+	}
 }

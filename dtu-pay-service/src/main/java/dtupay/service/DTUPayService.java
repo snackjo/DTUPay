@@ -42,6 +42,8 @@ public class DTUPayService {
         queue.addHandler(PAYMENT_COMPLETED, this::handlePaymentCompleted);
         queue.addHandler(TOKENS_REQUEST_REJECTED, this::handleTokensRequestRejected);
         queue.addHandler(MANAGER_REPORT_GENERATED, this::handleManagerReportGenerated);
+        queue.addHandler(CUSTOMER_REPORT_GENERATED, this::handleCustomerReportGenerated);
+        queue.addHandler(MERCHANT_REPORT_GENERATED, this::handleMerchantReportGenerated);
     }
 
     public Customer registerCustomer(Customer customer) {

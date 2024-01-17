@@ -36,4 +36,10 @@ public class MerchantDtuPay {
             throw new Exception(e);
         }
     }
+
+    public MerchantApp.Report requestReport(String dtuPayId) {
+        return serverTarget.path("merchants/" + dtuPayId + "/reports")
+                .request()
+                .get(MerchantApp.Report.class);
+    }
 }

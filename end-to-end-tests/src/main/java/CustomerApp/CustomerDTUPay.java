@@ -32,4 +32,10 @@ public class CustomerDTUPay {
             throw new DTUPayException(e.getResponse().readEntity(String.class));
         }
     }
+
+    public Report requestReport(String dtuPayId) {
+        return serverTarget.path("customers/" + dtuPayId + "/reports")
+                .request()
+                .get(Report.class);
+    }
 }
