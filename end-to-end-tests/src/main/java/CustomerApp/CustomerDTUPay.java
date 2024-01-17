@@ -7,6 +7,7 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
@@ -37,5 +38,11 @@ public class CustomerDTUPay {
         return serverTarget.path("customers/" + dtuPayId + "/reports")
                 .request()
                 .get(Report.class);
+    }
+
+    public Response deregisterCustomer(String dtuPayId) {
+        return serverTarget.path("customers/" + dtuPayId)
+                .request()
+                .delete();
     }
 }

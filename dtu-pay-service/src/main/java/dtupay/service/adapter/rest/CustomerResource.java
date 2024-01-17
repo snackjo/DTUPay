@@ -38,4 +38,11 @@ public class CustomerResource {
 	public Report requestReport(@PathParam("dtuPayId") String dtuPayId){
 		return service.requestCustomerReport(dtuPayId);
 	}
+
+	@DELETE
+	@Path("{dtuPayId}")
+	public Response deregisterCustomer(@PathParam("dtuPayId") String dtuPayId) {
+		service.requestCustomerDeregistration(dtuPayId);
+		return Response.status(Response.Status.NO_CONTENT).build();
+	}
 }
