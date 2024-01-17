@@ -13,7 +13,7 @@ Feature: Token feature
         And the second customer receives 2 tokens
         And the tokens they receive are different
 
-    Scenario Outline: Customer requests too many tokens
+    Scenario Outline: Customer requests an invalid amount of tokens
         Given customer registered in DTUPay with 0 tokens
         When the customer requests <tokenAmount> tokens
         Then the request is rejected
