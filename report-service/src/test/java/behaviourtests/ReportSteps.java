@@ -8,12 +8,8 @@ import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 import org.mockito.ArgumentCaptor;
-import report.service.CorrelationId;
-import report.service.Payment;
-import report.service.ReportService;
-import report.service.Token;
+import report.service.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -92,9 +88,9 @@ public class ReportSteps {
     @And("the payment is included")
     public void thePaymentIsIncluded() throws InterruptedException {
         requestThread.join();
-        List<Payment> report = (List<Payment>) publishedEvent.getArgument(1, List.class);
-        assertEquals(1, report.size());
-        Payment payment = new Gson().fromJson(new Gson().toJson(report.get(0)), Payment.class);
+        Report report = publishedEvent.getArgument(1, Report.class);
+        assertEquals(1, report.getPayments().size());
+        Payment payment = new Gson().fromJson(new Gson().toJson(report.getPayments().get(0)), Payment.class);
         assertEquals(merchantDtuPayId, payment.getMerchantDtuPayId());
         assertEquals(customerToken, payment.getCustomerToken());
         assertEquals(amount, payment.getAmount());

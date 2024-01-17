@@ -1,5 +1,5 @@
 Feature: Report feature
     Scenario: Manager requests report
+        Given a successful payment
         When the manager requests a report
-        Then the report is returned
-        And it includes the payment
+        Then the report includes the payment

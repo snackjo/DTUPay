@@ -55,20 +55,26 @@ public class ReportService {
 
     public void handleManagerReportRequested(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
-        Event publishEvent = new Event(MANAGER_REPORT_GENERATED, new Object[]{ correlationId, getManagerReport() });
+        Report report = new Report();
+        report.setPayments(getManagerReport());
+        Event publishEvent = new Event(MANAGER_REPORT_GENERATED, new Object[]{ correlationId, report});
         queue.publish(publishEvent);
     }
     public void handleCustomerReportRequested(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         String customerDtuPayId = event.getArgument(1, String.class);
-        Event publishEvent = new Event(CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, getCustomerReport(customerDtuPayId)});
+        Report report = new Report();
+        report.setPayments(getCustomerReport(customerDtuPayId));
+        Event publishEvent = new Event(CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report});
         queue.publish(publishEvent);
     }
 
     public void handleMerchantReportRequested(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         String merchantDtuPayId = event.getArgument(1, String.class);
-        Event publishEvent = new Event(MERCHANT_REPORT_GENERATED, new Object[]{correlationId, getMerchantReport(merchantDtuPayId)});
+        Report report = new Report();
+        report.setPayments(getMerchantReport(merchantDtuPayId));
+        Event publishEvent = new Event(MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report});
         queue.publish(publishEvent);
     }
 }

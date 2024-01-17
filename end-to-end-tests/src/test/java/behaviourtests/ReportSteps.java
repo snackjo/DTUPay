@@ -5,13 +5,12 @@ import CustomerApp.CustomerDTUPay;
 import CustomerApp.Token;
 import ManagerApp.ManagerClient;
 import ManagerApp.Payment;
+import ManagerApp.Report;
 import MerchantApp.Merchant;
 import MerchantApp.MerchantDtuPay;
 import Utility.MapperUtility;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceService;
-import io.cucumber.java.PendingException;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -19,14 +18,15 @@ import io.cucumber.java.en.When;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ReportSteps {
     private final BankService bank = new BankServiceService().getBankServicePort();
     private final MerchantDtuPay merchantDtuPay = new MerchantDtuPay();
     private final CustomerDTUPay customerDtuPay = new CustomerDTUPay();
     private final ManagerClient managerClient = new ManagerClient();
-    private List<Payment> report;
+    private Report report = new Report();
     private Payment expectedPayment;
 
     @Given("a successful payment")
@@ -71,16 +71,11 @@ public class ReportSteps {
 
     @When("the manager requests a report")
     public void theManagerRequestsAReport() {
-        report = managerClient.requestReport();
+        report.setPayments(managerClient.requestReport().getPayments());
     }
 
-    @Then("the report is returned")
-    public void theReportIsReturned() {
-        assertFalse(report.isEmpty());
-    }
-
-    @And("it includes the payment")
-    public void itIncludesThePayment() {
-        throw new PendingException();
+    @Then("the report includes the payment")
+    public void theReportIncludesThePayment() {
+        assertTrue(report.getPayments().contains(expectedPayment));
     }
 }

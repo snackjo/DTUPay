@@ -31,9 +31,9 @@ public class DTUPayService {
     private final Map<CorrelationId, CompletableFuture<ResponseObject<List<Token>>>> tokenCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<String>> paymentCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
-    private Map<CorrelationId, CompletableFuture<List<Payment>>> managerReportCorrelations = new ConcurrentHashMap<>();
-    private Map<CorrelationId, CompletableFuture<List<Payment>>> merchantReportCorrelations = new ConcurrentHashMap<>();
-    private Map<CorrelationId, CompletableFuture<List<Payment>>> customerReportCorrelations = new ConcurrentHashMap<>();
+    private Map<CorrelationId, CompletableFuture<Report>> managerReportCorrelations = new ConcurrentHashMap<>();
+    private Map<CorrelationId, CompletableFuture<Report>> merchantReportCorrelations = new ConcurrentHashMap<>();
+    private Map<CorrelationId, CompletableFuture<Report>> customerReportCorrelations = new ConcurrentHashMap<>();
     public DTUPayService(MessageQueue q) {
         queue = q;
         queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
@@ -114,57 +114,57 @@ public class DTUPayService {
         tokenCorrelations.get(correlationId).complete(responseObject);
     }
 
-    public List<Payment> requestManagerReport() {
+    public Report requestManagerReport() {
         CorrelationId correlationId = CorrelationId.randomId();
         managerReportCorrelations.put(correlationId, new CompletableFuture<>());
 
         Event event = new Event(MANAGER_REPORT_REQUESTED, new Object[]{correlationId});
         queue.publish(event);
 
-        List<Payment> response = managerReportCorrelations.get(correlationId).join();
+        Report response = managerReportCorrelations.get(correlationId).join();
         managerReportCorrelations.remove(correlationId);
         return response;
     }
 
     public void handleManagerReportGenerated(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
-        List<Payment> report = (List<Payment>) event.getArgument(1, List.class);
+        Report report = event.getArgument(1, Report.class);
         managerReportCorrelations.get(correlationId).complete(report);
     }
 
-    public List<Payment> requestMerchantReport(String merchantDtuPayId) {
+    public Report requestMerchantReport(String merchantDtuPayId) {
         CorrelationId correlationId = CorrelationId.randomId();
         merchantReportCorrelations.put(correlationId, new CompletableFuture<>());
 
         Event event = new Event(MERCHANT_REPORT_REQUESTED, new Object[]{correlationId, merchantDtuPayId});
         queue.publish(event);
 
-        List<Payment> response = merchantReportCorrelations.get(correlationId).join();
+        Report response = merchantReportCorrelations.get(correlationId).join();
         merchantReportCorrelations.remove(correlationId);
         return response;
     }
 
     public void handleMerchantReportGenerated(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
-        List<Payment> report = (List<Payment>) event.getArgument(1, List.class);
+        Report report = event.getArgument(1, Report.class);
         merchantReportCorrelations.get(correlationId).complete(report);
     }
 
-    public List<Payment> requestCustomerReport(String customerDtuPayId) {
+    public Report requestCustomerReport(String customerDtuPayId) {
         CorrelationId correlationId = CorrelationId.randomId();
         customerReportCorrelations.put(correlationId, new CompletableFuture<>());
 
         Event event = new Event(CUSTOMER_REPORT_REQUESTED, new Object[]{correlationId, customerDtuPayId});
         queue.publish(event);
 
-        List<Payment> response = customerReportCorrelations.get(correlationId).join();
+        Report response = customerReportCorrelations.get(correlationId).join();
         customerReportCorrelations.remove(correlationId);
         return response;
     }
 
     public void handleCustomerReportGenerated(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
-        List<Payment> report = (List<Payment>) event.getArgument(1, List.class);
+        Report report = event.getArgument(1, Report.class);
         customerReportCorrelations.get(correlationId).complete(report);
     }
 }

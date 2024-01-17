@@ -28,7 +28,7 @@ public class DTUPaySteps {
     private Event publishedEvent;
     private List<Token> tokensGenerated;
     private Thread requestThread;
-    private List<Payment> reportGenerated;
+    private Report reportGenerated;
 
     @Given("a customer with empty DTUPay id")
     public void aCustomerWithEmptyDTUPayId() {
@@ -180,7 +180,7 @@ public class DTUPaySteps {
     @Then("report is returned")
     public void reportIsReturned() throws InterruptedException {
         requestThread.join();
-        assertEquals(1, reportGenerated.size());
+        assertEquals(1, reportGenerated.getPayments().size());
     }
 
     @When("a merchant requests a report")
