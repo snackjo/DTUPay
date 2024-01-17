@@ -1,18 +1,18 @@
 package dtupay.service.adapter.rest;
 
-import dtupay.service.DTUPayService;
+import dtupay.service.DtuPayService;
 import messaging.implementations.RabbitMqQueue;
 
 public class DtuPayFactory {
-    static DTUPayService service = null;
+    static DtuPayService service = null;
 
-    public DTUPayService getService() {
+    public DtuPayService getService() {
         if (service != null) {
             return service;
         }
 
         var mq = new RabbitMqQueue("rabbitMq");
-        service = new DTUPayService(mq);
+        service = new DtuPayService(mq);
         return service;
     }
 }

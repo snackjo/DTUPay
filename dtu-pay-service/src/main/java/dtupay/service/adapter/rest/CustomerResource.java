@@ -1,8 +1,8 @@
 package dtupay.service.adapter.rest;
 
 import dtupay.service.Customer;
-import dtupay.service.DTUPayException;
-import dtupay.service.DTUPayService;
+import dtupay.service.DtuPayException;
+import dtupay.service.DtuPayService;
 import dtupay.service.Report;
 
 import javax.ws.rs.*;
@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 @Path("/customers")
 public class CustomerResource {
 
-	private final DTUPayService service = new DtuPayFactory().getService();
+	private final DtuPayService service = new DtuPayFactory().getService();
 
 	@POST
 	@Consumes("application/json")
@@ -27,7 +27,7 @@ public class CustomerResource {
 	public Response requestTokens(@PathParam("dtuPayId") String dtuPayId, int tokenAmount) {
         try {
             return Response.ok(service.requestTokens(dtuPayId, tokenAmount)).build();
-        } catch (DTUPayException e) {
+        } catch (DtuPayException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }

@@ -12,11 +12,11 @@ public class ResponseObject<T> {
         this.exceptionMessage = exceptionMessage;
     }
 
-    public T getSuccessContentOrThrow() throws DTUPayException {
+    public T getSuccessContentOrThrow() throws DtuPayException {
         if(this.successContent != null){
             return successContent;
         }else{
-            throw new DTUPayException(exceptionMessage);
+            throw new DtuPayException(exceptionMessage);
         }
     }
 

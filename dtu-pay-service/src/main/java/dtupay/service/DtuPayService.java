@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DTUPayService {
+public class DtuPayService {
     public static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
     public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
     public static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
@@ -41,7 +41,7 @@ public class DTUPayService {
     private final Map<CorrelationId, CompletableFuture<Void>> merchantDeregistrationCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Void>> customerDeregistrationCorrelations = new ConcurrentHashMap<>();
 
-    public DTUPayService(MessageQueue q) {
+    public DtuPayService(MessageQueue q) {
         queue = q;
         queue.addHandler(CUSTOMER_REGISTERED, this::handleCustomerRegistered);
         queue.addHandler(MERCHANT_REGISTERED, this::handleMerchantRegistered);
@@ -86,7 +86,7 @@ public class DTUPayService {
         merchantCorrelations.get(correlationId).complete(merchant);
     }
 
-    public List<Token> requestTokens(String dtuPayId, int tokenAmount) throws DTUPayException {
+    public List<Token> requestTokens(String dtuPayId, int tokenAmount) throws DtuPayException {
         CorrelationId correlationId = CorrelationId.randomId();
         tokenCorrelations.put(correlationId, new CompletableFuture<>());
         Event event = new Event(TOKENS_REQUESTED, new Object[]{correlationId, dtuPayId, tokenAmount});

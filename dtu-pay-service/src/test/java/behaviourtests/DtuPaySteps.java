@@ -14,16 +14,16 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class DTUPaySteps {
+public class DtuPaySteps {
     Customer customer;
     private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
     private final MessageQueue queueMock = mock(MessageQueue.class);
-    private final DTUPayService service = new DTUPayService(queueMock);
+    private final DtuPayService service = new DtuPayService(queueMock);
     private Customer customerRegistrationResult;
     private Merchant merchantRegistrationResult;
     private String paymentCompletedResponse;
     private CorrelationId correlationId;
-    private DTUPayException tokenRequestException;
+    private DtuPayException tokenRequestException;
     private Merchant merchant;
     private Event publishedEvent;
     private List<Token> tokensGenerated;
@@ -60,7 +60,7 @@ public class DTUPaySteps {
     public void aCustomerRegisteredEventIsReceived() {
         Customer customer = new Customer();
         customer.setDtuPayId("123");
-        service.handleCustomerRegistered(new Event(DTUPayService.CUSTOMER_REGISTERED,
+        service.handleCustomerRegistered(new Event(DtuPayService.CUSTOMER_REGISTERED,
                 new Object[] {correlationId, customer}));
     }
 
@@ -82,7 +82,7 @@ public class DTUPaySteps {
 
     @When("a TokensRequestRejected event is received")
     public void aTokensRequestRejectedEventIsReceived() {
-        service.handleTokensRequestRejected(new Event(DTUPayService.TOKENS_REQUEST_REJECTED,
+        service.handleTokensRequestRejected(new Event(DtuPayService.TOKENS_REQUEST_REJECTED,
                 new Object[] {correlationId}));
     }
 
@@ -97,7 +97,7 @@ public class DTUPaySteps {
         requestThread = new Thread(() -> {
             try{
                 tokensGenerated = service.requestTokens("DTUPayId", tokenAmount);
-            }catch(DTUPayException e){
+            }catch(DtuPayException e){
                 tokenRequestException = e;
             }
         });
@@ -123,7 +123,7 @@ public class DTUPaySteps {
     public void aMerchantRegisteredEventIsReceived() {
         Merchant merchant = new Merchant();
         merchant.setDtuPayId("123");
-        service.handleMerchantRegistered(new Event(DTUPayService.MERCHANT_REGISTERED,
+        service.handleMerchantRegistered(new Event(DtuPayService.MERCHANT_REGISTERED,
                 new Object[] {correlationId, merchant}));
     }
 
@@ -135,7 +135,7 @@ public class DTUPaySteps {
 
     @When("a PaymentCompleted event is received")
     public void aPaymentCompletedEventIsReceived() {
-        service.handlePaymentCompleted(new Event(DTUPayService.PAYMENT_COMPLETED,
+        service.handlePaymentCompleted(new Event(DtuPayService.PAYMENT_COMPLETED,
                 new Object[] {correlationId}));
     }
 
@@ -154,7 +154,7 @@ public class DTUPaySteps {
             token.setId(String.valueOf(i));
             tokens.add(token);
         }
-        service.handleTokensGenerated(new Event(DTUPayService.TOKENS_GENERATED,
+        service.handleTokensGenerated(new Event(DtuPayService.TOKENS_GENERATED,
                 new Object[]{correlationId, tokens}));
     }
 
@@ -179,7 +179,7 @@ public class DTUPaySteps {
         payments.add(new Payment());
 
         report.setPayments(payments);
-        service.handleManagerReportGenerated(new Event(DTUPayService.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
+        service.handleManagerReportGenerated(new Event(DtuPayService.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @Then("report is returned")
@@ -204,7 +204,7 @@ public class DTUPaySteps {
         payments.add(new Payment());
 
         report.setPayments(payments);
-        service.handleMerchantReportGenerated(new Event(DTUPayService.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
+        service.handleMerchantReportGenerated(new Event(DtuPayService.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @When("a customer requests a report")
@@ -222,7 +222,7 @@ public class DTUPaySteps {
         List<Payment> payments = new ArrayList<>();
         payments.add(new Payment());
         report.setPayments(payments);
-        service.handleCustomerReportGenerated(new Event(DTUPayService.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
+        service.handleCustomerReportGenerated(new Event(DtuPayService.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
 
     }
 
@@ -242,7 +242,7 @@ public class DTUPaySteps {
 
     @When("a MerchantDeregisteredEvent is received")
     public void aMerchantDeregisteredEventIsReceived() {
-        Event event = new Event(DTUPayService.MERCHANT_DEREGISTERED, new Object[]{correlationId});
+        Event event = new Event(DtuPayService.MERCHANT_DEREGISTERED, new Object[]{correlationId});
         service.handleMerchantDeregistered(event);
     }
 
@@ -269,7 +269,7 @@ public class DTUPaySteps {
 
     @When("a CustomerDeregisteredEvent is received")
     public void aCustomerDeregisteredEventIsReceived() {
-        Event event = new Event(DTUPayService.CUSTOMER_DEREGISTERED, new Object[]{correlationId, customer.getDtuPayId()});
+        Event event = new Event(DtuPayService.CUSTOMER_DEREGISTERED, new Object[]{correlationId, customer.getDtuPayId()});
         service.handleCustomerDeregistered(event);
     }
 
