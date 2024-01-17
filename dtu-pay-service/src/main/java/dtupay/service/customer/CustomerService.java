@@ -1,6 +1,9 @@
 package dtupay.service.customer;
 
-import dtupay.service.*;
+import dtupay.service.CorrelationId;
+import dtupay.service.DtuPayException;
+import dtupay.service.EventNames;
+import dtupay.service.Token;
 import messaging.Event;
 import messaging.MessageQueue;
 
@@ -12,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CustomerService {
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<ResponseObject<List<Token>>>> tokenCorrelations = new ConcurrentHashMap<>();
-    private final Map<CorrelationId, CompletableFuture<Report>> customerReportCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Void>> customerDeregistrationCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
 
@@ -21,7 +23,6 @@ public class CustomerService {
         queue.addHandler(EventNames.CUSTOMER_REGISTERED, this::handleCustomerRegistered);
         queue.addHandler(EventNames.TOKENS_GENERATED, this::handleTokensGenerated);
         queue.addHandler(EventNames.TOKENS_REQUEST_REJECTED, this::handleTokensRequestRejected);
-        queue.addHandler(EventNames.CUSTOMER_REPORT_GENERATED, this::handleCustomerReportGenerated);
         queue.addHandler(EventNames.CUSTOMER_DEREGISTERED, this::handleCustomerDeregistered);
     }
 
@@ -63,24 +64,6 @@ public class CustomerService {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         ResponseObject<List<Token>> responseObject = new ResponseObject<>(errorMessage);
         tokenCorrelations.get(correlationId).complete(responseObject);
-    }
-
-    public Report requestCustomerReport(String customerDtuPayId) {
-        CorrelationId correlationId = CorrelationId.randomId();
-        customerReportCorrelations.put(correlationId, new CompletableFuture<>());
-
-        Event event = new Event(EventNames.CUSTOMER_REPORT_REQUESTED, new Object[]{correlationId, customerDtuPayId});
-        queue.publish(event);
-
-        Report response = customerReportCorrelations.get(correlationId).join();
-        customerReportCorrelations.remove(correlationId);
-        return response;
-    }
-
-    public void handleCustomerReportGenerated(Event event) {
-        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
-        Report report = event.getArgument(1, Report.class);
-        customerReportCorrelations.get(correlationId).complete(report);
     }
 
     public void requestCustomerDeregistration(String customerDtuPayId) {

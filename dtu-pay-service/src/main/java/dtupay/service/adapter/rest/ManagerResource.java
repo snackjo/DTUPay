@@ -1,6 +1,6 @@
 package dtupay.service.adapter.rest;
 
-import dtupay.service.manager.ManagerService;
+import dtupay.service.report.ReportService;
 import dtupay.service.Report;
 
 import javax.ws.rs.GET;
@@ -10,11 +10,11 @@ import javax.ws.rs.Produces;
 @Path("/reports")
 public class ManagerResource {
 
-    private final ManagerService service = new ManagerService(new MessageQueueFactory().getQueue());
+    private final ReportService reportService = new ReportService(new MessageQueueFactory().getQueue());
 
     @GET
     @Produces("application/json")
     public Report requestReport(){
-        return service.requestManagerReport();
+        return reportService.requestManagerReport();
     }
 }

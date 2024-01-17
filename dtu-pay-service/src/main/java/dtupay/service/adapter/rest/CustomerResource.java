@@ -4,6 +4,7 @@ import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerService;
 import dtupay.service.DtuPayException;
 import dtupay.service.Report;
+import dtupay.service.report.ReportService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -12,6 +13,7 @@ import javax.ws.rs.core.Response;
 public class CustomerResource {
 
 	private final CustomerService service = new CustomerService(new MessageQueueFactory().getQueue());
+	private final ReportService reportService = new ReportService(new MessageQueueFactory().getQueue());
 
 	@POST
 	@Consumes("application/json")
@@ -36,7 +38,7 @@ public class CustomerResource {
 	@Path("{dtuPayId}" + "/reports")
 	@Produces("application/json")
 	public Report requestReport(@PathParam("dtuPayId") String dtuPayId){
-		return service.requestCustomerReport(dtuPayId);
+		return reportService.requestCustomerReport(dtuPayId);
 	}
 
 	@DELETE

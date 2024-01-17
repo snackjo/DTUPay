@@ -3,7 +3,7 @@ package behaviourtests;
 import dtupay.service.*;
 import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerService;
-import dtupay.service.manager.ManagerService;
+import dtupay.service.report.ReportService;
 import dtupay.service.merchant.Merchant;
 import dtupay.service.merchant.MerchantService;
 import io.cucumber.java.en.Given;
@@ -23,10 +23,9 @@ public class DtuPaySteps {
     Customer customer;
     private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
     private final MessageQueue queueMock = mock(MessageQueue.class);
-    private final ManagerService managerService = new ManagerService(queueMock);
+    private final ReportService reportService = new ReportService(queueMock);
     private final CustomerService customerService = new CustomerService(queueMock);
     private final MerchantService merchantService = new MerchantService(queueMock);
-
     private Customer customerRegistrationResult;
     private Merchant merchantRegistrationResult;
     private String paymentCompletedResponse;
@@ -175,7 +174,7 @@ public class DtuPaySteps {
     @When("a manager requests a report")
     public void aManagerRequestsAReport() {
         requestThread = new Thread(() -> {
-                reportGenerated = managerService.requestManagerReport();
+                reportGenerated = reportService.requestManagerReport();
         });
         requestThread.start();
     }
@@ -187,7 +186,7 @@ public class DtuPaySteps {
         payments.add(new Payment());
 
         report.setPayments(payments);
-        managerService.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
+        reportService.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @Then("report is returned")
@@ -200,7 +199,7 @@ public class DtuPaySteps {
     public void aMerchantRequestsAReport() {
         String merchantDtuPayId = "12345";
         requestThread = new Thread(() -> {
-            reportGenerated = merchantService.requestMerchantReport(merchantDtuPayId);
+            reportGenerated = reportService.requestMerchantReport(merchantDtuPayId);
         });
         requestThread.start();
     }
@@ -212,14 +211,14 @@ public class DtuPaySteps {
         payments.add(new Payment());
 
         report.setPayments(payments);
-        merchantService.handleMerchantReportGenerated(new Event(EventNames.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
+        reportService.handleMerchantReportGenerated(new Event(EventNames.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @When("a customer requests a report")
     public void aCustomerRequestsAReport() {
         String customerDtuPayId = "12345";
         requestThread = new Thread(() -> {
-            reportGenerated = customerService.requestCustomerReport(customerDtuPayId);
+            reportGenerated = reportService.requestCustomerReport(customerDtuPayId);
         });
         requestThread.start();
     }
@@ -230,7 +229,7 @@ public class DtuPaySteps {
         List<Payment> payments = new ArrayList<>();
         payments.add(new Payment());
         report.setPayments(payments);
-        customerService.handleCustomerReportGenerated(new Event(EventNames.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
+        reportService.handleCustomerReportGenerated(new Event(EventNames.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @When("a merchant requests to be deregistered")

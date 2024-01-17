@@ -3,6 +3,7 @@ package dtupay.service.adapter.rest;
 import dtupay.service.merchant.Merchant;
 import dtupay.service.merchant.MerchantService;
 import dtupay.service.Report;
+import dtupay.service.report.ReportService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -11,6 +12,7 @@ import javax.ws.rs.core.Response;
 public class MerchantResource {
 
     private final MerchantService service = new MerchantService(new MessageQueueFactory().getQueue());
+    private final ReportService reportService = new ReportService(new MessageQueueFactory().getQueue());
 
     @POST
     @Consumes("application/json")
@@ -31,7 +33,7 @@ public class MerchantResource {
     @Path("{dtuPayId}" + "/reports")
     @Produces("application/json")
     public Report requestReport(@PathParam("dtuPayId") String dtuPayId) {
-        return service.requestMerchantReport(dtuPayId);
+        return reportService.requestMerchantReport(dtuPayId);
     }
 
     @DELETE
