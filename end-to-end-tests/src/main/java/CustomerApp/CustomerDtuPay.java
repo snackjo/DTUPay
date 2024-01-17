@@ -11,11 +11,13 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
-public class CustomerDtuPay {
+public class CustomerDtuPay implements AutoCloseable {
+
+    private final Client serverClient;
     private final WebTarget serverTarget;
 
     public CustomerDtuPay() {
-        Client serverClient = ClientBuilder.newBuilder().build();
+        serverClient = ClientBuilder.newBuilder().build();
         this.serverTarget = serverClient.target("http://localhost:8080/customers/");
     }
 
@@ -44,5 +46,10 @@ public class CustomerDtuPay {
         return serverTarget.path(dtuPayId)
                 .request()
                 .delete();
+    }
+
+    @Override
+    public void close() throws Exception {
+        serverClient.close();
     }
 }

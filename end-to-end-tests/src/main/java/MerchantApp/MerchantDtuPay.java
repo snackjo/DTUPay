@@ -8,11 +8,13 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-public class MerchantDtuPay {
+public class MerchantDtuPay implements AutoCloseable {
+
+    private final Client serverClient;
     private final WebTarget serverTarget;
 
     public MerchantDtuPay() {
-        Client serverClient = ClientBuilder.newBuilder().build();
+        serverClient = ClientBuilder.newBuilder().build();
         this.serverTarget = serverClient.target("http://localhost:8080/merchants/");
     }
 
@@ -48,5 +50,10 @@ public class MerchantDtuPay {
         return serverTarget.path(dtuPayId)
                 .request()
                 .delete();
+    }
+
+    @Override
+    public void close() throws Exception {
+        serverClient.close();
     }
 }

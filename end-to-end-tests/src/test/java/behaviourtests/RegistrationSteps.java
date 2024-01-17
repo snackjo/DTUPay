@@ -174,10 +174,10 @@ public class RegistrationSteps {
     }
 
     @And("the second merchant has a non-empty DTUPay ID different from the first customer")
-    public void theSecondMerchantHasANonEmptyDTUPayIDDifferentFromTheFirstCustomer() throws ExecutionException, InterruptedException {
+    public void theSecondMerchantHasANonEmptyDTUPayIDDifferentFromTheFirstCustomer() {
         assertNotNull(merchantRegistrationResult2.join().getDtuPayId());
-        String merchantDtuPayId1 = merchantRegistrationResult1.get().getDtuPayId();
-        String merchantDtuPayId2 = merchantRegistrationResult2.get().getDtuPayId();
+        String merchantDtuPayId1 = merchantRegistrationResult1.join().getDtuPayId();
+        String merchantDtuPayId2 = merchantRegistrationResult2.join().getDtuPayId();
         assertNotEquals(merchantDtuPayId1, merchantDtuPayId2);
     }
 
@@ -206,14 +206,18 @@ public class RegistrationSteps {
 
     @Then("the first merchant is successfully deregistered")
     public void theFirstMerchantIsSuccessfullyDeregistered() {
-        int responseStatus = merchantDeregistrationResult1.join().getStatus();
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+        try (Response join = merchantDeregistrationResult1.join()) {
+            int responseStatus = join.getStatus();
+            assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+        }
     }
 
     @And("the second merchant is also successfully deregistered")
     public void theSecondMerchantIsAlsoSuccessfullyDeregistered() {
-        int responseStatus = merchantDeregistrationResult2.join().getStatus();
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+        try (Response join = merchantDeregistrationResult2.join()) {
+            int responseStatus = join.getStatus();
+            assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+        }
     }
 
     @When("the customer deregisters from DTUPay")
@@ -241,14 +245,18 @@ public class RegistrationSteps {
 
     @Then("the first customer is successfully deregistered")
     public void theFirstCustomerIsSuccessfullyDeregistered() {
-        int responseStatus = customerDeregistrationResult1.join().getStatus();
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+        try (Response join = customerDeregistrationResult1.join()) {
+            int responseStatus = join.getStatus();
+            assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+        }
     }
 
     @And("the second customer is also successfully deregistered")
     public void theSecondCustomerIsAlsoSuccessfullyDeregistered() {
-        int responseStatus = customerDeregistrationResult1.join().getStatus();
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+        try (Response join = customerDeregistrationResult2.join()) {
+            int responseStatus = join.getStatus();
+            assertEquals(Response.Status.NO_CONTENT.getStatusCode(), responseStatus);
+        }
     }
 
     private Thread createMerchantDeregistaionThread(CompletableFuture<Response> completableFuture, String dtuPayId) {
