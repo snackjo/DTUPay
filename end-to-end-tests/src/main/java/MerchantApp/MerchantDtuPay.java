@@ -13,12 +13,12 @@ public class MerchantDtuPay {
 
     public MerchantDtuPay() {
         Client serverClient = ClientBuilder.newBuilder().build();
-        this.serverTarget = serverClient.target("http://localhost:8080/");
+        this.serverTarget = serverClient.target("http://localhost:8080/merchants/");
     }
 
     public Merchant registerMerchant(Merchant merchant) {
         try {
-            return serverTarget.path("merchants").request().post(Entity.entity(merchant, MediaType.APPLICATION_JSON), Merchant.class);
+            return serverTarget.request().post(Entity.entity(merchant, MediaType.APPLICATION_JSON), Merchant.class);
         } catch (NotFoundException e) {
             return e.getResponse().readEntity(Merchant.class);
         }
@@ -30,7 +30,7 @@ public class MerchantDtuPay {
         paymentRequest.setAmount(paymentAmount);
         try {
             return serverTarget
-                    .path("merchants/" + merchantDtuPayId + "/payments")
+                    .path(merchantDtuPayId + "/payments")
                     .request()
                     .post(Entity.entity(paymentRequest, MediaType.APPLICATION_JSON), String.class);
         } catch (NotFoundException e) {
@@ -39,13 +39,13 @@ public class MerchantDtuPay {
     }
 
     public MerchantApp.Report requestReport(String dtuPayId) {
-        return serverTarget.path("merchants/" + dtuPayId + "/reports")
+        return serverTarget.path(dtuPayId + "/reports")
                 .request()
                 .get(MerchantApp.Report.class);
     }
 
     public Response deregisterMerchant(String dtuPayId) {
-        return serverTarget.path("merchants/" + dtuPayId)
+        return serverTarget.path(dtuPayId)
                 .request()
                 .delete();
     }

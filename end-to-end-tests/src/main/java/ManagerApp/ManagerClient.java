@@ -10,10 +10,10 @@ public class ManagerClient {
 
     public ManagerClient() {
         Client serverClient = ClientBuilder.newBuilder().build();
-        this.serverTarget = serverClient.target("http://localhost:8080/");
+        this.serverTarget = serverClient.target("http://localhost:8080/reports");
     }
 
     public Report requestReport()  {
-        return serverTarget.path("reports").request().get(Report.class);
+        return serverTarget.request().get(Report.class);
     }
 }

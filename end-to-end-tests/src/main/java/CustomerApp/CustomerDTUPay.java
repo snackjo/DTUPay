@@ -16,17 +16,17 @@ public class CustomerDTUPay {
 
     public CustomerDTUPay() {
         Client serverClient = ClientBuilder.newBuilder().build();
-        this.serverTarget = serverClient.target("http://localhost:8080/");
+        this.serverTarget = serverClient.target("http://localhost:8080/customers/");
     }
 
     public Customer registerCustomer(Customer customer)  {
-        return serverTarget.path("customers").request().post(Entity.entity(customer, MediaType.APPLICATION_JSON), Customer.class);
+        return serverTarget.request().post(Entity.entity(customer, MediaType.APPLICATION_JSON), Customer.class);
     }
 
     public List<Token> requestTokens(Customer customer, int tokenAmount) throws DTUPayException {
         try {
             return serverTarget
-                    .path("customers/" + customer.getDtuPayId() + "/tokens")
+                    .path(customer.getDtuPayId() + "/tokens")
                     .request()
                     .post(Entity.entity(tokenAmount, MediaType.APPLICATION_JSON),new GenericType<List<Token>>(){});
         } catch (BadRequestException e) {
@@ -35,13 +35,13 @@ public class CustomerDTUPay {
     }
 
     public Report requestReport(String dtuPayId) {
-        return serverTarget.path("customers/" + dtuPayId + "/reports")
+        return serverTarget.path(dtuPayId + "/reports")
                 .request()
                 .get(Report.class);
     }
 
     public Response deregisterCustomer(String dtuPayId) {
-        return serverTarget.path("customers/" + dtuPayId)
+        return serverTarget.path(dtuPayId)
                 .request()
                 .delete();
     }
