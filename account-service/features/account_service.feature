@@ -29,3 +29,9 @@ Feature: Account service
         When a MerchantDeregistrationRequested event is received
         Then a "MerchantDeregistered" event is published
         And the merchant's account is removed
+
+    Scenario: Deregister account for customer
+        Given a registered customer
+        When a CustomerDeregistrationRequested event is received
+        Then a "CustomerDeregistered" event is published
+        And the customer's account is removed

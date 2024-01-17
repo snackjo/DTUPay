@@ -11,7 +11,11 @@ public class AccountRepository {
         customerAccountMap.put(customer.getDtuPayId(), customer);
     }
 
-    public String getCustomerAccount(String dtuPayId) {
+    public String getCustomerAccount(String dtuPayId) throws DTUPayException {
+        if (!customerAccountMap.containsKey(dtuPayId)) {
+            throw new DTUPayException("Customer is not registered");
+        }
+
         return customerAccountMap.get(dtuPayId).getAccountId();
     }
 
@@ -29,5 +33,9 @@ public class AccountRepository {
 
     public void removeMerchant(String dtuPayId) {
         merchantAccountMap.remove(dtuPayId);
+    }
+
+    public void removeCustomer(String dtuPayId) {
+        customerAccountMap.remove(dtuPayId);
     }
 }

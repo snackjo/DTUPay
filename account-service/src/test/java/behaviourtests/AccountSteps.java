@@ -48,7 +48,7 @@ public class AccountSteps {
     }
 
     @And("the customer is given a non-empty DTUPay id")
-    public void theCustomerIsGivenANonEmptyDTUPayId() {
+    public void theCustomerIsGivenANonEmptyDTUPayId() throws DTUPayException {
         assertNotNull(accountRepository.getCustomerAccount(publishedEvent.getArgument(1, Customer.class).getDtuPayId()));
     }
 
@@ -140,5 +140,23 @@ public class AccountSteps {
             exception = e;
         }
         assertEquals("Merchant is not registered", exception.getMessage());
+    }
+
+    @When("a CustomerDeregistrationRequested event is received")
+    public void aCustomerDeregistrationRequestedEventIsReceived() {
+        correlationId = CorrelationId.randomId();
+        Event event = new Event(AccountService.CUSTOMER_DEREGISTRATION_REQUESTED, new Object[]{correlationId, customer.getDtuPayId()});
+        accountService.handleCustomerDeregistrationRequested(event);
+    }
+
+    @And("the customer's account is removed")
+    public void theCustomerSAccountIsRemoved() {
+        DTUPayException exception = new DTUPayException("Placeholder");
+        try {
+            accountRepository.getCustomerAccount(customer.getDtuPayId());
+        } catch (DTUPayException e) {
+            exception = e;
+        }
+        assertEquals("Customer is not registered", exception.getMessage());
     }
 }

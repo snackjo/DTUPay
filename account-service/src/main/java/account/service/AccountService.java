@@ -17,9 +17,10 @@ public class AccountService {
 	public static final String MERCHANT_BANK_ACCOUNT_FOUND = "MerchantBankAccountFound";
 	public static final String MERCHANT_DEREGISTRATION_REQUESTED = "MerchantDeregistrationRequested";
 	public static final String MERCHANT_DEREGISTERED = "MerchantDeregistered";
+    public static final String CUSTOMER_DEREGISTRATION_REQUESTED = "CustomerDeregistrationRequested";
+	public static final String CUSTOMER_DEREGISTERED = "CustomerDeregistered";
 
-
-	MessageQueue queue;
+	private final MessageQueue queue;
 	private final AccountRepository accountRepository;
 
 	public AccountService(MessageQueue q, AccountRepository accountRepository) {
@@ -31,6 +32,7 @@ public class AccountService {
 		this.queue.addHandler(TOKEN_MATCH_FOUND, this::handleTokenMatchFound);
 		this.queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
 		this.queue.addHandler(MERCHANT_DEREGISTRATION_REQUESTED, this::handleMerchantDeregistrationRequested);
+		this.queue.addHandler(CUSTOMER_DEREGISTRATION_REQUESTED, this::handleCustomerDeregistrationRequested);
 	}
 
 	public void handleCustomerRegistrationRequested(Event ev) {
@@ -59,7 +61,12 @@ public class AccountService {
 		CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
 		String customerDtuPayId = event.getArgument(1, String.class);
 
-		String customerAccount = accountRepository.getCustomerAccount(customerDtuPayId);
+		String customerAccount;
+		try {
+			customerAccount = accountRepository.getCustomerAccount(customerDtuPayId);
+		} catch (DTUPayException e) {
+			throw new RuntimeException(e);
+		}
 		Event publishEvent = new Event(CUSTOMER_BANK_ACCOUNT_FOUND, new Object[] {correlationId, customerAccount, customerDtuPayId});
 		queue.publish(publishEvent);
 	}
@@ -85,6 +92,16 @@ public class AccountService {
 		accountRepository.removeMerchant(merchantDtuPayId);
 
 		Event publishEvent = new Event(MERCHANT_DEREGISTERED, new Object[] { correlationId });
+		queue.publish(publishEvent);
+	}
+
+	public void handleCustomerDeregistrationRequested(Event event) {
+		CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+		String customerDtuPayId = event.getArgument(1, String.class);
+
+		accountRepository.removeCustomer(customerDtuPayId);
+
+		Event publishEvent = new Event(CUSTOMER_DEREGISTERED, new Object[] { correlationId, customerDtuPayId });
 		queue.publish(publishEvent);
 	}
 }
