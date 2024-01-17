@@ -175,16 +175,15 @@ public class DTUPayService {
         customerReportCorrelations.get(correlationId).complete(report);
     }
 
-    public String requestMerchantDeregistration(String merchantDtuPayId) {
+    public void requestMerchantDeregistration(String merchantDtuPayId) {
         CorrelationId correlationId = CorrelationId.randomId();
         merchantDeregistrationCorrelations.put(correlationId, new CompletableFuture<>());
 
         Event event = new Event(MERCHANT_DEREGISTRATION_REQUESTED, new Object[]{correlationId, merchantDtuPayId});
         queue.publish(event);
 
-        String response = merchantDeregistrationCorrelations.get(correlationId).join();
+        merchantDeregistrationCorrelations.get(correlationId).join();
         merchantDeregistrationCorrelations.remove(correlationId);
-        return response;
     }
 
     public void handleMerchantDeregistered(Event event) {

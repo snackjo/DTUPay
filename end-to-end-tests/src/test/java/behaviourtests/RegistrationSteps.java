@@ -13,13 +13,13 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import jakarta.ws.rs.core.Response;
 
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class RegistrationSteps {
     private Customer customer1;
@@ -37,6 +37,7 @@ public class RegistrationSteps {
     private final CompletableFuture<Customer> customerRegistrationResult2 = new CompletableFuture<>();
     private final CompletableFuture<Merchant> merchantRegistrationResult1 = new CompletableFuture<>();
     private final CompletableFuture<Merchant> merchantRegistrationResult2 = new CompletableFuture<>();
+    private Response merchantDeregistrationResponse;
 
     public RegistrationSteps(StateHolder stateHolder) {
         customer1 = stateHolder.getCustomer();
@@ -175,6 +176,15 @@ public class RegistrationSteps {
         assertNotEquals(merchantDtuPayId1, merchantDtuPayId2);
     }
 
+    @When("the merchant deregisters from DTUPay")
+    public void theMerchantDeregistersFromDTUPay() {
+        merchantDeregistrationResponse = merchantDtuPay.deregisterMerchant(stateHolder.getMerchant().getDtuPayId());
+    }
+
+    @Then("the merchant is successfully deregistered")
+    public void theMerchantIsSuccessfullyDeregistered() {
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), merchantDeregistrationResponse.getStatus());
+    }
 
     private Thread createCustomerRegistrationThread(CompletableFuture<Customer> completableFuture, Customer customer) {
         return new Thread(() -> {
@@ -185,5 +195,4 @@ public class RegistrationSteps {
             }
         });
     }
-
 }

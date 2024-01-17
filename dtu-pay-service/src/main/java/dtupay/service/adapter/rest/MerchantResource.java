@@ -6,6 +6,7 @@ import dtupay.service.PaymentRequest;
 import dtupay.service.Report;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
 
 @Path("/merchants")
 public class MerchantResource {
@@ -30,7 +31,14 @@ public class MerchantResource {
     @GET
     @Path("{dtuPayId}" + "/reports")
     @Produces("application/json")
-    public Report requestReport(@PathParam("dtuPayId") String dtuPayId){
+    public Report requestReport(@PathParam("dtuPayId") String dtuPayId) {
         return service.requestMerchantReport(dtuPayId);
+    }
+
+    @DELETE
+    @Path("{dtuPayId}")
+    public Response deregisterMerchant(@PathParam("dtuPayId") String dtuPayId) {
+        service.requestMerchantDeregistration(dtuPayId);
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 }

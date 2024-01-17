@@ -23,3 +23,9 @@ Feature: Registration feature
         When the two merchants are registered with DTUPay at the same time
         Then the first merchant has a non-empty DTUPay ID
         And the second merchant has a non-empty DTUPay ID different from the first customer
+
+    Scenario: Successful merchant deregistration
+        Given merchant registered in bank with a balance of 1000
+        And the merchant is registered with DTUPay
+        When the merchant deregisters from DTUPay
+        Then the merchant is successfully deregistered

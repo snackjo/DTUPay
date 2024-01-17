@@ -6,6 +6,7 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 public class MerchantDtuPay {
     private final WebTarget serverTarget;
@@ -41,5 +42,11 @@ public class MerchantDtuPay {
         return serverTarget.path("merchants/" + dtuPayId + "/reports")
                 .request()
                 .get(MerchantApp.Report.class);
+    }
+
+    public Response deregisterMerchant(String dtuPayId) {
+        return serverTarget.path("merchants/" + dtuPayId)
+                .request()
+                .delete();
     }
 }
