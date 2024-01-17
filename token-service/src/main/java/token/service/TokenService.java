@@ -5,12 +5,12 @@ import messaging.Event;
 import messaging.MessageQueue;
 
 public class TokenService {
-    private static final String CUSTOMER_REGISTERED = "CustomerRegistered";
-    private static final String TOKENS_REQUESTED = "TokensRequested";
-    private static final String TOKENS_GENERATED = "TokensGenerated";
+    public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
+    public static final String TOKENS_REQUESTED = "TokensRequested";
+    public static final String TOKENS_GENERATED = "TokensGenerated";
     public static final String PAYMENT_REQUESTED = "PaymentRequested";
-    private static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
-    private static final String TOKENS_REQUEST_REJECTED = "TokensRequestRejected";
+    public static final String TOKEN_MATCH_FOUND = "TokenMatchFound";
+    public static final String TOKENS_REQUEST_REJECTED = "TokensRequestRejected";
     public static final String CUSTOMER_DEREGISTERED = "CustomerDeregistered";
     private final MessageQueue queue;
     private final CustomerRepository customerRepository;

@@ -12,8 +12,7 @@ import token.service.*;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class TokenSteps {
     private Customer customer;
@@ -23,13 +22,13 @@ public class TokenSteps {
     private List<Token> generatedTokens;
     private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-    @When("a {string} event is received")
-    public void aEventIsReceived(String eventName) {
+    @When("a CustomerRegistered event is received")
+    public void aCustomerRegisteredEventIsReceived() {
         customer = new Customer();
         customer.setDtuPayId("cid1");
         CorrelationId correlationId = CorrelationId.randomId();
 
-        Event event = new Event(eventName, new Object[]{correlationId, customer});
+        Event event = new Event(TokenService.CUSTOMER_REGISTERED, new Object[]{correlationId, customer});
         tokenService.handleCustomerRegistered(event);
     }
 
@@ -52,17 +51,17 @@ public class TokenSteps {
         assertEquals(tokenAmount, customer.getTokens().size());
     }
 
-    @When("a {string} event for a customer is received for {int} tokens")
-    public void aEventForACustomerIsReceivedForTokens(String eventName, int tokenAmount) {
+    @When("a TokensRequested event for a customer is received for {int} tokens")
+    public void aTokensRequestedEventForACustomerIsReceivedForTokens(int tokenAmount) {
         CorrelationId correlationId = CorrelationId.randomId();
-        Event event = new Event(eventName, new Object[]{correlationId, customer.getDtuPayId(), tokenAmount});
+        Event event = new Event(TokenService.TOKENS_REQUESTED, new Object[]{correlationId, customer.getDtuPayId(), tokenAmount});
         tokenService.handleTokensRequested(event);
     }
 
-    @Then("a {string} event with {int} tokens is published")
-    public void aEventWithTokensIsPublished(String eventName, int tokenAmount) {
+    @Then("a TokensGenerated event with {int} tokens is published")
+    public void aTokensGeneratedEventWithTokensIsPublished(int tokenAmount) {
         verify(queueMock).publish(eventCaptor.capture());
-        assertEquals(eventName, eventCaptor.getValue().getType());
+        assertEquals(TokenService.TOKENS_GENERATED, eventCaptor.getValue().getType());
         assertEquals(tokenAmount, eventCaptor.getValue().getArgument(1, List.class).size());
     }
 
@@ -71,24 +70,17 @@ public class TokenSteps {
         assertEquals(tokenAmount, customerRepository.getCustomer(customer.getDtuPayId()).getTokens().size());
     }
 
-    @When("a {string} event is received with a token matching the customers")
-    public void aEventIsReceivedWithATokenMatchingTheCustomers(String eventName) {
+    @When("a PaymentRequested event is received with a token matching the customers")
+    public void aPaymentRequestedEventIsReceivedWithATokenMatchingTheCustomers() {
         CorrelationId correlationId = CorrelationId.randomId();
         Token token = generatedTokens.get(0);
-        Event event = new Event(eventName, new Object[]{correlationId, null, token, null});
+        Event event = new Event(TokenService.PAYMENT_REQUESTED, new Object[]{correlationId, null, token, null});
         tokenService.handlePaymentRequested(event);
-    }
-
-    @Then("a {string} event is published with the customer's DTUPay id")
-    public void aEventIsPublishedWithTheCustomersDTUPayId(String eventName) {
-        verify(queueMock).publish(eventCaptor.capture());
-        assertEquals(eventName, eventCaptor.getValue().getType());
-        assertEquals(customer.getDtuPayId(), eventCaptor.getValue().getArgument(1, String.class));
     }
 
     @Then("a {string} event is published")
     public void aEventIsPublished(String eventName) {
-        verify(queueMock).publish(eventCaptor.capture());
+        verify(queueMock, timeout(10000)).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
     }
 
@@ -102,5 +94,10 @@ public class TokenSteps {
     @Then("the customer is removed")
     public void theCustomerIsRemoved() {
         assertNull(customerRepository.getCustomer(customer.getDtuPayId()));
+    }
+
+    @And("the customer's DTUPay id is returned")
+    public void theCustomerSDTUPayIdIsReturned() {
+        assertEquals(customer.getDtuPayId(), eventCaptor.getValue().getArgument(1, String.class));
     }
 }
