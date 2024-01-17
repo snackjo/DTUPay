@@ -1,6 +1,6 @@
 package dtupay.service.adapter.rest;
 
-import dtupay.service.ManagerService;
+import dtupay.service.manager.ManagerService;
 import dtupay.service.Report;
 
 import javax.ws.rs.GET;
