@@ -19,7 +19,15 @@ public class AccountRepository {
         merchantAccountMap.put(merchant.getDtuPayId(), merchant);
     }
 
-    public String getMerchantAccount(String dtuPayId) {
+    public String getMerchantAccount(String dtuPayId) throws DTUPayException {
+        if (!merchantAccountMap.containsKey(dtuPayId)) {
+            throw new DTUPayException("Merchant is not registered");
+        }
+
         return merchantAccountMap.get(dtuPayId).getAccountId();
+    }
+
+    public void removeMerchant(String dtuPayId) {
+        merchantAccountMap.remove(dtuPayId);
     }
 }

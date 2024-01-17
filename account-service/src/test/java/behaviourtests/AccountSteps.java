@@ -10,8 +10,7 @@ import messaging.MessageQueue;
 import org.mockito.ArgumentCaptor;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class AccountSteps {
     private final MessageQueue queueMock = mock(MessageQueue.class);
@@ -67,12 +66,12 @@ public class AccountSteps {
     }
 
     @And("DTUPay id is part of published merchant event")
-    public void dtupayIdIsPartOfPublishedMerchantEvent() {
+    public void dtupayIdIsPartOfPublishedMerchantEvent() throws DTUPayException {
         assertNotNull(accountRepository.getMerchantAccount(publishedEvent.getArgument(1, Merchant.class).getDtuPayId()));
     }
 
     @And("the merchant is given a non-empty DTUPay id")
-    public void theMerchantIsGivenANonEmptyDTUPayId() {
+    public void theMerchantIsGivenANonEmptyDTUPayId() throws DTUPayException {
         assertNotNull(accountRepository.getMerchantAccount(publishedEvent.getArgument(1, Merchant.class).getDtuPayId()));
     }
 
@@ -94,7 +93,7 @@ public class AccountSteps {
     }
 
     @When("a {string} event is received with a matching merchant DTUPay id")
-    public void aEventIsReceivedWithAMatchingMerchantDTUPayId(String eventName) {
+    public void aEventIsReceivedWithAMatchingMerchantDTUPayId(String eventName) throws DTUPayException {
         correlationId = CorrelationId.randomId();
         Event event = new Event(eventName, new Object[]{correlationId, merchant.getDtuPayId(), null, null});
 
@@ -123,5 +122,29 @@ public class AccountSteps {
     @And("the customer DTUPay id is also in the event")
     public void theCustomerDTUPayIdIsAlsoInTheEvent() {
         assertEquals(customer.getDtuPayId(), eventCaptor.getValue().getArgument(2, String.class));
+    }
+
+    @When("a MerchantDeregistrationRequested event is received")
+    public void aMerchantDeregistrationRequestedEventIsReceived() {
+        correlationId = CorrelationId.randomId();
+        Event event = new Event(AccountService.MERCHANT_DEREGISTRATION_REQUESTED, new Object[]{correlationId, merchant.getDtuPayId()});
+        accountService.handleMerchantDeregistrationRequested(event);
+    }
+
+    @Then("a MerchantDeregistered event is published")
+    public void aMerchantDeregisteredEventIsPublished() {
+        verify(queueMock, timeout(10000)).publish(eventCaptor.capture());
+        assertEquals(AccountService.MERCHANT_DEREGISTERED, eventCaptor.getValue().getType());
+    }
+
+    @And("the merchant's account is removed")
+    public void theMerchantSAccountIsRemoved() {
+        DTUPayException exception = new DTUPayException("Placeholder");
+        try {
+            accountRepository.getMerchantAccount(merchant.getDtuPayId());
+        } catch (DTUPayException e) {
+            exception = e;
+        }
+        assertEquals("Merchant is not registered", exception.getMessage());
     }
 }

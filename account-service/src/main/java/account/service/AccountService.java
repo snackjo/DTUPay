@@ -15,6 +15,8 @@ public class AccountService {
 	private static final String CUSTOMER_BANK_ACCOUNT_FOUND = "CustomerBankAccountFound";
 	private static final String PAYMENT_REQUESTED = "PaymentRequested";
 	private static final String MERCHANT_BANK_ACCOUNT_FOUND = "MerchantBankAccountFound";
+	public static final String MERCHANT_DEREGISTRATION_REQUESTED = "MerchantDeregistrationRequested";
+	public static final String MERCHANT_DEREGISTERED = "MerchantDeregistered";
 
 
 	MessageQueue queue;
@@ -65,8 +67,23 @@ public class AccountService {
 		CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
 		String merchantDtuPayId = event.getArgument(1, String.class);
 
-		String merchantAccount = accountRepository.getMerchantAccount(merchantDtuPayId);
+		String merchantAccount;
+		try {
+			merchantAccount = accountRepository.getMerchantAccount(merchantDtuPayId);
+		} catch (DTUPayException e) {
+			throw new RuntimeException(e);
+		}
 		Event publishEvent = new Event(MERCHANT_BANK_ACCOUNT_FOUND, new Object[] {correlationId, merchantAccount});
+		queue.publish(publishEvent);
+	}
+
+	public void handleMerchantDeregistrationRequested(Event event) {
+		CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+		String merchantDtuPayId = event.getArgument(1, String.class);
+
+		accountRepository.removeMerchant(merchantDtuPayId);
+
+		Event publishEvent = new Event(MERCHANT_DEREGISTERED, new Object[] { correlationId });
 		queue.publish(publishEvent);
 	}
 }

@@ -23,3 +23,9 @@ Feature: Account service
         When a "PaymentRequested" event is received with a matching merchant DTUPay id
         Then a "MerchantBankAccountFound" event is published
         And the published merchant account id is correct
+
+    Scenario: Deregister account for merchant
+        Given a registered merchant
+        When a MerchantDeregistrationRequested event is received
+        Then a MerchantDeregistered event is published
+        And the merchant's account is removed
