@@ -1,9 +1,9 @@
 package dtupay.service.adapter.rest;
 
+import dtupay.service.DtuPayException;
 import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerService;
-import dtupay.service.DtuPayException;
-import dtupay.service.report.Report;
+import dtupay.service.report.CustomerReport;
 import dtupay.service.report.ReportService;
 
 import javax.ws.rs.*;
@@ -37,7 +37,7 @@ public class CustomerResource {
 	@GET
 	@Path("{dtuPayId}" + "/reports")
 	@Produces("application/json")
-	public Report requestReport(@PathParam("dtuPayId") String dtuPayId){
+	public CustomerReport requestReport(@PathParam("dtuPayId") String dtuPayId){
 		return reportService.requestCustomerReport(dtuPayId);
 	}
 

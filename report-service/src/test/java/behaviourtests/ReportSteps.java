@@ -12,7 +12,8 @@ import report.service.*;
 
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class ReportSteps {
@@ -84,12 +85,12 @@ public class ReportSteps {
         assertEquals(eventName, publishedEvent.getType());
     }
 
-    @And("the payment is included")
-    public void thePaymentIsIncluded() throws InterruptedException {
+    @And("has information relevant for a manager")
+    public void hasInformationRelevantForAManager() throws InterruptedException {
         requestThread.join();
-        Report report = publishedEvent.getArgument(1, Report.class);
+        ManagerReport report = publishedEvent.getArgument(1, ManagerReport.class);
         assertEquals(1, report.getPayments().size());
-        Payment payment = new Gson().fromJson(new Gson().toJson(report.getPayments().get(0)), Payment.class);
+        ManagerReportEntry payment = new Gson().fromJson(new Gson().toJson(report.getPayments().get(0)), ManagerReportEntry.class);
         assertEquals(merchantDtuPayId, payment.getMerchantDtuPayId());
         assertEquals(customerToken, payment.getCustomerToken());
         assertEquals(amount, payment.getAmount());
@@ -104,6 +105,17 @@ public class ReportSteps {
         requestThread.start();
     }
 
+    @And("has information relevant for a customer")
+    public void hasInformationRelevantForACustomer() throws InterruptedException {
+        requestThread.join();
+        CustomerReport report = publishedEvent.getArgument(1, CustomerReport.class);
+        assertEquals(1, report.getPayments().size());
+        CustomerReportEntry payment = new Gson().fromJson(new Gson().toJson(report.getPayments().get(0)), CustomerReportEntry.class);
+        assertEquals(merchantDtuPayId, payment.getMerchantDtuPayId());
+        assertEquals(customerToken, payment.getCustomerToken());
+        assertEquals(amount, payment.getAmount());
+    }
+
     @When("a MerchantReportRequested event is received")
     public void aMerchantReportRequestedEventIsReceived() {
         CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
@@ -112,15 +124,13 @@ public class ReportSteps {
         requestThread.start();
     }
 
-    @And("the payment is included without the customer id")
-    public void thePaymentIsIncludedWithoutTheCustomerId() throws InterruptedException {
+    @And("has information relevant for a merchant")
+    public void hasInformationRelevantForAMerchant() throws InterruptedException {
         requestThread.join();
-        Report report = publishedEvent.getArgument(1, Report.class);
+        MerchantReport report = publishedEvent.getArgument(1, MerchantReport.class);
         assertEquals(1, report.getPayments().size());
-        Payment payment = new Gson().fromJson(new Gson().toJson(report.getPayments().get(0)), Payment.class);
-        assertEquals(merchantDtuPayId, payment.getMerchantDtuPayId());
+        MerchantReportEntry payment = new Gson().fromJson(new Gson().toJson(report.getPayments().get(0)), MerchantReportEntry.class);
         assertEquals(customerToken, payment.getCustomerToken());
         assertEquals(amount, payment.getAmount());
-        assertNull(payment.getCustomerDtuPayId());
     }
 }

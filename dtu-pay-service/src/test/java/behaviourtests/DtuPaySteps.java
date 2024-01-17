@@ -1,13 +1,14 @@
 package behaviourtests;
 
-import dtupay.service.*;
+import dtupay.service.CorrelationId;
+import dtupay.service.DtuPayException;
+import dtupay.service.EventNames;
+import dtupay.service.Token;
 import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerService;
-import dtupay.service.report.Payment;
-import dtupay.service.report.Report;
-import dtupay.service.report.ReportService;
 import dtupay.service.merchant.Merchant;
 import dtupay.service.merchant.MerchantService;
+import dtupay.service.report.*;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -37,7 +38,9 @@ public class DtuPaySteps {
     private Event publishedEvent;
     private List<Token> tokensGenerated;
     private Thread requestThread;
-    private Report reportGenerated;
+    private ManagerReport managerReportGenerated;
+    private MerchantReport merchantReportGenerated;
+    private CustomerReport customerReportGenerated;
     private Exception merchantDeregistrationException;
     private Exception customerDeregistrationException;
 
@@ -176,41 +179,35 @@ public class DtuPaySteps {
     @When("a manager requests a report")
     public void aManagerRequestsAReport() {
         requestThread = new Thread(() -> {
-                reportGenerated = reportService.requestManagerReport();
+                managerReportGenerated = reportService.requestManagerReport();
         });
         requestThread.start();
     }
 
     @When("a ManagerReportGenerated event is received")
     public void aManagerReportGeneratedEventIsReceived() {
-        Report report = new Report();
-        List<Payment> payments = new ArrayList<>();
-        payments.add(new Payment());
+        ManagerReport report = new ManagerReport();
+        List<ManagerReportEntry> payments = new ArrayList<>();
+        payments.add(new ManagerReportEntry());
 
         report.setPayments(payments);
         reportService.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED, new Object[]{correlationId, report}));
-    }
-
-    @Then("report is returned")
-    public void reportIsReturned() throws InterruptedException {
-        requestThread.join();
-        assertEquals(1, reportGenerated.getPayments().size());
     }
 
     @When("a merchant requests a report")
     public void aMerchantRequestsAReport() {
         String merchantDtuPayId = "12345";
         requestThread = new Thread(() -> {
-            reportGenerated = reportService.requestMerchantReport(merchantDtuPayId);
+            merchantReportGenerated = reportService.requestMerchantReport(merchantDtuPayId);
         });
         requestThread.start();
     }
 
     @When("a MerchantReportGenerated event is received")
     public void aMerchantReportGeneratedEventIsReceived() {
-        Report report = new Report();
-        List<Payment> payments = new ArrayList<>();
-        payments.add(new Payment());
+        MerchantReport report = new MerchantReport();
+        List<MerchantReportEntry> payments = new ArrayList<>();
+        payments.add(new MerchantReportEntry());
 
         report.setPayments(payments);
         reportService.handleMerchantReportGenerated(new Event(EventNames.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report}));
@@ -220,16 +217,16 @@ public class DtuPaySteps {
     public void aCustomerRequestsAReport() {
         String customerDtuPayId = "12345";
         requestThread = new Thread(() -> {
-            reportGenerated = reportService.requestCustomerReport(customerDtuPayId);
+            customerReportGenerated = reportService.requestCustomerReport(customerDtuPayId);
         });
         requestThread.start();
     }
 
     @When("a CustomerReportGenerated event is received")
     public void aCustomerReportGeneratedEventIsReceived() {
-        Report report = new Report();
-        List<Payment> payments = new ArrayList<>();
-        payments.add(new Payment());
+        CustomerReport report = new CustomerReport();
+        List<CustomerReportEntry> payments = new ArrayList<>();
+        payments.add(new CustomerReportEntry());
         report.setPayments(payments);
         reportService.handleCustomerReportGenerated(new Event(EventNames.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
@@ -285,5 +282,24 @@ public class DtuPaySteps {
     public void theCustomerDeregistrationWasSuccessful() throws InterruptedException {
         requestThread.join();
         assertNull(customerDeregistrationException);
+    }
+
+    @Then("a merchant report is returned")
+    public void merchantReportIsReturned() throws InterruptedException {
+        requestThread.join();
+        assertEquals(1, merchantReportGenerated.getPayments().size());
+    }
+
+    @Then("a manager report is returned")
+    public void aManagerReportIsReturned() throws InterruptedException {
+        requestThread.join();
+        assertEquals(1, managerReportGenerated.getPayments().size());
+
+    }
+
+    @Then("a customer report is returned")
+    public void aCustomerReportIsReturned() throws InterruptedException {
+        requestThread.join();
+        assertEquals(1, customerReportGenerated.getPayments().size());
     }
 }

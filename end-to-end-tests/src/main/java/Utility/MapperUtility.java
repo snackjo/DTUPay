@@ -53,7 +53,6 @@ public class MapperUtility {
         CustomerApp.Payment customerPayment = new CustomerApp.Payment();
         customerPayment.setCustomerToken(mapManagerTokenToCustomerToken(managerPayment.getCustomerToken()));
         customerPayment.setAmount(managerPayment.getAmount());
-        customerPayment.setCustomerDtuPayId(managerPayment.getCustomerDtuPayId());
         customerPayment.setMerchantDtuPayId(managerPayment.getMerchantDtuPayId());
         return customerPayment;
     }
@@ -62,7 +61,6 @@ public class MapperUtility {
         MerchantApp.Payment merchantPayment = new MerchantApp.Payment();
         merchantPayment.setCustomerToken(mapManagerTokenToMerchantToken(managerPayment.getCustomerToken()));
         merchantPayment.setAmount(managerPayment.getAmount());
-        merchantPayment.setMerchantDtuPayId(managerPayment.getMerchantDtuPayId());
         return merchantPayment;
     }
 }

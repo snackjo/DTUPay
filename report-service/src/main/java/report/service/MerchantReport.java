@@ -6,6 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class Report {
-    List<Payment> payments = new ArrayList<>();
+public class MerchantReport {
+    List<MerchantReportEntry> payments = new ArrayList<>();
 }

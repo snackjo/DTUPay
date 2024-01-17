@@ -4,7 +4,7 @@ import dtupay.service.Token;
 import lombok.Data;
 
 @Data
-public class Payment {
+public class ManagerReportEntry {
     String merchantDtuPayId;
     Token customerToken;
     int amount;

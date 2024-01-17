@@ -22,7 +22,7 @@ Feature: DTUPay service customer feature
         When a customer requests a report
         Then a "CustomerReportRequested" event is published
         When a CustomerReportGenerated event is received
-        Then report is returned
+        Then a customer report is returned
 
     Scenario: Customer deregistration
         When a customer requests to be deregistered

@@ -21,20 +21,23 @@ public class ReportService {
         this.queue.addHandler(EventNames.MERCHANT_REPORT_REQUESTED, this::handleMerchantReportRequested);
     }
 
-    public List<Payment> getManagerReport() {
-        return payments;
-    }
-
-    private List<Payment> getCustomerReport(String customerDtuPayId) {
+    public List<ManagerReportEntry> getManagerReport() {
         return payments.stream()
-                .filter(payment -> payment.getCustomerDtuPayId().equals(customerDtuPayId))
+                .map(payment -> new ManagerReportEntry(payment.getMerchantDtuPayId(), payment.getCustomerToken(), payment.getAmount(), payment.getCustomerDtuPayId()))
                 .collect(Collectors.toList());
     }
 
-    private List<Payment> getMerchantReport(String merchantDtuPayId) {
+    private List<CustomerReportEntry> getCustomerReport(String customerDtuPayId) {
+        return payments.stream()
+                .filter(payment -> payment.getCustomerDtuPayId().equals(customerDtuPayId))
+                .map(payment -> new CustomerReportEntry(payment.getMerchantDtuPayId(), payment.getCustomerToken(), payment.getAmount()))
+                .collect(Collectors.toList());
+    }
+
+    private List<MerchantReportEntry> getMerchantReport(String merchantDtuPayId) {
         return payments.stream()
                 .filter(payment -> payment.getMerchantDtuPayId().equals(merchantDtuPayId))
-                .map(payment -> new Payment(payment.getMerchantDtuPayId(), payment.getCustomerToken(), payment.getAmount()))
+                .map(payment -> new MerchantReportEntry(payment.getCustomerToken(), payment.getAmount()))
                 .collect(Collectors.toList());
     }
 
@@ -49,7 +52,7 @@ public class ReportService {
 
     public void handleManagerReportRequested(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
-        Report report = new Report();
+        ManagerReport report = new ManagerReport();
         report.setPayments(getManagerReport());
         Event publishEvent = new Event(EventNames.MANAGER_REPORT_GENERATED, new Object[]{ correlationId, report});
         queue.publish(publishEvent);
@@ -57,7 +60,7 @@ public class ReportService {
     public void handleCustomerReportRequested(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         String customerDtuPayId = event.getArgument(1, String.class);
-        Report report = new Report();
+        CustomerReport report = new CustomerReport();
         report.setPayments(getCustomerReport(customerDtuPayId));
         Event publishEvent = new Event(EventNames.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report});
         queue.publish(publishEvent);
@@ -66,7 +69,7 @@ public class ReportService {
     public void handleMerchantReportRequested(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         String merchantDtuPayId = event.getArgument(1, String.class);
-        Report report = new Report();
+        MerchantReport report = new MerchantReport();
         report.setPayments(getMerchantReport(merchantDtuPayId));
         Event publishEvent = new Event(EventNames.MERCHANT_REPORT_GENERATED, new Object[]{correlationId, report});
         queue.publish(publishEvent);
