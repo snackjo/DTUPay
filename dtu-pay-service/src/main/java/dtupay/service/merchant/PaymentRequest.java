@@ -1,5 +1,6 @@
-package dtupay.service;
+package dtupay.service.merchant;
 
+import dtupay.service.Token;
 import lombok.Data;
 
 @Data

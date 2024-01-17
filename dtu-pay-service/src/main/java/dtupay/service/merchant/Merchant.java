@@ -1,4 +1,4 @@
-package dtupay.service;
+package dtupay.service.merchant;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

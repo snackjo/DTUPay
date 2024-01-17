@@ -3,6 +3,8 @@ package behaviourtests;
 import dtupay.service.*;
 import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerService;
+import dtupay.service.merchant.Merchant;
+import dtupay.service.merchant.MerchantService;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

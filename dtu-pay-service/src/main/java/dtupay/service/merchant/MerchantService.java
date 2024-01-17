@@ -1,5 +1,10 @@
-package dtupay.service;
+package dtupay.service.merchant;
 
+import dtupay.service.CorrelationId;
+import dtupay.service.EventNames;
+import dtupay.service.Report;
+import dtupay.service.Token;
+import dtupay.service.merchant.Merchant;
 import messaging.Event;
 import messaging.MessageQueue;
 
