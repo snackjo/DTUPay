@@ -14,11 +14,11 @@ public class PaymentInformation {
     }
 
     public String getMerchantDtuPayId() {
-        return paymentRequestedEvent.getArgument(0, String.class);
+        return paymentRequestedEvent.getArgument(1, String.class);
     }
 
     public String getCustomerToken() {
-        return paymentRequestedEvent.getArgument(1, String.class);
+        return paymentRequestedEvent.getArgument(2, String.class);
     }
 
     public String getCustomerDtuPayId() {
@@ -26,14 +26,14 @@ public class PaymentInformation {
     }
 
     public String getCustomerBankAccount() {
-        return customerBankAccountFoundEvent.getArgument(0, String.class);
+        return customerBankAccountFoundEvent.getArgument(1, String.class);
     }
 
     public String getMerchantBankAccount() {
-        return merchantBankAccountFoundEvent.getArgument(0, String.class);
+        return merchantBankAccountFoundEvent.getArgument(1, String.class);
     }
 
     public int getAmount() {
-        return paymentRequestedEvent.getArgument(2, Integer.class);
+        return paymentRequestedEvent.getArgument(3, Integer.class);
     }
 }

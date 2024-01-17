@@ -26,27 +26,27 @@ public class TokenService {
     }
 
     public void handlePaymentRequested(Event event) {
-        Token token = event.getArgument(1, Token.class);
-        CorrelationId correlationId = event.getArgument(3, CorrelationId.class);
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        Token token = event.getArgument(2, Token.class);
 
         String customerDtuPayId = customerRepository.getCustomerByToken(token);
         customerRepository.removeToken(customerDtuPayId, token);
 
         Event publishedEvent = new Event(TOKEN_MATCH_FOUND,
-                new Object[]{customerDtuPayId, correlationId});
+                new Object[]{correlationId, customerDtuPayId});
         queue.publish(publishedEvent);
     }
 
     public void handleCustomerRegistered(Event ev) {
-        Customer customer = ev.getArgument(0, Customer.class);
+        Customer customer = ev.getArgument(1, Customer.class);
 
         customerRepository.addCustomer(customer);
     }
 
     public void handleTokensRequested(Event event) {
-        String dtuPayId = event.getArgument(0, String.class);
-        int tokenAmount = event.getArgument(1, Integer.class);
-        CorrelationId correlationId = event.getArgument(2, CorrelationId.class);
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        String dtuPayId = event.getArgument(1, String.class);
+        int tokenAmount = event.getArgument(2, Integer.class);
 
         if(tokenAmount > 5 || tokenAmount < 1) {
             Event publishedEvent = new Event(TOKENS_REQUEST_REJECTED, new Object[] { correlationId });
@@ -63,7 +63,7 @@ public class TokenService {
 
         customerRepository.addTokensToCustomer(dtuPayId, Token.generateTokens(tokenAmount));
         Event publishedEvent = new Event(TOKENS_GENERATED,
-                new Object[] { customerRepository.getCustomer(dtuPayId).getTokens(), correlationId });
+                new Object[] { correlationId, customerRepository.getCustomer(dtuPayId).getTokens() });
         queue.publish(publishedEvent);
     }
 }

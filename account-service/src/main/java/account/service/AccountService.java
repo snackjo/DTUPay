@@ -31,42 +31,42 @@ public class AccountService {
 	}
 
 	public void handleCustomerRegistrationRequested(Event ev) {
-		Customer customer = ev.getArgument(0, Customer.class);
-		CorrelationId correlationId = ev.getArgument(1, CorrelationId.class);
+		CorrelationId correlationId = ev.getArgument(0, CorrelationId.class);
+		Customer customer = ev.getArgument(1, Customer.class);
 
 		customer.setDtuPayId(UUID.randomUUID().toString());
 		accountRepository.addCustomer(customer);
 
-		Event event = new Event(CUSTOMER_REGISTERED, new Object[] { customer, correlationId });
+		Event event = new Event(CUSTOMER_REGISTERED, new Object[] { correlationId, customer });
 		queue.publish(event);
 	}
 
     public void handleMerchantRegistrationRequested(Event event) {
-		Merchant merchant = event.getArgument(0, Merchant.class);
-		CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+		CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+		Merchant merchant = event.getArgument(1, Merchant.class);
 
 		merchant.setDtuPayId(UUID.randomUUID().toString());
 		accountRepository.addMerchant(merchant);
 
-		Event publishEvent = new Event(MERCHANT_REGISTERED, new Object[] { merchant, correlationId });
+		Event publishEvent = new Event(MERCHANT_REGISTERED, new Object[] { correlationId, merchant });
 		queue.publish(publishEvent);
     }
 
 	public void handleTokenMatchFound(Event event) {
-		String customerDtuPayId = event.getArgument(0, String.class);
-		CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+		CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+		String customerDtuPayId = event.getArgument(1, String.class);
 
 		String customerAccount = accountRepository.getCustomerAccount(customerDtuPayId);
-		Event publishEvent = new Event(CUSTOMER_BANK_ACCOUNT_FOUND, new Object[] {customerAccount, correlationId, customerDtuPayId});
+		Event publishEvent = new Event(CUSTOMER_BANK_ACCOUNT_FOUND, new Object[] {correlationId, customerAccount, customerDtuPayId});
 		queue.publish(publishEvent);
 	}
 
 	public void handlePaymentRequested(Event event) {
-		String merchantDtuPayId = event.getArgument(0, String.class);
-		CorrelationId correlationId = event.getArgument(3, CorrelationId.class);
+		CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+		String merchantDtuPayId = event.getArgument(1, String.class);
 
 		String merchantAccount = accountRepository.getMerchantAccount(merchantDtuPayId);
-		Event publishEvent = new Event(MERCHANT_BANK_ACCOUNT_FOUND, new Object[] {merchantAccount, correlationId});
+		Event publishEvent = new Event(MERCHANT_BANK_ACCOUNT_FOUND, new Object[] {correlationId, merchantAccount});
 		queue.publish(publishEvent);
 	}
 }

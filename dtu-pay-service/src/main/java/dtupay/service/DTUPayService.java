@@ -41,7 +41,7 @@ public class DTUPayService {
     public Customer registerCustomer(Customer customer) {
         CorrelationId correlationId = CorrelationId.randomId();
         customerCorrelations.put(correlationId,new CompletableFuture<>());
-        Event event = new Event(CUSTOMER_REGISTRATION_REQUESTED, new Object[] { customer, correlationId });
+        Event event = new Event(CUSTOMER_REGISTRATION_REQUESTED, new Object[] { correlationId, customer });
         queue.publish(event);
         Customer response = customerCorrelations.get(correlationId).join();
         customerCorrelations.remove(correlationId);
@@ -49,30 +49,30 @@ public class DTUPayService {
     }
 
     public void handleCustomerRegistered(Event event) {
-        Customer customer = event.getArgument(0, Customer.class);
-        CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        Customer customer = event.getArgument(1, Customer.class);
         customerCorrelations.get(correlationId).complete(customer);
     }
 
     public Merchant registerMerchant(Merchant merchant) {
         CorrelationId correlationId = CorrelationId.randomId();
         merchantCorrelations.put(correlationId, new CompletableFuture<>());
-        Event event = new Event(MERCHANT_REGISTRATION_REQUESTED, new Object[] { merchant, correlationId });
+        Event event = new Event(MERCHANT_REGISTRATION_REQUESTED, new Object[] { correlationId, merchant });
         queue.publish(event);
         Merchant response = merchantCorrelations.get(correlationId).join();
         merchantCorrelations.remove(correlationId);
         return response;
     }
     public void handleMerchantRegistered(Event event) {
-        Merchant merchant = event.getArgument(0, Merchant.class);
-        CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        Merchant merchant = event.getArgument(1, Merchant.class);
         merchantCorrelations.get(correlationId).complete(merchant);
     }
 
     public List<Token> requestTokens(String dtuPayId, int tokenAmount) throws DTUPayException {
         CorrelationId correlationId = CorrelationId.randomId();
         tokenCorrelations.put(correlationId, new CompletableFuture<>());
-        Event event = new Event(TOKENS_REQUESTED, new Object[]{dtuPayId, tokenAmount, correlationId});
+        Event event = new Event(TOKENS_REQUESTED, new Object[]{correlationId, dtuPayId, tokenAmount});
         queue.publish(event);
         ResponseObject<List<Token>> responseObject = tokenCorrelations.get(correlationId).join();
         tokenCorrelations.remove(correlationId);
@@ -80,8 +80,8 @@ public class DTUPayService {
     }
 
     public void handleTokensGenerated(Event event) {
-        List<Token> tokens = (List<Token>) event.getArgument(0, List.class);
-        CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        List<Token> tokens = (List<Token>) event.getArgument(1, List.class);
         ResponseObject<List<Token>> responseObject = new ResponseObject<>(tokens);
         tokenCorrelations.get(correlationId).complete(responseObject);
     }
@@ -90,7 +90,7 @@ public class DTUPayService {
         CorrelationId correlationId = CorrelationId.randomId();
         paymentCorrelations.put(correlationId, new CompletableFuture<>());
 
-        Event event = new Event(PAYMENT_REQUESTED, new Object[]{merchantDtuPayId, token, amount, correlationId});
+        Event event = new Event(PAYMENT_REQUESTED, new Object[]{correlationId, merchantDtuPayId, token, amount});
         queue.publish(event);
         String response = paymentCorrelations.get(correlationId).join();
         paymentCorrelations.remove(correlationId);

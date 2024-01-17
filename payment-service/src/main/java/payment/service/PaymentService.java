@@ -31,21 +31,21 @@ public class PaymentService {
     }
 
     public void handlePaymentRequested(Event event) {
-        CorrelationId correlationId = event.getArgument(3, CorrelationId.class);
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         createPaymentInformationIfNotExists(correlationId);
         paymentInformation.get(correlationId.getId()).setPaymentRequestedEvent(event);
         publishPaymentComplete(correlationId);
     }
 
     public void handleCustomerBankAccountFound(Event event) {
-        CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         createPaymentInformationIfNotExists(correlationId);
         paymentInformation.get(correlationId.getId()).setCustomerBankAccountFoundEvent(event);
         publishPaymentComplete(correlationId);
     }
 
     public void handleMerchantBankAccountFound(Event event) {
-        CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         createPaymentInformationIfNotExists(correlationId);
         paymentInformation.get(correlationId.getId()).setMerchantBankAccountFoundEvent(event);
         publishPaymentComplete(correlationId);

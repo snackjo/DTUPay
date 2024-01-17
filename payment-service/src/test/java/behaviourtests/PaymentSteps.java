@@ -41,25 +41,25 @@ public class PaymentSteps {
     @When("a PaymentRequested event is received")
     public void aPaymentRequestedEventIsReceived() {
         correlationId1 = CorrelationId.randomId();
-        paymentRequestedEvent1 = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{"merchantDtuPayId", "customerToken", 5, correlationId1});
+        paymentRequestedEvent1 = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{correlationId1, "merchantDtuPayId", "customerToken", 5});
         paymentService.handlePaymentRequested(paymentRequestedEvent1);
     }
 
     @And("a CustomerBankAccountFound event is received")
     public void aCustomerBankAccountFoundEventIsReceived() {
-        customerBankAccountFoundEvent1 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1, "customerDtuPayId"});
+        customerBankAccountFoundEvent1 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{correlationId1, "", "customerDtuPayId"});
         paymentService.handleCustomerBankAccountFound(customerBankAccountFoundEvent1);
     }
 
     @And("a MerchantBankAccountFound event is received")
     public void aMerchantBankAccountFoundEventIsReceived() {
-        merchantBankAccountFoundEvent1 = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1});
+        merchantBankAccountFoundEvent1 = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{correlationId1, ""});
         paymentService.handleMerchantBankAccountFound(merchantBankAccountFoundEvent1);
     }
 
     @Then("a {string} event is published")
     public void aEventIsPublished(String eventName) {
-        verify(queueMock).publish(eventCaptor.capture());
+        verify(queueMock, timeout(10000)).publish(eventCaptor.capture());
         Event publishedEvent = eventCaptor.getValue();
         assertEquals(eventName, publishedEvent.getType());
     }
@@ -71,17 +71,17 @@ public class PaymentSteps {
 
     @And("a PaymentRequested event")
     public void aPaymentRequestedEvent() {
-        paymentRequestedEvent1 = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{"", "", 10, correlationId1});
+        paymentRequestedEvent1 = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{correlationId1, "", "", 10});
     }
 
     @And("a CustomerBankAccountFound event")
     public void aCustomerBankAccountFoundEvent() {
-        customerBankAccountFoundEvent1 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1, ""});
+        customerBankAccountFoundEvent1 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{correlationId1, "", ""});
     }
 
     @And("a MerchantBankAccountFound event")
     public void aMerchantBankAccountFoundEvent() {
-        merchantBankAccountFoundEvent1 = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId1});
+        merchantBankAccountFoundEvent1 = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{correlationId1, ""});
     }
 
     @When("they are all received at the same time")
@@ -120,17 +120,17 @@ public class PaymentSteps {
 
     @And("another PaymentRequested event")
     public void anotherPaymentRequestedEvent() {
-        paymentRequestedEvent2 = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{"", "", 10, correlationId2});
+        paymentRequestedEvent2 = new Event(PaymentService.PAYMENT_REQUESTED, new Object[]{correlationId2, "", "", 10});
     }
 
     @And("another CustomerBankAccountFound event")
     public void anotherCustomerBankAccountFoundEvent() {
-        customerBankAccountFoundEvent2 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId2, ""});
+        customerBankAccountFoundEvent2 = new Event(PaymentService.CUSTOMER_BANK_ACCOUNT_FOUND, new Object[]{correlationId2, "", ""});
     }
 
     @And("another MerchantBankAccountFound event")
     public void anotherMerchantBankAccountFoundEvent() {
-        merchantBankAccountFoundEvent2 = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{"", correlationId2});
+        merchantBankAccountFoundEvent2 = new Event(PaymentService.MERCHANT_BANK_ACCOUNT_FOUND, new Object[]{correlationId2, ""});
     }
 
     @Then("two {string} event is published")
@@ -164,9 +164,9 @@ public class PaymentSteps {
         verify(queueMock).publish(eventCaptor.capture());
         Event paymentCompletedEvent = eventCaptor.getValue();
 
-        String merchantDtuPayId = paymentRequestedEvent1.getArgument(0, String.class);
-        String customerToken = paymentRequestedEvent1.getArgument(1, String.class);
-        int amount = paymentRequestedEvent1.getArgument(2, Integer.class);
+        String merchantDtuPayId = paymentRequestedEvent1.getArgument(1, String.class);
+        String customerToken = paymentRequestedEvent1.getArgument(2, String.class);
+        int amount = paymentRequestedEvent1.getArgument(3, Integer.class);
         String customerDtuPayId = customerBankAccountFoundEvent1.getArgument(2, String.class);
 
         assertEquals(correlationId1, paymentCompletedEvent.getArgument(0, CorrelationId.class));

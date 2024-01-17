@@ -54,7 +54,7 @@ public class DTUPaySteps {
         publishedEvent = eventCaptor.getValue();
 
         assertEquals(eventName, publishedEvent.getType());
-        correlationId = getCorrelationId(publishedEvent);
+        correlationId = publishedEvent.getArgument(0, CorrelationId.class);
     }
     
     @When("a CustomerRegistered event is received")
@@ -62,7 +62,7 @@ public class DTUPaySteps {
         Customer customer = new Customer();
         customer.setDtuPayId("123");
         service.handleCustomerRegistered(new Event(DTUPayService.CUSTOMER_REGISTERED,
-                new Object[] {customer, correlationId}));
+                new Object[] {correlationId, customer}));
     }
 
     @Then("the customer is registered and his DTUPay id is set")
@@ -78,15 +78,6 @@ public class DTUPaySteps {
 
         requestThread = new Thread(() -> paymentCompletedResponse = service.requestPayment(merchantDtuPayId, token, paymentAmount));
         requestThread.start();
-    }
-
-    private CorrelationId getCorrelationId(Event event) {
-        Optional<CorrelationId> firstCorrelationId = Arrays.stream(event.getArguments())
-                .filter(CorrelationId.class::isInstance)
-                .map(CorrelationId.class::cast)
-                .findFirst();
-
-        return firstCorrelationId.orElse(null);
     }
 
     @When("a TokensRequestRejected event is received")
@@ -133,7 +124,7 @@ public class DTUPaySteps {
         Merchant merchant = new Merchant();
         merchant.setDtuPayId("123");
         service.handleMerchantRegistered(new Event(DTUPayService.MERCHANT_REGISTERED,
-                new Object[] {merchant, correlationId}));
+                new Object[] {correlationId, merchant}));
     }
 
     @Then("the merchant is registered and his DTUPay id is set")
@@ -156,14 +147,14 @@ public class DTUPaySteps {
     @When("a TokensGenerated event is received")
     public void aTokensGeneratedEventIsReceived() {
         List<Token> tokens = new ArrayList<>();
-        int requestedAmount = publishedEvent.getArgument(1, Integer.class);
+        int requestedAmount = publishedEvent.getArgument(2, Integer.class);
         for(int i = 0; i < requestedAmount; i++){
             Token token = new Token();
             token.setId(String.valueOf(i));
             tokens.add(token);
         }
         service.handleTokensGenerated(new Event(DTUPayService.TOKENS_GENERATED,
-                new Object[]{tokens, correlationId}));
+                new Object[]{correlationId, tokens}));
     }
 
     @Then("{int} tokens are returned")

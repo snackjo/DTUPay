@@ -28,8 +28,9 @@ public class TokenSteps {
     public void aEventIsReceived(String eventName) {
         customer = new Customer();
         customer.setDtuPayId("cid1");
+        CorrelationId correlationId = CorrelationId.randomId();
 
-        Event event = new Event(eventName, new Object[]{customer});
+        Event event = new Event(eventName, new Object[]{correlationId, customer});
         tokenService.handleCustomerRegistered(event);
     }
 
@@ -55,7 +56,7 @@ public class TokenSteps {
     @When("a {string} event for a customer is received for {int} tokens")
     public void aEventForACustomerIsReceivedForTokens(String eventName, int tokenAmount) {
         CorrelationId correlationId = CorrelationId.randomId();
-        Event event = new Event(eventName, new Object[]{customer.getDtuPayId(), tokenAmount, correlationId});
+        Event event = new Event(eventName, new Object[]{correlationId, customer.getDtuPayId(), tokenAmount});
         tokenService.handleTokensRequested(event);
     }
 
@@ -63,7 +64,7 @@ public class TokenSteps {
     public void aEventWithTokensIsPublished(String eventName, int tokenAmount) {
         verify(queueMock).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
-        assertEquals(tokenAmount, eventCaptor.getValue().getArgument(0, List.class).size());
+        assertEquals(tokenAmount, eventCaptor.getValue().getArgument(1, List.class).size());
     }
 
     @And("the customer has {int} tokens")
@@ -75,7 +76,7 @@ public class TokenSteps {
     public void aEventIsReceivedWithATokenMatchingTheCustomers(String eventName) {
         CorrelationId correlationId = CorrelationId.randomId();
         Token token = generatedTokens.get(0);
-        Event event = new Event(eventName, new Object[]{null, token, null, correlationId});
+        Event event = new Event(eventName, new Object[]{correlationId, null, token, null});
         tokenService.handlePaymentRequested(event);
     }
 
@@ -83,7 +84,7 @@ public class TokenSteps {
     public void aEventIsPublishedWithTheCustomersDTUPayId(String eventName) {
         verify(queueMock).publish(eventCaptor.capture());
         assertEquals(eventName, eventCaptor.getValue().getType());
-        assertEquals(customer.getDtuPayId(), eventCaptor.getValue().getArgument(0, String.class));
+        assertEquals(customer.getDtuPayId(), eventCaptor.getValue().getArgument(1, String.class));
     }
 
     @Then("a {string} event is published")
