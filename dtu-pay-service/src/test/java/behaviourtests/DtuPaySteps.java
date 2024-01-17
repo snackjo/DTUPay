@@ -19,6 +19,7 @@ public class DtuPaySteps {
     private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
     private final MessageQueue queueMock = mock(MessageQueue.class);
     private final DtuPayService service = new DtuPayService(queueMock);
+    private final CustomerService customerService = new CustomerService(queueMock);
     private Customer customerRegistrationResult;
     private Merchant merchantRegistrationResult;
     private String paymentCompletedResponse;
@@ -43,7 +44,7 @@ public class DtuPaySteps {
 
     @When("the customer is being registered")
     public void theCustomerIsBeingRegistered() {
-        requestThread = new Thread(() -> customerRegistrationResult = service.registerCustomer(customer));
+        requestThread = new Thread(() -> customerRegistrationResult = customerService.registerCustomer(customer));
         requestThread.start();
     }
 
@@ -60,7 +61,7 @@ public class DtuPaySteps {
     public void aCustomerRegisteredEventIsReceived() {
         Customer customer = new Customer();
         customer.setDtuPayId("123");
-        service.handleCustomerRegistered(new Event(EventNames.CUSTOMER_REGISTERED,
+        customerService.handleCustomerRegistered(new Event(EventNames.CUSTOMER_REGISTERED,
                 new Object[] {correlationId, customer}));
     }
 
@@ -82,7 +83,7 @@ public class DtuPaySteps {
 
     @When("a TokensRequestRejected event is received")
     public void aTokensRequestRejectedEventIsReceived() {
-        service.handleTokensRequestRejected(new Event(EventNames.TOKENS_REQUEST_REJECTED,
+        customerService.handleTokensRequestRejected(new Event(EventNames.TOKENS_REQUEST_REJECTED,
                 new Object[] {correlationId}));
     }
 
@@ -96,7 +97,7 @@ public class DtuPaySteps {
     public void theCustomerRequestsTokens(int tokenAmount) {
         requestThread = new Thread(() -> {
             try{
-                tokensGenerated = service.requestTokens("DTUPayId", tokenAmount);
+                tokensGenerated = customerService.requestTokens("DTUPayId", tokenAmount);
             }catch(DtuPayException e){
                 tokenRequestException = e;
             }
@@ -154,7 +155,7 @@ public class DtuPaySteps {
             token.setId(String.valueOf(i));
             tokens.add(token);
         }
-        service.handleTokensGenerated(new Event(EventNames.TOKENS_GENERATED,
+        customerService.handleTokensGenerated(new Event(EventNames.TOKENS_GENERATED,
                 new Object[]{correlationId, tokens}));
     }
 
@@ -211,7 +212,7 @@ public class DtuPaySteps {
     public void aCustomerRequestsAReport() {
         String customerDtuPayId = "12345";
         requestThread = new Thread(() -> {
-            reportGenerated = service.requestCustomerReport(customerDtuPayId);
+            reportGenerated = customerService.requestCustomerReport(customerDtuPayId);
         });
         requestThread.start();
     }
@@ -222,8 +223,7 @@ public class DtuPaySteps {
         List<Payment> payments = new ArrayList<>();
         payments.add(new Payment());
         report.setPayments(payments);
-        service.handleCustomerReportGenerated(new Event(EventNames.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
-
+        customerService.handleCustomerReportGenerated(new Event(EventNames.CUSTOMER_REPORT_GENERATED, new Object[]{correlationId, report}));
     }
 
     @When("a merchant requests to be deregistered")
@@ -258,7 +258,7 @@ public class DtuPaySteps {
         customer.setDtuPayId("12345");
         requestThread = new Thread(() -> {
             try {
-                service.requestCustomerDeregistration(customer.getDtuPayId());
+                customerService.requestCustomerDeregistration(customer.getDtuPayId());
             } catch (Exception e) {
                 customerDeregistrationException = e;
             }
@@ -270,7 +270,7 @@ public class DtuPaySteps {
     @When("a CustomerDeregisteredEvent is received")
     public void aCustomerDeregisteredEventIsReceived() {
         Event event = new Event(EventNames.CUSTOMER_DEREGISTERED, new Object[]{correlationId, customer.getDtuPayId()});
-        service.handleCustomerDeregistered(event);
+        customerService.handleCustomerDeregistered(event);
     }
 
     @Then("the customer deregistration was successful")

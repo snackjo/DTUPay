@@ -1,8 +1,8 @@
 package dtupay.service.adapter.rest;
 
 import dtupay.service.Customer;
+import dtupay.service.CustomerService;
 import dtupay.service.DtuPayException;
-import dtupay.service.DtuPayService;
 import dtupay.service.Report;
 
 import javax.ws.rs.*;
@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 @Path("/customers")
 public class CustomerResource {
 
-	private final DtuPayService service = new DtuPayFactory().getService();
+	private final CustomerService service = new CustomerService(new MessageQueueFactory().getQueue());
 
 	@POST
 	@Consumes("application/json")
