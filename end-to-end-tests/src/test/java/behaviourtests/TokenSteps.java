@@ -4,8 +4,6 @@ import CustomerApp.Customer;
 import CustomerApp.CustomerDtuPay;
 import CustomerApp.DtuPayException;
 import CustomerApp.Token;
-import MerchantApp.Merchant;
-import io.cucumber.java.After;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;

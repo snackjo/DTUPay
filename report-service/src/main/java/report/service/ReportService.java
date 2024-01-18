@@ -3,11 +3,6 @@ package report.service;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 // @author Emil
 public class ReportService {
     private final MessageQueue queue;
