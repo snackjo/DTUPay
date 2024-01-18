@@ -1,3 +1,4 @@
+@author=Peter
 Feature: Customer reporting
     Scenario: Show list of payments
         Given that no payments have completed yet

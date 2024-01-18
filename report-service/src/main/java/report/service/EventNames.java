@@ -1,5 +1,6 @@
 package report.service;
 
+// @author Oliver
 public abstract class EventNames {
     public static final String PAYMENT_COMPLETED = "PaymentCompleted";
     public static final String MANAGER_REPORT_REQUESTED = "ManagerReportRequested";

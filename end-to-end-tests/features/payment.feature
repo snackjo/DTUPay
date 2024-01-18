@@ -1,3 +1,4 @@
+@author=Peter
 Feature: Payment feature
     Scenario: Customer pays merchant successfully
         Given the merchant "Alice" registered in bank with a balance of 1000

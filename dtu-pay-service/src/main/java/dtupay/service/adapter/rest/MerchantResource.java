@@ -7,6 +7,7 @@ import dtupay.service.merchant.MerchantReport;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
+// @author Oliver
 @Path("/merchants")
 public class MerchantResource {
 

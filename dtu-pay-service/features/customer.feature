@@ -1,3 +1,4 @@
+@author=Emil
 Feature: DTUPay service customer feature
     Scenario: Customer registration
         Given a customer with empty DTUPay id

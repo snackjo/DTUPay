@@ -3,6 +3,7 @@ package dtupay.service.adapter.rest;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
 
+// @author Emil
 public class MessageQueueFactory {
     static MessageQueue queue = null;
 

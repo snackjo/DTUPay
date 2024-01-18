@@ -1,3 +1,4 @@
+@author=Oliver
 Feature: Token service test
     Scenario: Customer is registered
         When a CustomerRegistered event is received

@@ -8,6 +8,7 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+// @author Oliver
 public class MerchantDtuPay implements AutoCloseable {
 
     private final Client serverClient;

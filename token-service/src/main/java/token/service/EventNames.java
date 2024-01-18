@@ -1,5 +1,6 @@
 package token.service;
 
+// @author Bastian
 public abstract class EventNames {
     public static final String CUSTOMER_REGISTERED = "CustomerRegistered";
     public static final String TOKENS_REQUESTED = "TokensRequested";

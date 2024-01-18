@@ -1,3 +1,4 @@
+@author=Emil
 Feature: Registration feature
 
     Scenario: Successful customer registration

@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+// @author Emil
 public class PaymentService {
 
     private final Map<String, PaymentInformation> paymentInformation = new ConcurrentHashMap<>();

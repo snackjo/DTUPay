@@ -1,3 +1,4 @@
+@author=Carl
 Feature: Report feature
     Scenario: Manager requests report
         Given a successful payment

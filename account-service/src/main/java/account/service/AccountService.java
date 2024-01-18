@@ -5,6 +5,7 @@ import messaging.MessageQueue;
 
 import java.util.UUID;
 
+// @author Bastian
 public class AccountService {
 
     private final MessageQueue queue;

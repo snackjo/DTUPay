@@ -5,6 +5,7 @@ import MerchantApp.Merchant;
 import dtu.ws.fastmoney.User;
 import lombok.experimental.UtilityClass;
 
+// @author Carl
 @UtilityClass
 public class MapperUtility {
 

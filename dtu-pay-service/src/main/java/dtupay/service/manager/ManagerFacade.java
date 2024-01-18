@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+// @author Peter
 public class ManagerFacade {
     private final Map<CorrelationId, CompletableFuture<ManagerReport>> managerReportCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;

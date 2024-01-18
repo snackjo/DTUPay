@@ -1,3 +1,4 @@
+@author=Bastian
 Feature: DTUPay service manager feature
     Scenario: Get report for successful payment
         When a manager requests a report

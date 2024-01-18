@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 
+// @author Carl
 public class RegistrationSteps {
     private Customer customer1;
     private Customer customer2;

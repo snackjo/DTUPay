@@ -1,3 +1,4 @@
+@author=Peter
 Feature: DTUPay service merchant feature
     Scenario: Merchant registration
         Given a merchant with empty DTUPay id

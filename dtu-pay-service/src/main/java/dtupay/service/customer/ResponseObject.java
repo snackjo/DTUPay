@@ -2,6 +2,7 @@ package dtupay.service.customer;
 
 import dtupay.service.DtuPayException;
 
+// @author Carl
 public class ResponseObject<T> {
     private T successContent;
     private String exceptionMessage;

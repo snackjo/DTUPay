@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// @author Carl
 public class ReportRepository {
     private final List<Payment> payments = Collections.synchronizedList(new ArrayList<>());
 

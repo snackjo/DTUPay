@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.Assert.assertEquals;
 
+// @author Bastian
 public class PaymentSteps {
     private final Map<String, Customer> customers = new ConcurrentHashMap<>();
     private final Map<String, Merchant> merchants = new ConcurrentHashMap<>();

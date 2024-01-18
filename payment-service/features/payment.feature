@@ -1,3 +1,4 @@
+@author=Oliver
 Feature: Payment service
     Scenario: Successful payment completed
         When a PaymentRequested event is received

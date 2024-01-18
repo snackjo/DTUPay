@@ -1,3 +1,4 @@
+@author=Carl
 Feature: Account service
     Scenario: Account registration for customer
         When a CustomerRegistrationRequested event is received

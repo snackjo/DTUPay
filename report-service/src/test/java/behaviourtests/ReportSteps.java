@@ -16,6 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+// @author Bastian
 public class ReportSteps {
 
     private final MessageQueue queueMock = mock(MessageQueue.class);

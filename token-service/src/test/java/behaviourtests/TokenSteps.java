@@ -14,6 +14,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+// @author Peter
 public class TokenSteps {
     private Customer customer;
     private final MessageQueue queueMock = mock(MessageQueue.class);

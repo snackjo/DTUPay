@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+// @author Peter
 public class SharedSteps {
     private final PublishedEventHolder publishedEventHolder;
 

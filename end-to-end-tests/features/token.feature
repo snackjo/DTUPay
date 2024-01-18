@@ -1,3 +1,4 @@
+@author=Oliver
 Feature: Token feature
 
     Scenario: Successful token generation

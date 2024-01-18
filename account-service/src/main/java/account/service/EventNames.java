@@ -1,5 +1,6 @@
 package account.service;
 
+// @author Oliver
 public abstract class EventNames {
     public static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
     public static final String CUSTOMER_REGISTERED = "CustomerRegistered";

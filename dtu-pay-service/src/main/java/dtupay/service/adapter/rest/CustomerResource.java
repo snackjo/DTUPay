@@ -8,6 +8,7 @@ import dtupay.service.customer.CustomerReport;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
+// @author Bastian
 @Path("/customers")
 public class CustomerResource {
 

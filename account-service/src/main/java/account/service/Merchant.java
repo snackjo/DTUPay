@@ -3,6 +3,7 @@ package account.service;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// @author Bastian
 @NoArgsConstructor
 @Data
 public class Merchant {

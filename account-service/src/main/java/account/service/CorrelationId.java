@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import lombok.Value;
 
+// @author Emil
 @Value
 public class CorrelationId {
 	String id;

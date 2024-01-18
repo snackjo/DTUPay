@@ -1,5 +1,6 @@
 package payment.service;
 
+// @author Bastian
 public abstract class EventNames {
     public static final String PAYMENT_REQUESTED = "PaymentRequested";
     public static final String CUSTOMER_BANK_ACCOUNT_FOUND = "CustomerBankAccountFound";

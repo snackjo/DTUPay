@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+// @author Bastian
 @Data
 public class MerchantReport {
     List<MerchantReportEntry> payments = new ArrayList<>();

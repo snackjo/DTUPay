@@ -3,6 +3,7 @@ package dtupay.service.customer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// @author Peter
 @NoArgsConstructor
 @Data
 public class Customer {

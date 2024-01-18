@@ -4,6 +4,7 @@ package token.service;
 import messaging.Event;
 import messaging.MessageQueue;
 
+// @author Oliver
 public class TokenService {
     private final MessageQueue queue;
     private final CustomerRepository customerRepository;

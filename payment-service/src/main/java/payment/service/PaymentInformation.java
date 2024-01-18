@@ -3,6 +3,7 @@ package payment.service;
 import lombok.Data;
 import messaging.Event;
 
+// @author Oliver
 @Data
 public class PaymentInformation {
     private Event paymentRequestedEvent;
