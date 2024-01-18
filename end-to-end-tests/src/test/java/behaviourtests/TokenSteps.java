@@ -12,8 +12,7 @@ import io.cucumber.java.en.When;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 // @author Emil
 public class TokenSteps {
@@ -106,12 +105,35 @@ public class TokenSteps {
         assertEquals("Tokens request rejected", tokenRequestException.getMessage());
     }
 
+    @When("the customer request {int} tokens twice at the same time")
+    public void theCustomerRequestTokensTwiceAtTheSameTime(int tokenAmount) {
+        Thread thread1 = createTokenRequestThread(tokenRequestResult1, customer1, tokenAmount);
+        Thread thread2 = createTokenRequestThread(tokenRequestResult2, customer1, tokenAmount);
+        thread1.start();
+        thread2.start();
+    }
+
+    @Then("only one requests succeeds and the customer gets {int} tokens")
+    public void onlyOneRequestsSucceedsAndTheCustomerGetsTokens(int tokenAmount) {
+        List<Token> tokens1 = tokenRequestResult1.join();
+        List<Token> tokens2 = tokenRequestResult2.join();
+
+        if (tokens1 != null) {
+            assertEquals(tokenAmount, tokens1.size());
+        } else {
+            assertEquals(tokenAmount, tokens2.size());
+        }
+
+        assertNotNull(tokenRequestException);
+    }
+
     private Thread createTokenRequestThread(CompletableFuture<List<Token>> completableFuture, Customer customer, int tokenAmount) {
         return new Thread(() -> {
             try {
                 completableFuture.complete(customerDtuPay.requestTokens(customer, tokenAmount));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (DtuPayException e) {
+                tokenRequestException = e;
+                completableFuture.complete(null);
             }
         });
     }
