@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ReportService {
+public class ReportFacade {
     private final Map<CorrelationId, CompletableFuture<ManagerReport>> managerReportCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<MerchantReport>> merchantReportCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<CustomerReport>> customerReportCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
 
-    public ReportService(MessageQueue q) {
+    public ReportFacade(MessageQueue q) {
         queue = q;
         queue.addHandler(EventNames.MANAGER_REPORT_GENERATED, this::handleManagerReportGenerated);
         queue.addHandler(EventNames.MERCHANT_REPORT_GENERATED, this::handleMerchantReportGenerated);

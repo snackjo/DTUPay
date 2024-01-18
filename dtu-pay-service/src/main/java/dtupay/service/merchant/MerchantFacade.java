@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MerchantService {
+public class MerchantFacade {
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<String>> paymentCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Void>> merchantDeregistrationCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
 
-    public MerchantService(MessageQueue q) {
+    public MerchantFacade(MessageQueue q) {
         queue = q;
         queue.addHandler(EventNames.MERCHANT_REGISTERED, this::handleMerchantRegistered);
         queue.addHandler(EventNames.PAYMENT_COMPLETED, this::handlePaymentCompleted);

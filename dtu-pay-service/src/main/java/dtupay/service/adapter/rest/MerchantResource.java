@@ -1,9 +1,9 @@
 package dtupay.service.adapter.rest;
 
 import dtupay.service.merchant.Merchant;
-import dtupay.service.merchant.MerchantService;
+import dtupay.service.merchant.MerchantFacade;
 import dtupay.service.report.MerchantReport;
-import dtupay.service.report.ReportService;
+import dtupay.service.report.ReportFacade;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -11,14 +11,14 @@ import javax.ws.rs.core.Response;
 @Path("/merchants")
 public class MerchantResource {
 
-    private final MerchantService service = new MerchantService(new MessageQueueFactory().getQueue());
-    private final ReportService reportService = new ReportService(new MessageQueueFactory().getQueue());
+    private final MerchantFacade merchantFacade = new MerchantFacade(new MessageQueueFactory().getQueue());
+    private final ReportFacade reportFacade = new ReportFacade(new MessageQueueFactory().getQueue());
 
     @POST
     @Consumes("application/json")
     @Produces("application/json")
     public Merchant registerMerchant(Merchant merchant) {
-        return service.registerMerchant(merchant);
+        return merchantFacade.registerMerchant(merchant);
     }
 
     @POST
@@ -26,20 +26,20 @@ public class MerchantResource {
     @Consumes("application/json")
     @Produces("text/plain")
     public String requestPayment(@PathParam("dtuPayId") String dtuPayId, PaymentRequest paymentRequest) {
-        return service.requestPayment(dtuPayId, paymentRequest.getToken(), paymentRequest.getAmount());
+        return merchantFacade.requestPayment(dtuPayId, paymentRequest.getToken(), paymentRequest.getAmount());
     }
 
     @GET
     @Path("{dtuPayId}" + "/reports")
     @Produces("application/json")
     public MerchantReport requestReport(@PathParam("dtuPayId") String dtuPayId) {
-        return reportService.requestMerchantReport(dtuPayId);
+        return reportFacade.requestMerchantReport(dtuPayId);
     }
 
     @DELETE
     @Path("{dtuPayId}")
     public Response deregisterMerchant(@PathParam("dtuPayId") String dtuPayId) {
-        service.requestMerchantDeregistration(dtuPayId);
+        merchantFacade.requestMerchantDeregistration(dtuPayId);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 }

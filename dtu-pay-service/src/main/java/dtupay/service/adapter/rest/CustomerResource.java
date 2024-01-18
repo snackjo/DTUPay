@@ -2,9 +2,9 @@ package dtupay.service.adapter.rest;
 
 import dtupay.service.DtuPayException;
 import dtupay.service.customer.Customer;
-import dtupay.service.customer.CustomerService;
+import dtupay.service.customer.CustomerFacade;
 import dtupay.service.report.CustomerReport;
-import dtupay.service.report.ReportService;
+import dtupay.service.report.ReportFacade;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -12,14 +12,14 @@ import javax.ws.rs.core.Response;
 @Path("/customers")
 public class CustomerResource {
 
-	private final CustomerService service = new CustomerService(new MessageQueueFactory().getQueue());
-	private final ReportService reportService = new ReportService(new MessageQueueFactory().getQueue());
+	private final CustomerFacade customerFacade = new CustomerFacade(new MessageQueueFactory().getQueue());
+	private final ReportFacade reportFacade = new ReportFacade(new MessageQueueFactory().getQueue());
 
 	@POST
 	@Consumes("application/json")
 	@Produces("application/json")
 	public Customer registerCustomer(Customer customer) {
-		return service.registerCustomer(customer);
+		return customerFacade.registerCustomer(customer);
 	}
 
 	@POST
@@ -28,7 +28,7 @@ public class CustomerResource {
 	@Produces("application/json")
 	public Response requestTokens(@PathParam("dtuPayId") String dtuPayId, int tokenAmount) {
         try {
-            return Response.ok(service.requestTokens(dtuPayId, tokenAmount)).build();
+            return Response.ok(customerFacade.requestTokens(dtuPayId, tokenAmount)).build();
         } catch (DtuPayException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
@@ -38,13 +38,13 @@ public class CustomerResource {
 	@Path("{dtuPayId}" + "/reports")
 	@Produces("application/json")
 	public CustomerReport requestReport(@PathParam("dtuPayId") String dtuPayId){
-		return reportService.requestCustomerReport(dtuPayId);
+		return reportFacade.requestCustomerReport(dtuPayId);
 	}
 
 	@DELETE
 	@Path("{dtuPayId}")
 	public Response deregisterCustomer(@PathParam("dtuPayId") String dtuPayId) {
-		service.requestCustomerDeregistration(dtuPayId);
+		customerFacade.requestCustomerDeregistration(dtuPayId);
 		return Response.status(Response.Status.NO_CONTENT).build();
 	}
 }

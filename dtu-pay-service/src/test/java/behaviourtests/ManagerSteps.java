@@ -3,7 +3,7 @@ package behaviourtests;
 import dtupay.service.EventNames;
 import dtupay.service.report.ManagerReport;
 import dtupay.service.report.ManagerReportEntry;
-import dtupay.service.report.ReportService;
+import dtupay.service.report.ReportFacade;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.mock;
 public class ManagerSteps {
     private final PublishedEventHolder publishedEventHolder;
     private final MessageQueue queueMock = mock(MessageQueue.class);
-    private final ReportService reportService = new ReportService(queueMock);
+    private final ReportFacade reportFacade = new ReportFacade(queueMock);
     private Thread requestThread;
     private ManagerReport managerReportGenerated;
 
@@ -31,7 +31,7 @@ public class ManagerSteps {
     @When("a manager requests a report")
     public void aManagerRequestsAReport() {
         requestThread = new Thread(() -> {
-            managerReportGenerated = reportService.requestManagerReport();
+            managerReportGenerated = reportFacade.requestManagerReport();
         });
         requestThread.start();
     }
@@ -43,7 +43,7 @@ public class ManagerSteps {
         payments.add(new ManagerReportEntry());
 
         report.setPayments(payments);
-        reportService.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED,
+        reportFacade.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED,
                 new Object[]{ publishedEventHolder.getCorrelationId(), report }));
     }
 
