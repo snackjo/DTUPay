@@ -19,7 +19,8 @@ import static org.mockito.Mockito.*;
 public class ReportSteps {
 
     private final MessageQueue queueMock = mock(MessageQueue.class);
-    private final ReportService reportService = new ReportService(queueMock);
+    private final ReportRepository reportRepository = new ReportRepository();
+    private final ReportService reportService = new ReportService(queueMock, reportRepository);
     private final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
     private String merchantDtuPayId;
     private Token customerToken;
@@ -27,12 +28,11 @@ public class ReportSteps {
     private String customerDtuPayId;
     private Thread requestThread;
     private Event publishedEvent;
-    private Payment payment;
 
 
     @Given("that no payments have completed yet")
     public void thatNoPaymentsHaveCompletedYet() {
-        assertTrue(reportService.getManagerReport().isEmpty());
+        assertTrue(reportRepository.getManagerReport().getPayments().isEmpty());
     }
 
     @When("a PaymentCompleted event is received")
@@ -43,7 +43,7 @@ public class ReportSteps {
 
     @Then("that payment is stored")
     public void thatPaymentIsStored() {
-        assertEquals(1, reportService.getManagerReport().size());
+        assertEquals(1, reportRepository.getManagerReport().getPayments().size());
     }
 
     @Given("a completed payment")
@@ -53,7 +53,7 @@ public class ReportSteps {
         amount = 100;
         customerDtuPayId = "customerDtuPayId";
 
-        payment = new Payment();
+        Payment payment = new Payment();
         payment.setMerchantDtuPayId(merchantDtuPayId);
         payment.setCustomerToken(customerToken);
         payment.setAmount(amount);
