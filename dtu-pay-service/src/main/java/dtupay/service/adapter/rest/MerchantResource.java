@@ -2,8 +2,7 @@ package dtupay.service.adapter.rest;
 
 import dtupay.service.merchant.Merchant;
 import dtupay.service.merchant.MerchantFacade;
-import dtupay.service.report.MerchantReport;
-import dtupay.service.report.ReportFacade;
+import dtupay.service.merchant.MerchantReport;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -12,7 +11,6 @@ import javax.ws.rs.core.Response;
 public class MerchantResource {
 
     private final MerchantFacade merchantFacade = new MerchantFacade(new MessageQueueFactory().getQueue());
-    private final ReportFacade reportFacade = new ReportFacade(new MessageQueueFactory().getQueue());
 
     @POST
     @Consumes("application/json")
@@ -33,7 +31,7 @@ public class MerchantResource {
     @Path("{dtuPayId}" + "/reports")
     @Produces("application/json")
     public MerchantReport requestReport(@PathParam("dtuPayId") String dtuPayId) {
-        return reportFacade.requestMerchantReport(dtuPayId);
+        return merchantFacade.requestMerchantReport(dtuPayId);
     }
 
     @DELETE

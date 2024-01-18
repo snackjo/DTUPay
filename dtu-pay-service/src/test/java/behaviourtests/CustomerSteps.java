@@ -5,9 +5,8 @@ import dtupay.service.EventNames;
 import dtupay.service.Token;
 import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerFacade;
-import dtupay.service.report.CustomerReport;
-import dtupay.service.report.CustomerReportEntry;
-import dtupay.service.report.ReportFacade;
+import dtupay.service.customer.CustomerReport;
+import dtupay.service.customer.CustomerReportEntry;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -26,7 +25,6 @@ public class CustomerSteps {
     Customer customer;
     private final MessageQueue queueMock = mock(MessageQueue.class);
     private final CustomerFacade customerFacade = new CustomerFacade(queueMock);
-    private final ReportFacade reportFacade = new ReportFacade(queueMock);
     private Customer customerRegistrationResult;
     private Thread requestThread;
     private List<Token> tokensGenerated;
@@ -59,7 +57,7 @@ public class CustomerSteps {
         Customer customer = new Customer();
         customer.setDtuPayId("123");
         customerFacade.handleCustomerRegistered(new Event(EventNames.CUSTOMER_REGISTERED,
-                new Object[] { publishedEventHolder.getCorrelationId(), customer }));
+                new Object[]{publishedEventHolder.getCorrelationId(), customer}));
     }
 
     @Then("the customer is registered and his DTUPay id is set")
@@ -71,9 +69,9 @@ public class CustomerSteps {
     @When("a customer requests {int} tokens")
     public void theCustomerRequestsTokens(int tokenAmount) {
         requestThread = new Thread(() -> {
-            try{
+            try {
                 tokensGenerated = customerFacade.requestTokens("DTUPayId", tokenAmount);
-            }catch(DtuPayException e){
+            } catch (DtuPayException e) {
                 tokenRequestException = e;
             }
         });
@@ -84,13 +82,13 @@ public class CustomerSteps {
     public void aTokensGeneratedEventIsReceived() {
         List<Token> tokens = new ArrayList<>();
         int requestedAmount = publishedEventHolder.getPublishedEvent().getArgument(2, Integer.class);
-        for(int i = 0; i < requestedAmount; i++){
+        for (int i = 0; i < requestedAmount; i++) {
             Token token = new Token();
             token.setId(String.valueOf(i));
             tokens.add(token);
         }
         customerFacade.handleTokensGenerated(new Event(EventNames.TOKENS_GENERATED,
-                new Object[]{ publishedEventHolder.getCorrelationId(), tokens }));
+                new Object[]{publishedEventHolder.getCorrelationId(), tokens}));
     }
 
     @Then("{int} tokens are returned")
@@ -102,7 +100,7 @@ public class CustomerSteps {
     @When("a TokensRequestRejected event is received")
     public void aTokensRequestRejectedEventIsReceived() {
         customerFacade.handleTokensRequestRejected(new Event(EventNames.TOKENS_REQUEST_REJECTED,
-                new Object[] { publishedEventHolder.getCorrelationId() }));
+                new Object[]{publishedEventHolder.getCorrelationId()}));
     }
 
     @Then("a DTUPay exception is thrown")
@@ -115,7 +113,7 @@ public class CustomerSteps {
     public void aCustomerRequestsAReport() {
         String customerDtuPayId = "12345";
         requestThread = new Thread(() -> {
-            customerReportGenerated = reportFacade.requestCustomerReport(customerDtuPayId);
+            customerReportGenerated = customerFacade.requestCustomerReport(customerDtuPayId);
         });
         requestThread.start();
     }
@@ -126,8 +124,8 @@ public class CustomerSteps {
         List<CustomerReportEntry> payments = new ArrayList<>();
         payments.add(new CustomerReportEntry());
         report.setPayments(payments);
-        reportFacade.handleCustomerReportGenerated(new Event(EventNames.CUSTOMER_REPORT_GENERATED,
-                new Object[]{ publishedEventHolder.getCorrelationId(), report }));
+        customerFacade.handleCustomerReportGenerated(new Event(EventNames.CUSTOMER_REPORT_GENERATED,
+                new Object[]{publishedEventHolder.getCorrelationId(), report}));
     }
 
     @Then("a customer report is returned")
@@ -154,7 +152,7 @@ public class CustomerSteps {
     @When("a CustomerDeregisteredEvent is received")
     public void aCustomerDeregisteredEventIsReceived() {
         Event event = new Event(EventNames.CUSTOMER_DEREGISTERED,
-                new Object[]{ publishedEventHolder.getCorrelationId(), customer.getDtuPayId() });
+                new Object[]{publishedEventHolder.getCorrelationId(), customer.getDtuPayId()});
         customerFacade.handleCustomerDeregistered(event);
     }
 

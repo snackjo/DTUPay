@@ -1,9 +1,9 @@
 package behaviourtests;
 
 import dtupay.service.EventNames;
-import dtupay.service.report.ManagerReport;
-import dtupay.service.report.ManagerReportEntry;
-import dtupay.service.report.ReportFacade;
+import dtupay.service.manager.ManagerFacade;
+import dtupay.service.manager.ManagerReport;
+import dtupay.service.manager.ManagerReportEntry;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.mock;
 public class ManagerSteps {
     private final PublishedEventHolder publishedEventHolder;
     private final MessageQueue queueMock = mock(MessageQueue.class);
-    private final ReportFacade reportFacade = new ReportFacade(queueMock);
+    private final ManagerFacade managerFacade = new ManagerFacade(queueMock);
     private Thread requestThread;
     private ManagerReport managerReportGenerated;
 
@@ -31,7 +31,7 @@ public class ManagerSteps {
     @When("a manager requests a report")
     public void aManagerRequestsAReport() {
         requestThread = new Thread(() -> {
-            managerReportGenerated = reportFacade.requestManagerReport();
+            managerReportGenerated = managerFacade.requestManagerReport();
         });
         requestThread.start();
     }
@@ -43,8 +43,8 @@ public class ManagerSteps {
         payments.add(new ManagerReportEntry());
 
         report.setPayments(payments);
-        reportFacade.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED,
-                new Object[]{ publishedEventHolder.getCorrelationId(), report }));
+        managerFacade.handleManagerReportGenerated(new Event(EventNames.MANAGER_REPORT_GENERATED,
+                new Object[]{publishedEventHolder.getCorrelationId(), report}));
     }
 
     @Then("a manager report is returned")

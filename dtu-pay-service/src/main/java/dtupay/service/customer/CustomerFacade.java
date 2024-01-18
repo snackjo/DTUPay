@@ -16,6 +16,7 @@ public class CustomerFacade {
     private final Map<CorrelationId, CompletableFuture<Customer>> customerCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<ResponseObject<List<Token>>>> tokenCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Void>> customerDeregistrationCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<CustomerReport>> customerReportCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
 
     public CustomerFacade(MessageQueue q) {
@@ -24,12 +25,13 @@ public class CustomerFacade {
         queue.addHandler(EventNames.TOKENS_GENERATED, this::handleTokensGenerated);
         queue.addHandler(EventNames.TOKENS_REQUEST_REJECTED, this::handleTokensRequestRejected);
         queue.addHandler(EventNames.CUSTOMER_DEREGISTERED, this::handleCustomerDeregistered);
+        queue.addHandler(EventNames.CUSTOMER_REPORT_GENERATED, this::handleCustomerReportGenerated);
     }
 
     public Customer registerCustomer(Customer customer) {
         CorrelationId correlationId = CorrelationId.randomId();
-        customerCorrelations.put(correlationId,new CompletableFuture<>());
-        Event event = new Event(EventNames.CUSTOMER_REGISTRATION_REQUESTED, new Object[] { correlationId, customer });
+        customerCorrelations.put(correlationId, new CompletableFuture<>());
+        Event event = new Event(EventNames.CUSTOMER_REGISTRATION_REQUESTED, new Object[]{correlationId, customer});
         queue.publish(event);
         Customer response = customerCorrelations.get(correlationId).join();
         customerCorrelations.remove(correlationId);
@@ -80,5 +82,23 @@ public class CustomerFacade {
     public void handleCustomerDeregistered(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         customerDeregistrationCorrelations.get(correlationId).complete(null);
+    }
+
+    public CustomerReport requestCustomerReport(String customerDtuPayId) {
+        CorrelationId correlationId = CorrelationId.randomId();
+        customerReportCorrelations.put(correlationId, new CompletableFuture<>());
+
+        Event event = new Event(EventNames.CUSTOMER_REPORT_REQUESTED, new Object[]{correlationId, customerDtuPayId});
+        queue.publish(event);
+
+        CustomerReport response = customerReportCorrelations.get(correlationId).join();
+        customerReportCorrelations.remove(correlationId);
+        return response;
+    }
+
+    public void handleCustomerReportGenerated(Event event) {
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        CustomerReport report = event.getArgument(1, CustomerReport.class);
+        customerReportCorrelations.get(correlationId).complete(report);
     }
 }

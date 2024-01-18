@@ -1,4 +1,4 @@
-package dtupay.service.report;
+package dtupay.service.customer;
 
 import dtupay.service.Token;
 import lombok.Data;

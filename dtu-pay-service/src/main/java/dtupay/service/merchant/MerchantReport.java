@@ -1,4 +1,4 @@
-package dtupay.service.report;
+package dtupay.service.merchant;
 
 import lombok.Data;
 

@@ -14,6 +14,7 @@ public class MerchantFacade {
     private final Map<CorrelationId, CompletableFuture<Merchant>> merchantCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<String>> paymentCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<Void>> merchantDeregistrationCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<MerchantReport>> merchantReportCorrelations = new ConcurrentHashMap<>();
     private final MessageQueue queue;
 
     public MerchantFacade(MessageQueue q) {
@@ -21,12 +22,13 @@ public class MerchantFacade {
         queue.addHandler(EventNames.MERCHANT_REGISTERED, this::handleMerchantRegistered);
         queue.addHandler(EventNames.PAYMENT_COMPLETED, this::handlePaymentCompleted);
         queue.addHandler(EventNames.MERCHANT_DEREGISTERED, this::handleMerchantDeregistered);
+        queue.addHandler(EventNames.MERCHANT_REPORT_GENERATED, this::handleMerchantReportGenerated);
     }
 
     public Merchant registerMerchant(Merchant merchant) {
         CorrelationId correlationId = CorrelationId.randomId();
         merchantCorrelations.put(correlationId, new CompletableFuture<>());
-        Event event = new Event(EventNames.MERCHANT_REGISTRATION_REQUESTED, new Object[] { correlationId, merchant });
+        Event event = new Event(EventNames.MERCHANT_REGISTRATION_REQUESTED, new Object[]{correlationId, merchant});
         queue.publish(event);
         Merchant response = merchantCorrelations.get(correlationId).join();
         merchantCorrelations.remove(correlationId);
@@ -69,5 +71,23 @@ public class MerchantFacade {
     public void handleMerchantDeregistered(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         merchantDeregistrationCorrelations.get(correlationId).complete(null);
+    }
+
+    public MerchantReport requestMerchantReport(String merchantDtuPayId) {
+        CorrelationId correlationId = CorrelationId.randomId();
+        merchantReportCorrelations.put(correlationId, new CompletableFuture<>());
+
+        Event event = new Event(EventNames.MERCHANT_REPORT_REQUESTED, new Object[]{correlationId, merchantDtuPayId});
+        queue.publish(event);
+
+        MerchantReport response = merchantReportCorrelations.get(correlationId).join();
+        merchantReportCorrelations.remove(correlationId);
+        return response;
+    }
+
+    public void handleMerchantReportGenerated(Event event) {
+        CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        MerchantReport report = event.getArgument(1, MerchantReport.class);
+        merchantReportCorrelations.get(correlationId).complete(report);
     }
 }
