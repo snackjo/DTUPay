@@ -27,23 +27,29 @@ public class PaymentService {
 
     public void handlePaymentRequested(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+
         createPaymentInformationIfNotExists(correlationId);
         paymentInformation.get(correlationId.getId()).setPaymentRequestedEvent(event);
-        publishPaymentComplete(correlationId);
+
+        transferMoneyThroughBank(correlationId);
     }
 
     public void handleCustomerBankAccountFound(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+
         createPaymentInformationIfNotExists(correlationId);
         paymentInformation.get(correlationId.getId()).setCustomerBankAccountFoundEvent(event);
-        publishPaymentComplete(correlationId);
+
+        transferMoneyThroughBank(correlationId);
     }
 
     public void handleMerchantBankAccountFound(Event event) {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+
         createPaymentInformationIfNotExists(correlationId);
         paymentInformation.get(correlationId.getId()).setMerchantBankAccountFoundEvent(event);
-        publishPaymentComplete(correlationId);
+
+        transferMoneyThroughBank(correlationId);
     }
 
     private synchronized void createPaymentInformationIfNotExists(CorrelationId correlationId) {
@@ -52,7 +58,7 @@ public class PaymentService {
         }
     }
 
-    private synchronized void publishPaymentComplete(CorrelationId correlationId) {
+    private synchronized void transferMoneyThroughBank(CorrelationId correlationId) {
         PaymentInformation information = paymentInformation.get(correlationId.getId());
         if (information != null && information.isAllInformationSet()) {
             tryTransferringThroughBank(information);

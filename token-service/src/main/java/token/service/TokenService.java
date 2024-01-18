@@ -23,6 +23,10 @@ public class TokenService {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         Token token = event.getArgument(2, Token.class);
 
+        findTokenMatch(token, correlationId);
+    }
+
+    private void findTokenMatch(Token token, CorrelationId correlationId) {
         String customerDtuPayId = customerRepository.getCustomerByToken(token);
         customerRepository.removeToken(customerDtuPayId, token);
 

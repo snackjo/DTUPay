@@ -56,6 +56,10 @@ public class AccountService {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         String customerDtuPayId = event.getArgument(1, String.class);
 
+        findCustomerBankAccount(customerDtuPayId, correlationId);
+    }
+
+    private void findCustomerBankAccount(String customerDtuPayId, CorrelationId correlationId) {
         String customerAccount;
         try {
             customerAccount = accountRepository.getCustomerAccount(customerDtuPayId);
@@ -70,6 +74,10 @@ public class AccountService {
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
         String merchantDtuPayId = event.getArgument(1, String.class);
 
+        findMerchantBankAccount(merchantDtuPayId, correlationId);
+    }
+
+    private void findMerchantBankAccount(String merchantDtuPayId, CorrelationId correlationId) {
         String merchantAccount;
         try {
             merchantAccount = accountRepository.getMerchantAccount(merchantDtuPayId);
