@@ -31,7 +31,8 @@ public class CustomerResource {
     @APIResponse(
             responseCode = "201",
             content = @Content(mediaType = APPLICATION_JSON,
-                    schema = @Schema(implementation = Customer.class))
+                    schema = @Schema(implementation = Customer.class)),
+            description = "Customer was registered in DTU Pay"
     )
     public Response registerCustomer(Customer registrationRequest) {
         Customer customer = new Customer();
@@ -50,12 +51,14 @@ public class CustomerResource {
             @APIResponse(
                     responseCode = "200",
                     content = @Content(mediaType = APPLICATION_JSON,
-                            schema = @Schema(type = SchemaType.ARRAY, implementation = Token.class))
+                            schema = @Schema(type = SchemaType.ARRAY, implementation = Token.class)),
+                    description = "New tokens were generated for the customer"
             ),
             @APIResponse(
                     responseCode = "400",
                     content = @Content(mediaType = APPLICATION_JSON,
-                            schema = @Schema(implementation = ErrorResponse.class))
+                            schema = @Schema(implementation = ErrorResponse.class)),
+                    description = "Token request was rejected and no tokens were generated"
             )
     })
     public Response requestTokens(@PathParam("dtuPayId") String dtuPayId, TokenRequest tokenRequest) {
@@ -75,7 +78,7 @@ public class CustomerResource {
 
     @DELETE
     @Path("{dtuPayId}")
-    @APIResponse(responseCode = "204")
+    @APIResponse(responseCode = "204", description = "Customer was deregistered from DTU Pay")
     public Response deregisterCustomer(@PathParam("dtuPayId") String dtuPayId) {
         customerFacade.requestCustomerDeregistration(dtuPayId);
         return Response.status(Response.Status.NO_CONTENT).build();

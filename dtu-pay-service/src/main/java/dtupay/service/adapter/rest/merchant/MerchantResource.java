@@ -27,7 +27,8 @@ public class MerchantResource {
     @APIResponse(
             responseCode = "201",
             content = @Content(mediaType = APPLICATION_JSON,
-                    schema = @Schema(implementation = Merchant.class))
+                    schema = @Schema(implementation = Merchant.class)),
+            description = "Merchant was registered in DTU Pay"
     )
     public Response registerMerchant(MerchantRegistrationRequest registrationRequest) {
         Merchant merchant = new Merchant();
@@ -55,7 +56,7 @@ public class MerchantResource {
 
     @DELETE
     @Path("{dtuPayId}")
-    @APIResponse(responseCode = "204")
+    @APIResponse(responseCode = "204", description = "Merchant was deregistered from DTU Pay")
     public Response deregisterMerchant(@PathParam("dtuPayId") String dtuPayId) {
         merchantFacade.requestMerchantDeregistration(dtuPayId);
         return Response.status(Response.Status.NO_CONTENT).build();
