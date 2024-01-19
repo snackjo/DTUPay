@@ -1,5 +1,6 @@
-package dtupay.service.adapter.rest;
+package dtupay.service.adapter.rest.merchant;
 
+import dtupay.service.adapter.rest.MessageQueueFactory;
 import dtupay.service.merchant.Merchant;
 import dtupay.service.merchant.MerchantFacade;
 import dtupay.service.merchant.MerchantReport;
