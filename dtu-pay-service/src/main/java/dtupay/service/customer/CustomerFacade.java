@@ -63,8 +63,8 @@ public class CustomerFacade {
     }
 
     public void handleTokensRequestRejected(Event event) {
-        String errorMessage = "Tokens request rejected";
         CorrelationId correlationId = event.getArgument(0, CorrelationId.class);
+        String errorMessage = event.getArgument(1, String.class);
         ResponseObject<List<Token>> responseObject = new ResponseObject<>(errorMessage);
         tokenCorrelations.get(correlationId).complete(responseObject);
     }

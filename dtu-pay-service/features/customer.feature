@@ -18,6 +18,7 @@ Feature: DTUPay service customer feature
         Then a "TokensRequested" event is published
         When a TokensRequestRejected event is received
         Then a DTUPay exception is thrown
+        And the error message comes from the event
 
     Scenario: Get customer report for successful payment
         When a customer requests a report

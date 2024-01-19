@@ -51,22 +51,31 @@ public class TokenService {
     }
 
     private void generateTokens(int tokenRequestAmount, CorrelationId correlationId, String dtuPayId) {
-        if(tokenRequestAmount > 5 || tokenRequestAmount < 1) {
-            Event publishedEvent = new Event(EventNames.TOKENS_REQUEST_REJECTED, new Object[] {correlationId});
-            queue.publish(publishedEvent);
+        if(tokenRequestAmount < 1) {
+            publishRejectedEvent(correlationId, "You cannot request less than 1 token");
+            return;
+        }
+
+        if(tokenRequestAmount > 5) {
+            publishRejectedEvent(correlationId, "You cannot request more than 5 tokens");
             return;
         }
 
         int numberOfTokens = customerRepository.getCustomer(dtuPayId).getTokens().size();
         if(numberOfTokens > 1) {
-            Event publishedEvent = new Event(EventNames.TOKENS_REQUEST_REJECTED, new Object[] {correlationId});
-            queue.publish(publishedEvent);
+            publishRejectedEvent(correlationId, "You cannot request new tokens when you have more than 1 token");
             return;
         }
 
         customerRepository.addTokensToCustomer(dtuPayId, Token.generateTokens(tokenRequestAmount));
         Event publishedEvent = new Event(EventNames.TOKENS_GENERATED,
                 new Object[] {correlationId, customerRepository.getCustomer(dtuPayId).getTokens() });
+        queue.publish(publishedEvent);
+    }
+
+    private void publishRejectedEvent(CorrelationId correlationId, String message) {
+        Event publishedEvent = new Event(EventNames.TOKENS_REQUEST_REJECTED,
+                new Object[] {correlationId, message });
         queue.publish(publishedEvent);
     }
 

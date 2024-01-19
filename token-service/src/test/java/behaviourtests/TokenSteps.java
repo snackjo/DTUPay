@@ -101,4 +101,10 @@ public class TokenSteps {
     public void theCustomerSDTUPayIdIsReturned() {
         assertEquals(customer.getDtuPayId(), eventCaptor.getValue().getArgument(1, String.class));
     }
+
+    @And("it is rejected with the message {string}")
+    public void itIsRejectedWithTheMessage(String expectedMessage) {
+        String message = eventCaptor.getValue().getArgument(1, String.class);
+        assertEquals(expectedMessage, message);
+    }
 }

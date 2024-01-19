@@ -102,11 +102,11 @@ public class TokenSteps {
 
     @Then("the request is rejected")
     public void theRequestIsRejected() {
-        assertEquals("Tokens request rejected", tokenRequestException.getMessage());
+        assertNotNull(tokenRequestException);
     }
 
-    @When("the customer request {int} tokens twice at the same time")
-    public void theCustomerRequestTokensTwiceAtTheSameTime(int tokenAmount) {
+    @When("the customer requests {int} tokens twice at the same time")
+    public void theCustomerRequestsTokensTwiceAtTheSameTime(int tokenAmount) {
         Thread thread1 = createTokenRequestThread(tokenRequestResult1, customer1, tokenAmount);
         Thread thread2 = createTokenRequestThread(tokenRequestResult2, customer1, tokenAmount);
         thread1.start();
@@ -136,5 +136,10 @@ public class TokenSteps {
                 completableFuture.complete(null);
             }
         });
+    }
+
+    @And("the message is {string}")
+    public void theMessageIs(String expectedMessage) {
+        assertEquals(expectedMessage, tokenRequestException.getMessage());
     }
 }

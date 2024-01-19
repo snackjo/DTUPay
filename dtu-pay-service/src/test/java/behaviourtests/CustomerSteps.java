@@ -7,6 +7,7 @@ import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerFacade;
 import dtupay.service.customer.CustomerReport;
 import dtupay.service.customer.CustomerReportEntry;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -29,6 +30,7 @@ public class CustomerSteps {
     private Customer customerRegistrationResult;
     private Thread requestThread;
     private List<Token> tokensGenerated;
+    private String errorMessage;
     private DtuPayException tokenRequestException;
     private CustomerReport customerReportGenerated;
     private Exception customerDeregistrationException;
@@ -100,14 +102,21 @@ public class CustomerSteps {
 
     @When("a TokensRequestRejected event is received")
     public void aTokensRequestRejectedEventIsReceived() {
+        errorMessage = "Token request was rejected";
         customerFacade.handleTokensRequestRejected(new Event(EventNames.TOKENS_REQUEST_REJECTED,
-                new Object[]{publishedEventHolder.getCorrelationId()}));
+                new Object[]{publishedEventHolder.getCorrelationId(), errorMessage}));
     }
 
     @Then("a DTUPay exception is thrown")
     public void aDTUPayExceptionIsThrown() throws InterruptedException {
         requestThread.join();
         assertNotNull(tokenRequestException);
+    }
+
+    @And("the error message comes from the event")
+    public void theErrorMessageComesFromTheEvent() throws InterruptedException {
+        requestThread.join();
+        assertEquals(errorMessage, tokenRequestException.getMessage());
     }
 
     @When("a customer requests a report")
