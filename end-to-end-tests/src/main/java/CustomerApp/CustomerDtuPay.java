@@ -31,9 +31,9 @@ public class CustomerDtuPay implements AutoCloseable {
             return serverTarget
                     .path(customer.getDtuPayId() + "/tokens")
                     .request()
-                    .post(Entity.entity(tokenAmount, MediaType.APPLICATION_JSON),new GenericType<List<Token>>(){});
+                    .post(Entity.entity(new TokenRequest(tokenAmount), MediaType.APPLICATION_JSON),new GenericType<List<Token>>(){});
         } catch (BadRequestException e) {
-            throw new DtuPayException(e.getResponse().readEntity(String.class));
+            throw new DtuPayException(e.getResponse().readEntity(ErrorResponse.class).getMessage());
         }
     }
 

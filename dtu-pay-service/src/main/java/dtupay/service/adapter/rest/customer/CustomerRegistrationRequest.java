@@ -1,4 +1,4 @@
-package dtupay.service.adapter.rest;
+package dtupay.service.adapter.rest.customer;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
