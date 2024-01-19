@@ -6,8 +6,8 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 public class Payment {
-    String merchantDtuPayId;
-    Token customerToken;
-    int amount;
-    String customerDtuPayId;
+    private String merchantDtuPayId;
+    private Token customerToken;
+    private int amount;
+    private String customerDtuPayId;
 }

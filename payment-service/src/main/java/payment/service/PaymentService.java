@@ -14,7 +14,7 @@ public class PaymentService {
 
     private final Map<String, PaymentInformation> paymentInformation = new ConcurrentHashMap<>();
     private final BankService bank;
-    MessageQueue queue;
+    private final MessageQueue queue;
 
     public PaymentService(MessageQueue q, BankService bank) {
         this.queue = q;

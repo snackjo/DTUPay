@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class CustomerReportEntry {
-    String merchantDtuPayId;
-    Token customerToken;
-    int amount;
+    private String merchantDtuPayId;
+    private Token customerToken;
+    private int amount;
 }
