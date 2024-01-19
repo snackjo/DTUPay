@@ -4,12 +4,14 @@ import dtupay.service.DtuPayException;
 import dtupay.service.customer.Customer;
 import dtupay.service.customer.CustomerFacade;
 import dtupay.service.customer.CustomerReport;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 // @author Bastian
 @Path("/customers")
+@Tag(name = "Customer")
 public class CustomerResource {
 
     private final CustomerFacade customerFacade = new CustomerFacade(new MessageQueueFactory().getQueue());

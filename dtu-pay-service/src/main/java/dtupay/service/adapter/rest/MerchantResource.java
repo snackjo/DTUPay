@@ -3,12 +3,14 @@ package dtupay.service.adapter.rest;
 import dtupay.service.merchant.Merchant;
 import dtupay.service.merchant.MerchantFacade;
 import dtupay.service.merchant.MerchantReport;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 // @author Oliver
 @Path("/merchants")
+@Tag(name = "Merchant")
 public class MerchantResource {
 
     private final MerchantFacade merchantFacade = new MerchantFacade(new MessageQueueFactory().getQueue());
