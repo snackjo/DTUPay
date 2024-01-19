@@ -5,6 +5,7 @@ import CustomerApp.CustomerDtuPay;
 import ManagerApp.ManagerDtuPay;
 import MerchantApp.Merchant;
 import MerchantApp.MerchantDtuPay;
+import MerchantApp.PaymentResponse;
 import Utility.MapperUtility;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceService;
@@ -62,7 +63,7 @@ public class ReportSteps {
         CustomerApp.Token tokenReceivedFromCustomer = customer.provideToken();
 
         MerchantApp.Token token = MapperUtility.mapCustomerTokenToMerchantToken(tokenReceivedFromCustomer);
-        String paymentResponse = merchantDtuPay.requestPayment(100, token, merchant.getDtuPayId());
+        PaymentResponse paymentResponse = merchantDtuPay.requestPayment(100, token, merchant.getDtuPayId());
 
         expectedPayment = new ManagerApp.Payment();
         expectedPayment.setAmount(100);
@@ -70,7 +71,7 @@ public class ReportSteps {
         expectedPayment.setCustomerDtuPayId(customer.getDtuPayId());
         expectedPayment.setMerchantDtuPayId(merchant.getDtuPayId());
 
-        assertEquals("Success", paymentResponse);
+        assertEquals("Success", paymentResponse.getMessage());
     }
 
     @When("the manager requests a report")

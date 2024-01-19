@@ -91,7 +91,7 @@ public class PaymentSteps {
                 merchantDtuPay.requestPayment(
                         paymentAmount,
                         token,
-                        merchants.get(merchantFirstName).getDtuPayId()));
+                        merchants.get(merchantFirstName).getDtuPayId()).getMessage());
     }
 
     @When("{string} wants to request a payment of {int}")
@@ -104,7 +104,7 @@ public class PaymentSteps {
                         merchantDtuPay.requestPayment(
                                 paymentAmount,
                                 token,
-                                merchants.get(merchantFirstName).getDtuPayId()));
+                                merchants.get(merchantFirstName).getDtuPayId()).getMessage());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

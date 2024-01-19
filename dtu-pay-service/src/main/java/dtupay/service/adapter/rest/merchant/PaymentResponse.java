@@ -1,13 +1,13 @@
-package CustomerApp;
+package dtupay.service.adapter.rest.merchant;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// @author Oliver
+// @author Emil
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenRequest {
-    private int tokenAmount;
+public class PaymentResponse {
+    private String message;
 }

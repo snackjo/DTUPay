@@ -27,7 +27,7 @@ public class MerchantDtuPay implements AutoCloseable {
         }
     }
 
-    public String requestPayment(int paymentAmount, Token tokenReceivedFromCustomer, String merchantDtuPayId) throws Exception {
+    public PaymentResponse requestPayment(int paymentAmount, Token tokenReceivedFromCustomer, String merchantDtuPayId) throws Exception {
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setToken(tokenReceivedFromCustomer);
         paymentRequest.setAmount(paymentAmount);
@@ -35,7 +35,7 @@ public class MerchantDtuPay implements AutoCloseable {
             return serverTarget
                     .path(merchantDtuPayId + "/payments")
                     .request()
-                    .post(Entity.entity(paymentRequest, MediaType.APPLICATION_JSON), String.class);
+                    .post(Entity.entity(paymentRequest, MediaType.APPLICATION_JSON), PaymentResponse.class);
         } catch (NotFoundException e) {
             throw new Exception(e);
         }

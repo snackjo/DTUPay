@@ -4,10 +4,15 @@ import dtupay.service.adapter.rest.MessageQueueFactory;
 import dtupay.service.merchant.Merchant;
 import dtupay.service.merchant.MerchantFacade;
 import dtupay.service.merchant.MerchantReport;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 // @author Oliver
 @Path("/merchants")
@@ -19,21 +24,26 @@ public class MerchantResource {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Merchant registerMerchant(MerchantRegistrationRequest registrationRequest) {
+    @APIResponse(
+            responseCode = "201",
+            content = @Content(mediaType = APPLICATION_JSON,
+                    schema = @Schema(implementation = Merchant.class))
+    )
+    public Response registerMerchant(MerchantRegistrationRequest registrationRequest) {
         Merchant merchant = new Merchant();
         merchant.setCprNumber(registrationRequest.getCprNumber());
         merchant.setFirstName(registrationRequest.getFirstName());
         merchant.setLastName(registrationRequest.getLastName());
         merchant.setAccountId(registrationRequest.getAccountId());
-        return merchantFacade.registerMerchant(merchant);
+        return Response.status(201).entity(merchantFacade.registerMerchant(merchant)).build();
     }
 
     @POST
     @Path("{dtuPayId}" + "/payments")
     @Consumes("application/json")
-    @Produces("text/plain")
-    public String requestPayment(@PathParam("dtuPayId") String dtuPayId, PaymentRequest paymentRequest) {
-        return merchantFacade.requestPayment(dtuPayId, paymentRequest.getToken(), paymentRequest.getAmount());
+    @Produces("application/json")
+    public PaymentResponse requestPayment(@PathParam("dtuPayId") String dtuPayId, PaymentRequest paymentRequest) {
+        return new PaymentResponse(merchantFacade.requestPayment(dtuPayId, paymentRequest.getToken(), paymentRequest.getAmount()));
     }
 
     @GET
@@ -45,6 +55,7 @@ public class MerchantResource {
 
     @DELETE
     @Path("{dtuPayId}")
+    @APIResponse(responseCode = "204")
     public Response deregisterMerchant(@PathParam("dtuPayId") String dtuPayId) {
         merchantFacade.requestMerchantDeregistration(dtuPayId);
         return Response.status(Response.Status.NO_CONTENT).build();
