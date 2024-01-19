@@ -58,7 +58,7 @@ public class CustomerResource {
                     responseCode = "400",
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorResponse.class)),
-                    description = "Token request was rejected and no tokens were generated"
+                    description = "No tokens were generated"
             )
     })
     public Response requestTokens(@PathParam("dtuPayId") String dtuPayId, TokenRequest tokenRequest) {
