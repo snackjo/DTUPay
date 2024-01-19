@@ -1,5 +1,6 @@
-package dtupay.service.adapter.rest;
+package dtupay.service.adapter.rest.manager;
 
+import dtupay.service.adapter.rest.MessageQueueFactory;
 import dtupay.service.manager.ManagerFacade;
 import dtupay.service.manager.ManagerReport;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
