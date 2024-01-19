@@ -18,7 +18,12 @@ public class MerchantResource {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Merchant registerMerchant(Merchant merchant) {
+    public Merchant registerMerchant(MerchantRegistrationRequest registrationRequest) {
+        Merchant merchant = new Merchant();
+        merchant.setCprNumber(registrationRequest.getCprNumber());
+        merchant.setFirstName(registrationRequest.getFirstName());
+        merchant.setLastName(registrationRequest.getLastName());
+        merchant.setAccountId(registrationRequest.getAccountId());
         return merchantFacade.registerMerchant(merchant);
     }
 

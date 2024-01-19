@@ -20,7 +20,12 @@ public class CustomerResource {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Customer registerCustomer(Customer customer) {
+    public Customer registerCustomer(Customer registrationRequest) {
+        Customer customer = new Customer();
+        customer.setCprNumber(registrationRequest.getCprNumber());
+        customer.setFirstName(registrationRequest.getFirstName());
+        customer.setLastName(registrationRequest.getLastName());
+        customer.setAccountId(registrationRequest.getAccountId());
         return customerFacade.registerCustomer(customer);
     }
 
