@@ -6,7 +6,7 @@ import lombok.Data;
 // @author Emil
 @Data
 public class CustomerReportEntry {
-    String merchantDtuPayId;
-    Token customerToken;
-    int amount;
+    private String merchantDtuPayId;
+    private Token customerToken;
+    private int amount;
 }

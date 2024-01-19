@@ -6,6 +6,6 @@ import lombok.Data;
 // @author Emil
 @Data
 public class MerchantReportEntry {
-    Token customerToken;
-    int amount;
+    private Token customerToken;
+    private int amount;
 }

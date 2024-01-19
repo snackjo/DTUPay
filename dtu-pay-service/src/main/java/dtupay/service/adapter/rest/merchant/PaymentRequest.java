@@ -6,6 +6,6 @@ import lombok.Data;
 // @author Peter
 @Data
 public class PaymentRequest {
-    Token token;
-    int amount;
+    private Token token;
+    private int amount;
 }

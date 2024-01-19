@@ -8,5 +8,5 @@ import java.util.List;
 // @author Oliver
 @Data
 public class ManagerReport {
-    List<ManagerReportEntry> payments = new ArrayList<>();
+    private List<ManagerReportEntry> payments = new ArrayList<>();
 }
